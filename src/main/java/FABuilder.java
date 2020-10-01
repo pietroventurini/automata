@@ -1,21 +1,39 @@
 import com.google.common.graph.MutableNetwork;
 import com.google.common.graph.NetworkBuilder;
 
-public class FABuilder extends GraphBuilder<State, Transition> {
+public class FABuilder implements GraphBuilder<State, Transition> {
+
+    private MutableNetwork<State, Transition> network;
 
     /**
      * Invokes the constructor of the superclass, which instantiates the underlying network
      */
     public FABuilder() {
-        super();
-        /* here we can set additional properties of network (which is inherited from GraphBuilder)
-         * that are specific for a FA. Examples of properties are: allowSelfLoops,
-         * immutable, edgeOrder, nodeOrder... */
+        network = NetworkBuilder.directed()
+                .allowsParallelEdges(true)
+                .allowsSelfLoops(true)
+                .build();
+    }
+
+    public FABuilder putState(State nodeU) {
+        network.addNode(nodeU);
+        return this;
+    }
+
+    public FABuilder putTransition(State nodeU, State nodeV, Transition transition) {
+        network.addEdge(nodeU, nodeV, transition);
+        return this;
     }
 
     public FA build() {
-        // TODO: validate the FA before creating it: check that exists one and only one initial state
+        /* TODO: if we want to validate a FA during construction, we should have
+        * methods addTransition and so on, into the builder, and validate before creation.
+        * Problem: if we do so, if we wanted to add a new transition to the existing FA,
+        * we would have to validate it one more time, so, maybe, is better to leave addTransition into the FA
+        * as it happens with Graph/Network of the Guava library
+        */
         // validate()
-        return new FA(this.network);
+        return new FA(network);
     }
+
 }

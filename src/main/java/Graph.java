@@ -1,5 +1,7 @@
 import com.google.common.graph.MutableNetwork;
 
+import java.util.Set;
+
 /**
  * An abstract structure that represents a graph (it can be a FA, a behavioral FA, a network of BFA,
  * a behavioral space, ...)
@@ -15,5 +17,13 @@ public abstract class Graph<N extends Node, E extends Edge> {
 
     public Graph(MutableNetwork<N, E> network) {
         this.network = network;
+    }
+
+    Set<E> getEdges() {
+        return network.edges();
+    }
+
+    boolean addEdge(N nodeU, N nodeV, E edge) {
+        return network.addEdge(nodeU, nodeV, edge);
     }
 }

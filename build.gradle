@@ -2,7 +2,7 @@ plugins {
     id 'java'
 }
 
-group 'org.example'
+group 'org.unibs'
 version '1.0-SNAPSHOT'
 
 repositories {
@@ -10,7 +10,15 @@ repositories {
 }
 
 dependencies {
-    implementation 'org.junit.jupiter:junit-jupiter:5.4.2'
-    testCompile group: 'junit', name: 'junit', version: '4.12'
+    //implementation 'org.junit.jupiter:junit-jupiter:5.4.2'
+    //testCompile group: 'junit', name: 'junit', version: '4.12'
+    testImplementation("org.junit.jupiter:junit-jupiter-api:5.6.0")
+    testRuntimeOnly("org.junit.jupiter:junit-jupiter-engine")
     implementation 'com.google.guava:guava:29.0-jre'
 }
+
+test {
+    useJUnitPlatform()
+}
+
+

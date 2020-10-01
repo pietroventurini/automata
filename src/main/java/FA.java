@@ -19,6 +19,8 @@ public class FA extends Graph<State,Transition> {
      * Just for testing purposes, later on we will build it from a file containing
      * states and transitions
      * @param network the underlying network of the FA
+     * @throws NoSuchElementException if the iterable is empty
+     * @throws IllegalArgumentException if the iterable contains multiple elements
      */
     public FA(MutableNetwork<State,Transition> network) {
         super(network);
@@ -47,6 +49,7 @@ public class FA extends Graph<State,Transition> {
     private State retrieveInitialState() {
         return network.nodes()
                 .stream()
+                .filter(State::isInitial)
                 .collect(MoreCollectors.onlyElement());
     }
 
@@ -73,5 +76,14 @@ public class FA extends Graph<State,Transition> {
 
     public Set<State> getFinalStates() {
         return finalStates;
+    }
+
+
+    /**
+     * Since edges of a FA are called transitions, this is a facade to Graph.getEdges()
+     * @return the set of transitions of the FA
+     */
+    public Set<Transition> getTransitions() {
+        return getEdges();
     }
 }

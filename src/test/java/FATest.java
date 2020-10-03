@@ -3,6 +3,7 @@ import org.junit.jupiter.api.Test;
 
 import java.util.NoSuchElementException;
 import java.util.Set;
+
 import static org.junit.jupiter.api.Assertions.*;
 
 public class FATest {
@@ -38,7 +39,16 @@ public class FATest {
      */
     @Test
     public void itShouldBuildFA() {
-        fa = faBuilder.putTransition(s0, s1, t01)
+        fa = buildFAofPage9();
+        assertSame(fa.getInitialState(), initialState);
+        assertEquals(fa.getFinalStates(), finalStates);
+    }
+
+    /**
+     * Build the FA from the example of page 9 of the project desctiption
+     */
+    private FA buildFAofPage9() {
+        return faBuilder.putTransition(s0, s1, t01)
                 .putTransition(s0, s2, t02)
                 .putTransition(s1, s3, t13)
                 .putTransition(s3, s3, t33)
@@ -46,8 +56,6 @@ public class FATest {
                 .putTransition(s2, s2, t22)
                 .putTransition(s2, s3, t23)
                 .build();
-        assertSame(fa.getInitialState(), initialState);
-        assertEquals(fa.getFinalStates(), finalStates);
     }
 
     /**
@@ -95,13 +103,18 @@ public class FATest {
 
     @Test
     public void itShouldComputeAcceptedLanguageRelativeToASingleAcceptanceState() {
-        //TODO: implement EspressioneRegolare(N_in)
-        fail("Test not yet implemented");
+        String acceptedLanguage = AcceptedLanguage.reduceFAtoRegex(buildFAofPage9());
+        assertTrue(acceptedLanguage.equals("aa*c|ac*ba*c")
+                        || acceptedLanguage.equals("a(a*|c*ba*)c")
+                        || acceptedLanguage.equals("a(c*b)?a*c")
+        );
     }
 
     @Test
-    public void itShouldComputeAcceptedLanguageRelativeToAllAcceptanceStates() {
+    public void itShouldComputeAcceptedLanguagesRelativeToEachAcceptanceState() {
         //TODO: implement EspressioniRegolari(N_in)
         fail("Test not yet implemented");
     }
+
+
 }

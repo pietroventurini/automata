@@ -1,8 +1,7 @@
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
-import static org.junit.jupiter.api.Assertions.assertFalse;
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.*;
 
 public class StateBuilderTest {
 
@@ -37,5 +36,12 @@ public class StateBuilderTest {
     public void itShouldBuildFinalAndInitialState() {
         State state = sb.isFinal(true).isInitial(true).build();
         assertTrue(state.isFinal() && state.isInitial());
+    }
+
+    @Test
+    public void itShouldConvertInitialStateToNoninitial() {
+        State state = sb.isInitial(true).build();
+        state.isInitial(false);
+        assertFalse(state.isInitial());
     }
 }

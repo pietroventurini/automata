@@ -46,5 +46,21 @@ public class State implements Node {
         this.type = type;
     }
 
+    public void isInitial(boolean isInitial) {
+        if (isInitial) {
+            type.add(StateType.INITIAL);
+        } else {
+            type.remove(StateType.INITIAL);
+        }
+    }
+
+    public void isFinal(boolean isFinal) {
+        if (isFinal) {
+            type.add(StateType.FINAL);
+        } else {
+            type.remove(StateType.FINAL);
+        }
+    }
+
 
 }

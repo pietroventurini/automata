@@ -69,7 +69,7 @@ public class FA extends Graph<State,Transition> {
      * @return the underlying network
      */
     public MutableNetwork<State, Transition> getNetwork() {
-        return network;
+        return super.network;
     }
 
     public State getInitialState() {
@@ -113,4 +113,14 @@ public class FA extends Graph<State,Transition> {
                 throw new IllegalStateException();
         return true;
     }
+
+    /**
+     * Reduce the FA to an equivalent regular expression describing the language accepted from the FA
+     * by applying the algorithm RegularExpression(Nin) described at page 11 of the project description.
+     * @return the accepted language
+     */
+    public String regularExpression() {
+        return AcceptedLanguage.reduceFAtoRegex(this);
+    }
+
 }

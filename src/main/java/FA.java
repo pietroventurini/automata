@@ -26,6 +26,7 @@ public class FA extends Graph<State,Transition> {
         super(network);
         this.initialState = retrieveInitialState();
         this.finalStates = retrieveFinalStates();
+        validate();
     }
 
     /**
@@ -39,6 +40,7 @@ public class FA extends Graph<State,Transition> {
         super(network);
         this.initialState = initialState;
         this.finalStates = finalStates;
+        validate();
     }
 
     /**
@@ -78,12 +80,37 @@ public class FA extends Graph<State,Transition> {
         return finalStates;
     }
 
-
     /**
      * Since edges of a FA are called transitions, this is a facade to Graph.getEdges()
      * @return the set of transitions of the FA
      */
     public Set<Transition> getTransitions() {
         return getEdges();
+    }
+
+    private Set<State> getIsolatedStates() {
+        return network.nodes()
+                .stream()
+                .filter(n -> network.degree(n) == 0)
+                .collect(Collectors.toSet());
+    }
+
+    @Override
+    boolean validate() {
+        return hasOnlyOneInitialState() && thereAreNoIsolatedStates();
+    }
+
+    private boolean hasOnlyOneInitialState() {
+        return retrieveInitialState() == initialState;
+    }
+
+    /**
+     * Check that, unless the set of states contains only one state, then there are no isolated states
+     */
+    private boolean thereAreNoIsolatedStates() {
+        if (network.nodes().size() > 1)
+            if (getIsolatedStates().size() > 0)
+                throw new IllegalStateException();
+        return true;
     }
 }

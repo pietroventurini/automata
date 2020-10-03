@@ -26,4 +26,9 @@ public abstract class Graph<N extends Node, E extends Edge> {
     boolean addEdge(N nodeU, N nodeV, E edge) {
         return network.addEdge(nodeU, nodeV, edge);
     }
+
+    /**
+     * Validate the internal state of the graph
+     */
+    abstract boolean validate();
 }

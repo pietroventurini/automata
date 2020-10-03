@@ -3,16 +3,16 @@
 **Consegna:** Produrre lo spazio comportamentale di una rete finita di FA comportamentali data.
 
 ### Automa a stati (FA = Finite Automata)
-- insieme non vuoto di **stati** e insieme (anche vuoto) di **transizioni**
-- un solo **stato iniziale** e un insieme di **stati di accettazione** (anche quello iniziale può esserlo)
-- ad ogni transizione corrisponde un simbolo di un alfabeto
+- insieme non vuoto di **stati** e insieme (anche vuoto) di **transizioni** ✅
+- un solo **stato iniziale** e un insieme di **stati di accettazione** (anche quello iniziale può esserlo) ✅
+- ad ogni transizione corrisponde un simbolo di un alfabeto 
 - convertibile in Regex che descrive il linguaggio accettato dal FA (algoritmo: EspressioneRegolare)  
 - poter ricavare linguaggio accettato (algoritmo: EspressioniRegolari)  
 
 #### Osservazioni
 - le transizioni hanno un simbolo associato, ma quando eseguo EspressioneRegolare
 vado ad associare delle regex alle transizioni. Conviene forse considerare il
-simbolo iniziale come una semplicissima regex?
+simbolo iniziale anch'esso come una regex?
 - EspressioniRegolari, per ciascun stato di accettazione marca la corrispondente
 regex con un pedice. Come lo si codifica?
 

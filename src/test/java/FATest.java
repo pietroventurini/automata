@@ -71,9 +71,37 @@ public class FATest {
 
     }
 
+    /**
+     * Try to construct a FA that contains isolated states and check that an IllegalStateException is thrown
+     */
     @Test
-    public void itShouldNotContainIsolatedStates() {
-        //TODO: implement test: if the set of states is not a singleton, then there must not be isolated states
+    public void itShouldThrowExceptionIfContainsIsolatedStates() {
+        assertThrows(IllegalStateException.class, () -> {
+            faBuilder.putState(new StateBuilder("initialIsolatedState").isInitial(true).build())
+                    .putState(new StateBuilder("anotherIsolatedState").build())
+                    .build();
+        });
+    }
+
+    /**
+     * Check that if the set of states contains isolated states only if the set of states is a singleton
+     */
+    @Test
+    public void itShouldAllowIsolatedStateIfThereIsOnlyOneState() {
+        fa = faBuilder.putState(new StateBuilder("theOnlyState").isInitial(true).build())
+                .build();
+        assertTrue(fa.validate());
+    }
+
+    @Test
+    public void itShouldComputeAcceptedLanguageRelativeToASingleAcceptanceState() {
+        //TODO: implement EspressioneRegolare(N_in)
+        fail("Test not yet implemented");
+    }
+
+    @Test
+    public void itShouldComputeAcceptedLanguageRelativeToAllAcceptanceStates() {
+        //TODO: implement EspressioniRegolari(N_in)
         fail("Test not yet implemented");
     }
 }

@@ -39,7 +39,7 @@ public class FATest {
      */
     @Test
     public void itShouldBuildFA() {
-        fa = buildFAofPage9();
+        fa = FAofPage9();
         assertSame(fa.getInitialState(), initialState);
         assertEquals(fa.getFinalStates(), finalStates);
     }
@@ -47,7 +47,7 @@ public class FATest {
     /**
      * Build the FA from the example of page 9 of the project desctiption
      */
-    private FA buildFAofPage9() {
+    private FA FAofPage9() {
         return faBuilder.putTransition(s0, s1, t01)
                 .putTransition(s0, s2, t02)
                 .putTransition(s1, s3, t13)
@@ -55,6 +55,14 @@ public class FATest {
                 .putTransition(s3, s4, t34)
                 .putTransition(s2, s2, t22)
                 .putTransition(s2, s3, t23)
+                .build();
+    }
+
+    /**
+     * Build a FA having only one state
+     */
+    private FA FAWithOnlyOneState() {
+        return faBuilder.putState(new StateBuilder("theOnlyState").isInitial(true).build())
                 .build();
     }
 
@@ -96,20 +104,46 @@ public class FATest {
      */
     @Test
     public void itShouldAllowIsolatedStateIfThereIsOnlyOneState() {
-        fa = faBuilder.putState(new StateBuilder("theOnlyState").isInitial(true).build())
-                .build();
+        fa = FAWithOnlyOneState();
         assertTrue(fa.validate());
     }
 
+    /**
+     * Check the example of 13 computing the accepted language of the FA of page 9
+     */
     @Test
     public void itShouldComputeAcceptedLanguageRelativeToASingleAcceptanceState() {
-        String acceptedLanguage = AcceptedLanguage.reduceFAtoRegex(buildFAofPage9());
+        String acceptedLanguage = AcceptedLanguage.reduceFAtoRegex(FAofPage9());
         assertTrue(acceptedLanguage.equals("aa*c|ac*ba*c")
                         || acceptedLanguage.equals("a(a*|c*ba*)c")
                         || acceptedLanguage.equals("a(c*b)?a*c")
         );
     }
 
+    /**
+     * Check the degenerate case of a FA with only one state without a self-loop.
+     */
+    @Test
+    public void itShouldComputeAcceptedLanguageOfSingleState() {
+        String acceptedLanguage = AcceptedLanguage.reduceFAtoRegex(FAWithOnlyOneState());
+        assertEquals("", acceptedLanguage);
+    }
+
+    /**
+     * Check the degenerate case of a FA with only one state with a self-loop.
+     */
+    @Test
+    public void itShouldComputeAcceptedLanguageOfSingleStateWithSelfLoop() {
+        FA fa = FAWithOnlyOneState();
+        // add the self-loop
+        fa.addEdge(fa.getInitialState(), fa.getInitialState(), new Transition("a"));
+        String acceptedLanguage = AcceptedLanguage.reduceFAtoRegex(fa);
+        assertEquals("a*", acceptedLanguage);
+    }
+
+    /**
+     * Check the example of page 21 applying the EspressioniRegolari described at pages 17-20
+     */
     @Test
     public void itShouldComputeAcceptedLanguagesRelativeToEachAcceptanceState() {
         //TODO: implement EspressioniRegolari(N_in)

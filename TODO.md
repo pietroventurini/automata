@@ -13,6 +13,8 @@
 - le transizioni hanno un simbolo associato, ma quando eseguo EspressioneRegolare
 vado ad associare delle regex alle transizioni. Conviene forse considerare il
 simbolo iniziale anch'esso come una regex?
+- in EspressioneRegolare, al posto di cercare **sequenze** di nodi con inDegree=outDegree=1 possiamo elaborare un singolo nodo 
+ad ogni iterazione del ciclo while ()
 - EspressioniRegolari, per ciascun stato di accettazione marca la corrispondente
 regex con un pedice. Come lo si codifica?
 

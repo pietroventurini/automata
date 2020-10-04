@@ -26,7 +26,7 @@ public class FABuilder implements GraphBuilder<State, Transition> {
     }
 
     public FA build() {
-        /* TODO: if we want to validate a FA during construction, we should have
+        /* FIXME: if we want to validate a FA during construction, we should have
         * methods addTransition and so on, into the builder, and validate before creation.
         * Problem: if we do so, if we wanted to add a new transition to the existing FA,
         * we would have to validate it one more time, so, maybe, is better to leave addTransition into the FA

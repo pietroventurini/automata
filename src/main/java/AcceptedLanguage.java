@@ -2,6 +2,7 @@ import com.google.common.collect.MoreCollectors;
 import com.google.common.graph.MutableNetwork;
 import com.google.common.graph.NetworkBuilder;
 
+import java.util.NoSuchElementException;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -12,6 +13,8 @@ import java.util.stream.Collectors;
  */
 public final class AcceptedLanguage {
 
+    private static MutableNetwork<State, Transition> network;
+
     private AcceptedLanguage(){}
 
     /**
@@ -21,32 +24,30 @@ public final class AcceptedLanguage {
      * @return the accepted language
      */
     public static final String reduceFAtoRegex(FA fa) {
-        MutableNetwork<State, Transition> network = NetworkBuilder.from(fa.getNetwork()).build();
+        network = NetworkBuilder.from(fa.getNetwork()).build();
 
         // retrieve the surrogate initial state and the surrogate final state
-        State n0 = createSurrogateInitialState(network);
-        State nq = createSurrogateFinalState(network);
+        State n0 = createSurrogateInitialState();
+        State nq = createSurrogateFinalState();
 
-        boolean reduced;
         while (network.edges().size() > 1) {
-            reduced = false;
-            reduced = concatenateSequenceOfTransitions(network); // rows 16-17
-            if (!reduced)
-                reduced = reduceSetOfParallelTransitions(network); // rows 18-19
-            if (!reduced)
-                removeIntermediateNode(network); // rows 20-32
+            if (thereIsASequenceOfTransitions()) {
+                concatenateSequenceOfTransitions();
+            } else if (thereAreParallelTransitions()) {
+                reduceSetOfParallelTransitions(); // rows 18-19
+            } else {
+                reduceRemainingNodes(); // rows 20-32
+            }
         }
-
         return network.edgeConnecting(n0, nq).get().getSymbol();
     }
 
     /**
      * If there are ingoing edges into the initial state beta0, create a surrogate initial state n0
      * and an epsilon-transition from n0 to beta0.
-     * @param network the underlying network of the current FA
      * @return the surrogate initial State n0
      */
-    private static final State createSurrogateInitialState(MutableNetwork<State, Transition> network) {
+    private static final State createSurrogateInitialState() {
         // retrieve the initial state
         State n0 = network.nodes()
                 .stream()
@@ -65,10 +66,9 @@ public final class AcceptedLanguage {
     /**
      * If there are multiple acceptance states {beta_q} or if there are outgoing edges from the only final state beta_q,
      * create a surrogate final state nq and epsilon-transitions from each beta_q to nq.
-     * @param network the underlying network of the current FA
      * @return the surrogate final State nq
      */
-    private static final State createSurrogateFinalState(MutableNetwork<State, Transition> network) {
+    private static final State createSurrogateFinalState() {
         Set<State> finalStates = network.nodes()
                 .stream()
                 .filter(State::isFinal)
@@ -98,12 +98,21 @@ public final class AcceptedLanguage {
     }
 
     /**
-     * Check if there is a sequence of nodes having inDegree=outDegree=1 and remove them by merging into
-     * a single transition the entering transition and the outgoing one.
-     * @return false if there isn't any node that can be removed, true if the network has been reduced by
-     * concatenating a sequence of transitions according to the rule.
+     * (row 16 of page 11) Check if there is a sequence whose intermediate states have all only one entering transition
+     * and only one outgoing one. We do that by just looking for a state with inDegree=outDegree=1.
+     * @return true if such state exists, false otherwise
      */
-    private static final boolean concatenateSequenceOfTransitions(MutableNetwork<State, Transition> network) {
+    private static final boolean thereIsASequenceOfTransitions() {
+        return network.nodes()
+                    .stream()
+                    .anyMatch(n -> network.inDegree(n) == 1 && network.outDegree(n) == 1);
+    }
+
+    /**
+     * (row 17 of page 11) Reduce a sequence of states having inDegree=outDegree=1 by merging them into
+     * a single transition from the first to the last state of the original sequence.
+     */
+    private static final void concatenateSequenceOfTransitions() {
 
         // retrieve, if it exists, a node with a single incident edge and a single outgoing edge
         State intermediate = network.nodes()
@@ -112,7 +121,7 @@ public final class AcceptedLanguage {
                                             .findAny()
                                             .get();
         if (intermediate == null)
-            return false;
+            throw new NoSuchElementException();
 
         //retrieve the predecessor node of the intermediate one
         State predecessor = network.predecessors(intermediate)
@@ -143,16 +152,32 @@ public final class AcceptedLanguage {
                 intermediate = successor;
                 successor = network.successors(intermediate).stream().collect(MoreCollectors.onlyElement());
             } else {
-                return true;
+                return;
             }
         }
     }
 
-    private static final boolean reduceSetOfParallelTransitions(MutableNetwork<State, Transition> network) {
+    /**
+     * (row 18 of page 11) Check if there is a pair of states with multiple parallel transitions between them.
+     * @return true such states exist, false otherwise
+     */
+    private static final boolean thereAreParallelTransitions() {
+        //TODO: implement method
+        return false;
+    }
+
+    /**
+     * (row 19 of page 11) Reduce a set of parallel transitions to a single transition which symbol is the
+     * alternation between each transition's symbol.
+     */
+    private static final void reduceSetOfParallelTransitions() {
         //TODO: (18-19) else if it exists a set of parallel transitions, reduce it to a single transition
     }
 
-    private static final boolean removeIntermediateNode(MutableNetwork<State, Transition> network) {
+    /**
+     * (row 20-32 of page 11)
+     */
+    private static final void reduceRemainingNodes() {
         //TODO: (20-32) else handle remaining nodes
     }
 }

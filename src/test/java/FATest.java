@@ -62,7 +62,7 @@ public class FATest {
      * Build a FA having only one state
      */
     private FA FAWithOnlyOneState() {
-        return faBuilder.putState(new StateBuilder("theOnlyState").isInitial(true).build())
+        return faBuilder.putState(new StateBuilder("theOnlyState").isInitial(true).isFinal(true).build())
                 .build();
     }
 
@@ -71,7 +71,15 @@ public class FATest {
      */
     @Test
     public void itShouldThrowExceptionIfInitialStateIsMissingWhenBuilding() {
-        assertThrows(NoSuchElementException.class, () -> faBuilder.putState(s1).build());
+        assertThrows(NoSuchElementException.class, () -> faBuilder.putState(s4).build());
+    }
+
+    /**
+     * Construct a FA without any final state and check that it throws an IllegalStateException
+     */
+    @Test
+    public void itShouldThrowExceptionIfThereIsntAnyFinalState() {
+        assertThrows(IllegalStateException.class, () -> faBuilder.putState(s0).build());
     }
 
     /**
@@ -81,7 +89,7 @@ public class FATest {
     public void itShouldThrowExceptionIfMoreThanOneInitialStateWhenBuilding() {
         assertThrows(IllegalArgumentException.class,
                     () -> faBuilder.putState(new StateBuilder("anInitialState").isInitial(true).build())
-                                .putState(new StateBuilder("anotherInitialState").isInitial(true).build())
+                                .putState(new StateBuilder("anotherInitialState").isInitial(true).isFinal(true).build())
                                 .build()
         );
 
@@ -94,7 +102,7 @@ public class FATest {
     public void itShouldThrowExceptionIfContainsIsolatedStates() {
         assertThrows(IllegalStateException.class, () -> {
             faBuilder.putState(new StateBuilder("initialIsolatedState").isInitial(true).build())
-                    .putState(new StateBuilder("anotherIsolatedState").build())
+                    .putState(new StateBuilder("anotherIsolatedState").isFinal(true).build())
                     .build();
         });
     }
@@ -112,7 +120,7 @@ public class FATest {
      * Check the example of 13 computing the accepted language of the FA of page 9
      */
     @Test
-    public void itShouldComputeAcceptedLanguageRelativeToASingleAcceptanceState() {
+    public void itShouldComputeLanguageAcceptedFromFA() {
         String acceptedLanguage = AcceptedLanguage.reduceFAtoRegex(FAofPage9());
         assertTrue(acceptedLanguage.equals("aa*c|ac*ba*c")
                         || acceptedLanguage.equals("a(a*|c*ba*)c")
@@ -138,7 +146,7 @@ public class FATest {
         // add the self-loop
         fa.addEdge(fa.getInitialState(), fa.getInitialState(), new Transition("a"));
         String acceptedLanguage = AcceptedLanguage.reduceFAtoRegex(fa);
-        assertEquals("a*", acceptedLanguage);
+        assertEquals("(a)*", acceptedLanguage);
     }
 
     /**

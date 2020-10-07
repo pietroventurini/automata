@@ -1,10 +1,13 @@
 import com.google.common.collect.MoreCollectors;
+import com.google.common.graph.EndpointPair;
+import com.google.common.graph.Graphs;
 import com.google.common.graph.MutableNetwork;
-import com.google.common.graph.NetworkBuilder;
 
-import java.util.NoSuchElementException;
-import java.util.Set;
+import java.util.*;
+import java.util.function.Predicate;
 import java.util.stream.Collectors;
+
+import static java.util.function.Predicate.not;
 
 /**
  * This class implements the functionality described by algorithms EspressioneRegolare (page 9) and
@@ -12,7 +15,7 @@ import java.util.stream.Collectors;
  * FIXME: Rewrite and restructure the code in a better way
  */
 public final class AcceptedLanguage {
-
+    private static final String EMPTY_STRING = "";
     private static MutableNetwork<State, Transition> network;
 
     private AcceptedLanguage(){}
@@ -24,7 +27,7 @@ public final class AcceptedLanguage {
      * @return the accepted language
      */
     public static final String reduceFAtoRegex(FA fa) {
-        network = NetworkBuilder.from(fa.getNetwork()).build();
+        network = Graphs.copyOf(fa.getNetwork());
 
         // retrieve the surrogate initial state and the surrogate final state
         State n0 = createSurrogateInitialState();
@@ -34,12 +37,15 @@ public final class AcceptedLanguage {
             if (thereIsASequenceOfTransitions()) {
                 concatenateSequenceOfTransitions();
             } else if (thereAreParallelTransitions()) {
-                reduceSetOfParallelTransitions(); // rows 18-19
+                reduceSetOfParallelTransitions();
             } else {
-                reduceRemainingNodes(); // rows 20-32
+                reduceRemainingNodes();
             }
         }
-        return network.edgeConnecting(n0, nq).get().getSymbol();
+        Optional<Transition> onlyTransition = network.edgeConnecting(n0, nq);
+        if (onlyTransition.isEmpty())
+            return EMPTY_STRING;
+        return onlyTransition.get().getSymbol();
     }
 
     /**
@@ -58,7 +64,7 @@ public final class AcceptedLanguage {
             n0.isInitial(false);
             State beta0 = n0;
             n0 = new StateBuilder("n0").isInitial(true).build();
-            network.addEdge(n0, beta0, new Transition(""));
+            network.addEdge(n0, beta0, new Transition(EMPTY_STRING));
         }
         return n0;
     }
@@ -90,7 +96,7 @@ public final class AcceptedLanguage {
         if (finalStates.size() > 1 || outgoing) {
             for (State beta_q : finalStates) {
                 beta_q.isFinal(false);
-                network.addEdge(beta_q, nq, new Transition("")); // add eps-transition
+                network.addEdge(beta_q, nq, new Transition(EMPTY_STRING)); // add eps-transition
             }
         }
 
@@ -158,12 +164,27 @@ public final class AcceptedLanguage {
     }
 
     /**
+     * Check if there exist sets of parallel transitions, if so, return the first one found, otherwise return an empty set
+     * @return
+     */
+    private static final Set<Transition> getParallelTransitions() {
+        Set<Transition> transitions;
+        for (State n1 : network.nodes()) {
+            for (State n2 : network.nodes()) {
+                transitions = network.edgesConnecting(n1, n2);
+                if (transitions.size() > 1)
+                    return transitions;
+            }
+        }
+        return Collections.<Transition>emptySet();
+    }
+
+    /**
      * (row 18 of page 11) Check if there is a pair of states with multiple parallel transitions between them.
      * @return true such states exist, false otherwise
      */
     private static final boolean thereAreParallelTransitions() {
-        //TODO: implement method
-        return false;
+       return getParallelTransitions().isEmpty() ? false : true;
     }
 
     /**
@@ -171,13 +192,64 @@ public final class AcceptedLanguage {
      * alternation between each transition's symbol.
      */
     private static final void reduceSetOfParallelTransitions() {
-        //TODO: (18-19) else if it exists a set of parallel transitions, reduce it to a single transition
+
+        // retrieve a set of parallel transitions
+        Set<Transition> transitions = getParallelTransitions();
+
+        // build the new symbol which is the alternation between the symbols of each transition
+        String newSymbol = transitions.stream()
+                .map(Transition::getSymbol)
+                .collect(Collectors.joining("|"));
+
+        // Retrieve the two endpoints (states) of the considered parallel transitions
+        EndpointPair<State> stateEndpointPair = network.incidentNodes(transitions.stream().findAny().get());
+
+        // remove old parallel transitions
+        //FIXME: network only provides a method for removing a single edge at a time... transitions is an immutablecollection
+        //  so I don't know how to remove from the network all the edges in transitions...
+        for (Iterator<Transition> iterator = transitions.iterator(); iterator.hasNext();) {
+            Transition t = iterator.next();
+            network.removeEdge(t);
+        }
+
+        // Create and add the new transition
+        network.addEdge(stateEndpointPair, new Transition(newSymbol));
     }
 
     /**
      * (row 20-32 of page 11)
      */
     private static final void reduceRemainingNodes() {
-        //TODO: (20-32) else handle remaining nodes
+        State n = network.nodes()
+                .stream()
+                .filter(not((Predicate<State>)State::isInitial).and(not(State::isFinal)))
+                .findAny()
+                .get();
+
+        Set<Transition> ingoingTransitions = network.inEdges(n); // transitions of the form ( n' -> n )
+        Set<Transition> outgoingTransitions = network.outEdges(n); // transitions of the form ( n -> n" )
+        Optional<Transition> selfLoopTransition = network.edgeConnecting(n, n);
+
+        for (Transition t1 : ingoingTransitions) {
+            for (Transition t2 : outgoingTransitions) {
+                // if none between t1 and t2 is the self-loop transition
+                if (!t1.equals(selfLoopTransition.get()) && !t2.equals(selfLoopTransition.get())) {
+                    State n1 = network.incidentNodes(t1).nodeU();
+                    State n2 = network.incidentNodes(t2).nodeV();
+                    if (selfLoopTransition.isPresent()) {
+                        String newSymbol = new StringBuilder()
+                                .append(t1.getSymbol())
+                                .append("(" + selfLoopTransition.get().getSymbol() + ")*")
+                                .append(t2.getSymbol())
+                                .toString();
+                        network.addEdge(n1, n2, new Transition(newSymbol));
+                    } else {
+                        network.addEdge(n1, n2, new Transition(t1.getSymbol().concat(t2.getSymbol())));
+                    }
+                }
+            }
+        }
+        // remove node n and all its adjacent transitions
+        network.removeNode(n);
     }
 }

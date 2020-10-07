@@ -97,7 +97,10 @@ public class FA extends Graph<State,Transition> {
 
     @Override
     boolean validate() {
-        return hasOnlyOneInitialState() && thereAreNoIsolatedStates();
+        if (hasOnlyOneInitialState() && thereAreNoIsolatedStates() && hasAtLeastOneFinalState())
+            return true;
+        else
+            throw new IllegalStateException();
     }
 
     private boolean hasOnlyOneInitialState() {
@@ -112,6 +115,10 @@ public class FA extends Graph<State,Transition> {
             if (getIsolatedStates().size() > 0)
                 throw new IllegalStateException();
         return true;
+    }
+
+    private boolean hasAtLeastOneFinalState() {
+        return finalStates.size() > 0;
     }
 
     /**

@@ -10,7 +10,7 @@ public class StateBuilder {
 
     /**
      * FIXME: is name mandatory? if not, we should replace this constructor, with one that does not require
-     * any parameter. If we do that, we must change also the build() method adding validation
+     *  any parameter. If we do that, we must change also the build() method adding validation
      * @param name the name of the state
      */
     public StateBuilder (String name) {

@@ -1,3 +1,5 @@
+import java.util.Arrays;
+
 /**
  * This class represents a single transition between two states of a FA.
  * Each transition has associated a symbol of a finite alphabet.
@@ -17,4 +19,22 @@ public class Transition implements Edge {
     public void setSymbol(String symbol) {
         this.symbol = symbol;
     }
+
+    /**
+     * Add an alternative symbol through the pipe operator
+     * @param newSymbol the non-empty symbol that will become an alternative to the existing one
+     */
+    public void addAlternativeSymbol(String newSymbol) {
+        // reduce (a|"") to (a)
+        if (newSymbol.isEmpty())
+            return;
+
+        if (symbol.isEmpty()) {
+            symbol = newSymbol;
+        } else {
+            symbol = symbol.concat("|").concat(newSymbol);
+        }
+    }
+
+
 }

@@ -121,10 +121,20 @@ public class FATest {
      */
     @Test
     public void itShouldComputeLanguageAcceptedFromFA() {
+        /*
+        FIXME: since there can be equivalent languages, it is quite difficult
+            to test whether the accepted language is correct. Furthermore, since we
+            elaborate transitions working on Sets (unordered collection), order of
+            regex's elements can change at every execution
+         */
+
         String acceptedLanguage = AcceptedLanguage.reduceFAtoRegex(FAofPage9());
+        // check equivalent languages
         assertTrue(acceptedLanguage.equals("aa*c|ac*ba*c")
                         || acceptedLanguage.equals("a(a*|c*ba*)c")
                         || acceptedLanguage.equals("a(c*b)?a*c")
+                        || acceptedLanguage.equals("((a|(a(c)*b))(a)*c)")
+                        || acceptedLanguage.equals("(((a(c)*b)|a)(a)*c)")
         );
     }
 
@@ -146,7 +156,7 @@ public class FATest {
         // add the self-loop
         fa.addEdge(fa.getInitialState(), fa.getInitialState(), new Transition("a"));
         String acceptedLanguage = AcceptedLanguage.reduceFAtoRegex(fa);
-        assertEquals("(a)*", acceptedLanguage);
+        assertEquals("((a)*)", acceptedLanguage);
     }
 
     /**

@@ -12,7 +12,7 @@ import static java.util.function.Predicate.not;
 /**
  * This class implements the functionality described by algorithms EspressioneRegolare (page 9) and
  * EspressioniRegolari (page 17), allowing to retrieve the language accepted by a FA.
- * FIXME: Rewrite and restructure the code in a better way
+ * FIXME: Rewrite and re-organize the code in a better way !!!
  */
 public final class AcceptedLanguage {
     private static final String EMPTY_STRING = "";
@@ -117,6 +117,8 @@ public final class AcceptedLanguage {
     /**
      * (row 17 of page 11) Reduce a sequence of states having inDegree=outDegree=1 by merging them into
      * a single transition from the first to the last state of the original sequence.
+     * FIXME: differently from the algorithm from page 11, here we do not enclose the new
+     *   equivalent transition between brackets
      */
     private static final void concatenateSequenceOfTransitions() {
 
@@ -171,7 +173,7 @@ public final class AcceptedLanguage {
         Set<Transition> transitions;
         for (State n1 : network.nodes()) {
             for (State n2 : network.nodes()) {
-                transitions = network.edgesConnecting(n1, n2);
+                transitions = Set.copyOf(network.edgesConnecting(n1, n2));
                 if (transitions.size() > 1)
                     return transitions;
             }
@@ -199,18 +201,13 @@ public final class AcceptedLanguage {
         // build the new symbol which is the alternation between the symbols of each transition
         String newSymbol = transitions.stream()
                 .map(Transition::getSymbol)
-                .collect(Collectors.joining("|"));
+                .collect(Collectors.joining("|","(",")"));
 
         // Retrieve the two endpoints (states) of the considered parallel transitions
         EndpointPair<State> stateEndpointPair = network.incidentNodes(transitions.stream().findAny().get());
 
         // remove old parallel transitions
-        //FIXME: network only provides a method for removing a single edge at a time... transitions is an immutablecollection
-        //  so I don't know how to remove from the network all the edges in transitions...
-        for (Iterator<Transition> iterator = transitions.iterator(); iterator.hasNext();) {
-            Transition t = iterator.next();
-            network.removeEdge(t);
-        }
+        transitions.forEach(t -> network.removeEdge(t));
 
         // Create and add the new transition
         network.addEdge(stateEndpointPair, new Transition(newSymbol));
@@ -242,7 +239,7 @@ public final class AcceptedLanguage {
                                 .append("(" + selfLoopTransition.get().getSymbol() + ")*")
                                 .append(t2.getSymbol())
                                 .toString();
-                        network.addEdge(n1, n2, new Transition(newSymbol));
+                        network.addEdge(n1, n2, new Transition(betweenBrackets(newSymbol)));
                     } else {
                         network.addEdge(n1, n2, new Transition(t1.getSymbol().concat(t2.getSymbol())));
                     }
@@ -251,5 +248,14 @@ public final class AcceptedLanguage {
         }
         // remove node n and all its adjacent transitions
         network.removeNode(n);
+    }
+
+    /**
+     * Enclose a string within brackets, for example "abc" becomes "(abc)"
+     * @param expression the string to enclose
+     * @return the string enclosed within brackets
+     */
+    private static String betweenBrackets(String expression) {
+        return "(" + expression + ")";
     }
 }

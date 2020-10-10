@@ -48,26 +48,44 @@ public class FATest {
      * Build the FA from the example of page 9 of the project desctiption
      */
     private FA FAofPage9() {
-        return faBuilder.putTransition(s0, s1, t01)
-                .putTransition(s0, s2, t02)
-                .putTransition(s1, s3, t13)
-                .putTransition(s3, s3, t33)
-                .putTransition(s3, s4, t34)
-                .putTransition(s2, s2, t22)
-                .putTransition(s2, s3, t23)
-                .build();
+        return faBuilder.putTransition(s0, s1, t01).putTransition(s0, s2, t02).putTransition(s1, s3, t13)
+                .putTransition(s3, s3, t33).putTransition(s3, s4, t34).putTransition(s2, s2, t22)
+                .putTransition(s2, s3, t23).build();
+    }
+
+    /**
+     * Build the FA from the example of page 21 of the project desctiption
+     */
+    private FA FAofPage21() {
+        State s0 = new State("0");
+        s0.isInitial(true);
+        State s1 = new State("1");
+        s1.isFinal(true);
+        State s2 = new State("2");
+        s2.isFinal(true);
+        State s3 = new State("3");
+        s3.isFinal(true);
+        Transition t01 = new Transition("a");
+        Transition t11 = new Transition("b");
+        Transition t02 = new Transition("b");
+        Transition t22 = new Transition("a");
+        Transition t13 = new Transition("");
+        Transition t23 = new Transition("b");
+        return faBuilder.putState(s0).putState(s1).putState(s2).putState(s3).putTransition(s0, s1, t01)
+                .putTransition(s1, s1, t11).putTransition(s0, s2, t02).putTransition(s2, s2, t22)
+                .putTransition(s1, s3, t13).putTransition(s2, s3, t23).build();
     }
 
     /**
      * Build a FA having only one state
      */
     private FA FAWithOnlyOneState() {
-        return faBuilder.putState(new StateBuilder("theOnlyState").isInitial(true).isFinal(true).build())
-                .build();
+        return faBuilder.putState(new StateBuilder("theOnlyState").isInitial(true).isFinal(true).build()).build();
     }
 
     /**
-     * Construct a FA without an initial state and check that it throws a NoSuchElementException
+     * Construct a FA without an initial state and check that it throws a
+     * NoSuchElementException
      */
     @Test
     public void itShouldThrowExceptionIfInitialStateIsMissingWhenBuilding() {
@@ -75,7 +93,8 @@ public class FATest {
     }
 
     /**
-     * Construct a FA without any final state and check that it throws an IllegalStateException
+     * Construct a FA without any final state and check that it throws an
+     * IllegalStateException
      */
     @Test
     public void itShouldThrowExceptionIfThereIsntAnyFinalState() {
@@ -83,32 +102,33 @@ public class FATest {
     }
 
     /**
-     * Construct a FA with more than one initial state and check that it throws an IllegalArgumentException
+     * Construct a FA with more than one initial state and check that it throws an
+     * IllegalArgumentException
      */
     @Test
     public void itShouldThrowExceptionIfMoreThanOneInitialStateWhenBuilding() {
         assertThrows(IllegalArgumentException.class,
-                    () -> faBuilder.putState(new StateBuilder("anInitialState").isInitial(true).build())
-                                .putState(new StateBuilder("anotherInitialState").isInitial(true).isFinal(true).build())
-                                .build()
-        );
+                () -> faBuilder.putState(new StateBuilder("anInitialState").isInitial(true).build())
+                        .putState(new StateBuilder("anotherInitialState").isInitial(true).isFinal(true).build())
+                        .build());
 
     }
 
     /**
-     * Try to construct a FA that contains isolated states and check that an IllegalStateException is thrown
+     * Try to construct a FA that contains isolated states and check that an
+     * IllegalStateException is thrown
      */
     @Test
     public void itShouldThrowExceptionIfContainsIsolatedStates() {
         assertThrows(IllegalStateException.class, () -> {
             faBuilder.putState(new StateBuilder("initialIsolatedState").isInitial(true).build())
-                    .putState(new StateBuilder("anotherIsolatedState").isFinal(true).build())
-                    .build();
+                    .putState(new StateBuilder("anotherIsolatedState").isFinal(true).build()).build();
         });
     }
 
     /**
-     * Check that if the set of states contains isolated states only if the set of states is a singleton
+     * Check that if the set of states contains isolated states only if the set of
+     * states is a singleton
      */
     @Test
     public void itShouldAllowIsolatedStateIfThereIsOnlyOneState() {
@@ -122,20 +142,17 @@ public class FATest {
     @Test
     public void itShouldComputeLanguageAcceptedFromFA() {
         /*
-        FIXME: since there can be equivalent languages, it is quite difficult
-            to test whether the accepted language is correct. Furthermore, since we
-            elaborate transitions working on Sets (unordered collection), order of
-            regex's elements can change at every execution
+         * FIXME: since there can be equivalent languages, it is quite difficult to test
+         * whether the accepted language is correct. Furthermore, since we elaborate
+         * transitions working on Sets (unordered collection), order of regex's elements
+         * can change at every execution
          */
 
         String acceptedLanguage = AcceptedLanguage.reduceFAtoRegex(FAofPage9());
         // check equivalent languages
-        assertTrue(acceptedLanguage.equals("aa*c|ac*ba*c")
-                        || acceptedLanguage.equals("a(a*|c*ba*)c")
-                        || acceptedLanguage.equals("a(c*b)?a*c")
-                        || acceptedLanguage.equals("((a|(a(c)*b))(a)*c)")
-                        || acceptedLanguage.equals("(((a(c)*b)|a)(a)*c)")
-        );
+        assertTrue(acceptedLanguage.equals("aa*c|ac*ba*c") || acceptedLanguage.equals("a(a*|c*ba*)c")
+                || acceptedLanguage.equals("a(c*b)?a*c") || acceptedLanguage.equals("((a|(a(c)*b))(a)*c)")
+                || acceptedLanguage.equals("(((a(c)*b)|a)(a)*c)"));
     }
 
     /**
@@ -160,13 +177,17 @@ public class FATest {
     }
 
     /**
-     * Check the example of page 21 applying the EspressioniRegolari described at pages 17-20
+     * Check the example of page 21 applying the EspressioniRegolari described at
+     * pages 17-20
      */
     @Test
-    public void itShouldComputeAcceptedLanguagesRelativeToEachAcceptanceState() {
-        //TODO: implement EspressioniRegolari(N_in)
-        fail("Test not yet implemented");
+    public void itShouldComputeAcceptedLanguagesRelativeToEachAcceptanceStateOfFaOfPage21() {
+        // TODO: implement EspressioniRegolari(N_in)
+        FA fa = FAofPage21();
+        Set<String> acceptedLanguages = AcceptedLanguages.reduceFAtoMultipleRegex(fa);
+        Set<String> realAcceptedLanguages = Set.of("(a(b)*)_1", "((a(b)*)|(b(a)*b))_3", "(b(a)*)_2");
+        acceptedLanguages.removeAll(realAcceptedLanguages);
+        assertTrue(acceptedLanguages.isEmpty());
     }
-
 
 }

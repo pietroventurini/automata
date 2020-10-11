@@ -7,8 +7,6 @@ import java.util.*;
 import java.util.function.Predicate;
 import java.util.stream.Collector;
 import java.util.stream.Collectors;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.function.Function;
 
 import static java.util.function.Predicate.not;
 
@@ -21,7 +19,8 @@ import static java.util.function.Predicate.not;
 public final class AcceptedLanguages {
     private static final String EMPTY_STRING = "";
     private static MutableNetwork<State, Transition> network;
-    private static Set<State> acceptedStates;
+    private static List<State> acceptedStates;
+    private static Map<Transition, State> markedTransitions;
 
     private AcceptedLanguages() {
     }
@@ -39,7 +38,10 @@ public final class AcceptedLanguages {
         network = Graphs.copyOf(fa.getNetwork());
 
         // retrieve the accepted states in the original FA
-        acceptedStates = network.nodes().stream().filter(State::isFinal).collect(Collectors.toSet());
+        acceptedStates = network.nodes().stream().filter(State::isFinal).collect(Collectors.toList());
+
+        // initialize the list of set of transitions marked
+        markedTransitions = new HashMap<>();
 
         // retrieve the surrogate initial state and the surrogate final state
         State n0 = createSurrogateInitialState();
@@ -54,8 +56,7 @@ public final class AcceptedLanguages {
                 reduceRemainingNodes();
             }
         }
-        Set<String> regularExpressions = network.edges().stream().map(n -> n.getSymbol() + "_" + n.getSubscript())
-                .collect(Collectors.toSet());
+        Set<String> regularExpressions = network.edges().stream().map(t -> t.getSymbol()).collect(Collectors.toSet());
         return regularExpressions;
     }
 
@@ -185,12 +186,12 @@ public final class AcceptedLanguages {
 
             Transition newTransition = new Transition(newSymbol);
 
-            if (!transitionFromIntemediateToSuccessor.hasSubscript()) {
+            if (!markedTransitions.containsValue(transitionFromIntemediateToSuccessor)) {
                 if (successor.isFinal() || acceptedStates.contains(intermediate)) {
-                    newTransition.setSubscript(intermediate.getName());
+                    markedTransitions.put(newTransition, intermediate);
                 }
             } else {
-                newTransition.setSubscript(transitionFromIntemediateToSuccessor.getSubscript());
+                markedTransitions.put(newTransition, markedTransitions.get(transitionFromIntemediateToSuccessor));
             }
             // remove the intermediate node and insert the new transition
             network.removeNode(intermediate);
@@ -220,9 +221,10 @@ public final class AcceptedLanguages {
         Set<Transition> transitions = getParallelTransitions();
 
         // retrieve the first subscript
-        String subscript = transitions.iterator().next().getSubscript();
+        State anyAcceptedState = markedTransitions.get(transitions.iterator().next());
         boolean addSubscript = false;
-        if (subscript != null && transitions.stream().allMatch(t -> t.getSubscript().equals(subscript))) {
+        if (anyAcceptedState != null
+                && transitions.stream().allMatch(t -> markedTransitions.get(t).equals(anyAcceptedState))) {
             addSubscript = true;
         }
 
@@ -239,7 +241,7 @@ public final class AcceptedLanguages {
         // Create and add the new transition
         Transition newTransition = new Transition(newSymbol);
         if (addSubscript) {
-            newTransition.setSubscript(subscript);
+            markedTransitions.put(newTransition, anyAcceptedState);
         }
         network.addEdge(stateEndpointPair, newTransition);
     }
@@ -258,10 +260,10 @@ public final class AcceptedLanguages {
             newSymbol = t1.getSymbol().concat(t2.getSymbol());
         }
         Transition newTransition = new Transition(newSymbol);
-        if (t2.hasSubscript()) {
-            newTransition.setSubscript(t2.getSubscript());
+        if (markedTransitions.containsKey(t2)) {
+            markedTransitions.put(newTransition, markedTransitions.get(t2));
         } else if (n2.isFinal() && acceptedStates.contains(n)) {
-            newTransition.setSubscript(n.getName());
+            markedTransitions.put(newTransition, n);
         }
         network.addEdge(n1, n2, newTransition);
 
@@ -275,10 +277,14 @@ public final class AcceptedLanguages {
                 .findAny().get();
 
         Set<Transition> ingoingTransitions = network.inEdges(n); // transitions of the form ( n' -> n )
-        Set<Transition> outTransitionsWithSubscript = network.outEdges(n).stream().filter(t -> t.hasSubscript())
-                .collect(Collectors.toSet()); // transitions of the form ( n -> n'' ) with subscript
-        Set<Transition> outTransitionsWithoutSubscript = network.outEdges(n).stream().filter(t -> !t.hasSubscript())
-                .collect(Collectors.toSet());// transitions of the form ( n -> n'' ) without subscript
+        Set<Transition> outTransitionsWithSubscript = network.outEdges(n).stream()
+                .filter(t -> markedTransitions.containsKey(t)).collect(Collectors.toSet()); // transitions of the form (
+                                                                                            // n -> n'' ) with subscript
+        Set<Transition> outTransitionsWithoutSubscript = network.outEdges(n).stream()
+                .filter(t -> !markedTransitions.containsKey(t)).collect(Collectors.toSet());// transitions of the form
+                                                                                            // (
+                                                                                            // n -> n'' ) without
+                                                                                            // subscript
         Optional<Transition> selfLoopTransition = network.edgeConnecting(n, n);
 
         for (Transition t1 : ingoingTransitions) {

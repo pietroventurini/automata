@@ -185,7 +185,7 @@ public class FATest {
         // TODO: implement EspressioniRegolari(N_in)
         FA fa = FAofPage21();
         Set<String> acceptedLanguages = AcceptedLanguages.reduceFAtoMultipleRegex(fa);
-        Set<String> realAcceptedLanguages = Set.of("(a(b)*)_1", "((a(b)*)|(b(a)*b))_3", "(b(a)*)_2");
+        Set<String> realAcceptedLanguages = Set.of("(a(b)*)", "((a(b)*)|(b(a)*b))", "(b(a)*)");
         acceptedLanguages.removeAll(realAcceptedLanguages);
         assertTrue(acceptedLanguages.isEmpty());
     }

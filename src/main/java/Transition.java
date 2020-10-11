@@ -11,16 +11,8 @@ public class Transition implements Edge {
     private String symbol; // maybe we should convert it to a java.util.regex.Pattern (which is a compiled
                            // version of a regex)
 
-    private String subscript; // this is the subscript needed in the second implementation of
-                              // EspressioniRegolari
-
     public Transition(String symbol) {
         this.symbol = symbol;
-    }
-
-    public Transition(String symbol, String subscript) {
-        this.symbol = symbol;
-        this.subscript = subscript;
     }
 
     public String getSymbol() {
@@ -29,18 +21,6 @@ public class Transition implements Edge {
 
     public void setSymbol(String symbol) {
         this.symbol = symbol;
-    }
-
-    public String getSubscript() {
-        return subscript;
-    }
-
-    public void setSubscript(String subscript) {
-        this.subscript = subscript;
-    }
-
-    public boolean hasSubscript() {
-        return this.subscript != null;
     }
 
     /**

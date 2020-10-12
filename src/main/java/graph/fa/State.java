@@ -1,5 +1,15 @@
+package graph.fa;
+
+import graph.nodes.Node;
+
 import java.util.EnumSet;
 
+/**
+ * This class represents a state of a FA.FA. A state is a node of the underlying graph, with a type associated (described
+ * by the FA.StateType enum) and a unique name.
+ *
+ * @author Pietro Venturini
+ */
 public class State implements Node {
 
     private String name; // maybe can change to a more complex type (e.g. see pag 35 of the project description)
@@ -15,7 +25,7 @@ public class State implements Node {
 
     /**
      * Initialize a state given its name and type
-     * @param type a set of StateType indicating the type of the state
+     * @param type a set of FA.StateType indicating the type of the state
      */
     public State(String name, EnumSet<StateType> type) {
         this.name = name;
@@ -30,10 +40,12 @@ public class State implements Node {
         return this.type.contains(StateType.FINAL);
     }
 
+    @Override
     public String getName() {
         return name;
     }
 
+    @Override
     public void setName(String name) {
         this.name = name;
     }

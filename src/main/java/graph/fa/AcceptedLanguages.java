@@ -1,3 +1,5 @@
+package graph.fa;
+
 import com.google.common.collect.MoreCollectors;
 import com.google.common.graph.EndpointPair;
 import com.google.common.graph.Graphs;
@@ -5,7 +7,6 @@ import com.google.common.graph.MutableNetwork;
 
 import java.util.*;
 import java.util.function.Predicate;
-import java.util.stream.Collector;
 import java.util.stream.Collectors;
 
 import static java.util.function.Predicate.not;
@@ -13,8 +14,10 @@ import static java.util.function.Predicate.not;
 /**
  * This class implements the functionality described by algorithm
  * EspressioniRegolari (page 17), allowing to retrieve the languages accepted by
- * a FA with multiple accepted states. FIXME: Rewrite and re-organize the code
- * in a better way !!!
+ * a FA.FA with multiple accepted states.
+ * FIXME: Rewrite and re-organize the code in a better way !!!
+ *
+ * @author Giacomo Bontempi
  */
 public final class AcceptedLanguages {
     private static final String EMPTY_STRING = "";
@@ -26,18 +29,17 @@ public final class AcceptedLanguages {
     }
 
     /**
-     * Reduce the FA to different regular expressions (one for each accepted state)
-     * describing the languages accepted from the FA by applying the algorithm
+     * Reduce the FA.FA to different regular expressions (one for each accepted state)
+     * describing the languages accepted from the FA.FA by applying the algorithm
      * RegularExpression(Nin) described at page 17 of the project description.
      * 
      * @param fa the finite automata
      * @return the accepted languages
      */
-
     public static final Set<String> reduceFAtoMultipleRegex(FA fa) {
         network = Graphs.copyOf(fa.getNetwork());
 
-        // retrieve the accepted states in the original FA
+        // retrieve the accepted states in the original FA.FA
         acceptedStates = network.nodes().stream().filter(State::isFinal).collect(Collectors.toList());
 
         // initialize the list of set of transitions marked
@@ -61,10 +63,10 @@ public final class AcceptedLanguages {
     }
 
     /**
-     * If there are ingoing edges into the initial state beta0, create a surrogate
+     * If there are ingoing graph.edges into the initial state beta0, create a surrogate
      * initial state n0 and an epsilon-transition from n0 to beta0.
      * 
-     * @return the surrogate initial State n0
+     * @return the surrogate initial FA.State n0
      */
     private static final State createSurrogateInitialState() {
         // retrieve the initial state
@@ -81,17 +83,17 @@ public final class AcceptedLanguages {
 
     /**
      * If there are multiple acceptance states {beta_q} or if there are outgoing
-     * edges from the only final state beta_q, create a surrogate final state nq and
+     * graph.edges from the only final state beta_q, create a surrogate final state nq and
      * epsilon-transitions from each beta_q to nq.
      * 
-     * @return the surrogate final State nq
+     * @return the surrogate final FA.State nq
      */
     private static final State createSurrogateFinalState() {
         Set<State> finalStates = network.nodes().stream().filter(State::isFinal).collect(Collectors.toSet());
 
         State nq = new StateBuilder("nq").isFinal(true).build();
 
-        // if there is a single acceptance state, check if there are outgoing edges from
+        // if there is a single acceptance state, check if there are outgoing graph.edges from
         // it
         boolean outgoing = false;
         if (finalStates.size() == 1) {
@@ -103,7 +105,7 @@ public final class AcceptedLanguages {
         }
 
         // if there are multiple acceptance states or a single one having outgoing
-        // edges, create surrogate final state nq
+        // graph.edges, create surrogate final state nq
         if (finalStates.size() > 1 || outgoing) {
             for (State beta_q : finalStates) {
                 beta_q.isFinal(false);
@@ -157,8 +159,8 @@ public final class AcceptedLanguages {
      * (row 12 of page 18) Reduce a sequence of states having inDegree=outDegree=1
      * by merging them into a single transition from the first to the last state of
      * the original sequence, adding the subscripts to the transition when needed.
-     * FIXME: differently from the algorithm from page 11, here we do not enclose
-     * the new equivalent transition between brackets
+     * Note: differently from the algorithm from page 11, here we do not enclose
+     *  the new equivalent transition between brackets
      */
     private static final void concatenateSequenceOfTransitions() {
         // retrieve, if it exists, a node with a single incident edge and a single
@@ -250,7 +252,7 @@ public final class AcceptedLanguages {
      * this method is used in reduceRemainingNodes() to create the new transition
      */
     private static final void createNewTransition(Transition t1, Transition t2, State n1, State n2, State n,
-            Optional<Transition> selfLoopTransition) {
+                                                  Optional<Transition> selfLoopTransition) {
         String newSymbol;
         if (selfLoopTransition.isPresent()) {
             newSymbol = new StringBuilder().append(t1.getSymbol())
@@ -316,6 +318,7 @@ public final class AcceptedLanguages {
      * 
      * @param expression the string to enclose
      * @return the string enclosed within brackets
+     * FIXME: move method to a utility class
      */
     private static String betweenBrackets(String expression) {
         return "(" + expression + ")";

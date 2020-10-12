@@ -1,7 +1,11 @@
+package graph.fa;
+
 import java.util.EnumSet;
 
 /**
  * Implementation of builder pattern for the State class
+ *
+ * @author Pietro Venturini
  */
 public class StateBuilder {
 

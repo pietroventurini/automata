@@ -1,11 +1,13 @@
+import graph.fa.Transition;
 import org.junit.jupiter.api.Test;
 
-import java.util.Optional;
-import java.util.Set;
-import java.util.stream.Collectors;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
-import static org.junit.jupiter.api.Assertions.*;
-
+/**
+ * Test the methods associated to the construction and transformation of transitions
+ *
+ * @author Pietro Venturini
+ */
 public class TransitionTest {
 
     @Test

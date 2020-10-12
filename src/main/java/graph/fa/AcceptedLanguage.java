@@ -1,9 +1,14 @@
+package graph.fa;
+
 import com.google.common.collect.MoreCollectors;
 import com.google.common.graph.EndpointPair;
 import com.google.common.graph.Graphs;
 import com.google.common.graph.MutableNetwork;
 
-import java.util.*;
+import java.util.Collections;
+import java.util.NoSuchElementException;
+import java.util.Optional;
+import java.util.Set;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
@@ -13,6 +18,8 @@ import static java.util.function.Predicate.not;
  * This class implements the functionality described by algorithms EspressioneRegolare (page 9) and
  * EspressioniRegolari (page 17), allowing to retrieve the language accepted by a FA.
  * FIXME: Rewrite and re-organize the code in a better way !!!
+ *
+ * @author Pietro Venturini
  */
 public final class AcceptedLanguage {
     private static final String EMPTY_STRING = "";
@@ -49,9 +56,9 @@ public final class AcceptedLanguage {
     }
 
     /**
-     * If there are ingoing edges into the initial state beta0, create a surrogate initial state n0
+     * If there are ingoing graph.edges into the initial state beta0, create a surrogate initial state n0
      * and an epsilon-transition from n0 to beta0.
-     * @return the surrogate initial State n0
+     * @return the surrogate initial FA.State n0
      */
     private static final State createSurrogateInitialState() {
         // retrieve the initial state
@@ -70,9 +77,9 @@ public final class AcceptedLanguage {
     }
 
     /**
-     * If there are multiple acceptance states {beta_q} or if there are outgoing edges from the only final state beta_q,
+     * If there are multiple acceptance states {beta_q} or if there are outgoing graph.edges from the only final state beta_q,
      * create a surrogate final state nq and epsilon-transitions from each beta_q to nq.
-     * @return the surrogate final State nq
+     * @return the surrogate final FA.State nq
      */
     private static final State createSurrogateFinalState() {
         Set<State> finalStates = network.nodes()
@@ -82,7 +89,7 @@ public final class AcceptedLanguage {
 
         State nq = new StateBuilder("nq").isFinal(true).build();
 
-        // if there is a single acceptance state, check if there are outgoing edges from it
+        // if there is a single acceptance state, check if there are outgoing graph.edges from it
         boolean outgoing = false;
         if (finalStates.size() == 1) {
             State onlyFinalState = finalStates.stream().collect(MoreCollectors.onlyElement());
@@ -92,7 +99,7 @@ public final class AcceptedLanguage {
                 nq = onlyFinalState;
         }
 
-        // if there are multiple acceptance states or a single one having outgoing edges, create surrogate final state nq
+        // if there are multiple acceptance states or a single one having outgoing graph.edges, create surrogate final state nq
         if (finalStates.size() > 1 || outgoing) {
             for (State beta_q : finalStates) {
                 beta_q.isFinal(false);
@@ -117,7 +124,7 @@ public final class AcceptedLanguage {
     /**
      * (row 17 of page 11) Reduce a sequence of states having inDegree=outDegree=1 by merging them into
      * a single transition from the first to the last state of the original sequence.
-     * FIXME: differently from the algorithm from page 11, here we do not enclose the new
+     * Note: differently from the algorithm from page 11, here we do not enclose the new
      *   equivalent transition between brackets
      */
     private static final void concatenateSequenceOfTransitions() {
@@ -219,7 +226,7 @@ public final class AcceptedLanguage {
     private static final void reduceRemainingNodes() {
         State n = network.nodes()
                 .stream()
-                .filter(not((Predicate<State>)State::isInitial).and(not(State::isFinal)))
+                .filter(not((Predicate<State>) State::isInitial).and(not(State::isFinal)))
                 .findAny()
                 .get();
 
@@ -254,6 +261,7 @@ public final class AcceptedLanguage {
      * Enclose a string within brackets, for example "abc" becomes "(abc)"
      * @param expression the string to enclose
      * @return the string enclosed within brackets
+     * FIXME: move method to a utility class
      */
     private static String betweenBrackets(String expression) {
         return "(" + expression + ")";

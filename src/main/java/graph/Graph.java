@@ -1,4 +1,8 @@
+package graph;
+
 import com.google.common.graph.MutableNetwork;
+import graph.edges.Edge;
+import graph.nodes.Node;
 
 import java.util.Set;
 
@@ -10,25 +14,33 @@ import java.util.Set;
  *
  * @param <N> Node parameter type
  * @param <E> Edge parameter type
+ *
+ * @author Pietro Venturini
  */
 public abstract class Graph<N extends Node, E extends Edge> {
 
-    protected MutableNetwork<N, E> network;
+    private MutableNetwork<N, E> network;
 
     public Graph(MutableNetwork<N, E> network) {
         this.network = network;
     }
 
-    Set<E> getEdges() {
+    public Set<E> getEdges() {
         return network.edges();
     }
 
-    boolean addEdge(N nodeU, N nodeV, E edge) {
+    public boolean addEdge(N nodeU, N nodeV, E edge) {
         return network.addEdge(nodeU, nodeV, edge);
     }
 
+    public Set<N> getNodes() {
+        return network.nodes();
+    }
+
     /**
-     * Validate the internal state of the graph
+     * @return the underlying network
      */
-    abstract boolean validate();
+    public MutableNetwork<N, E> getNetwork() {
+        return network;
+    }
 }

@@ -1,8 +1,15 @@
+import graph.fa.State;
+import graph.fa.StateBuilder;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.*;
 
+/**
+ * Test the instantiation of states
+ *
+ * @author Pietro Venturini
+ */
 public class StateBuilderTest {
 
     StateBuilder sb;

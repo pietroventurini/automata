@@ -1,7 +1,13 @@
+package graph.nodes;
+
 /**
  * It represents a node of a graph (it can be a State, a FA, a Behavioral FA, ...)
- * Maybe it can be converted into an abstract class
+ *
+ * @author Pietro Venturini
  */
 public interface Node {
 
+    void setName(String name);
+
+    String getName();
 }

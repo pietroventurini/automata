@@ -14,7 +14,6 @@ import java.util.Set;
  */
 public class FA extends AbstractFA<State, Transition> {
 
-    private State initialState;
     private Set<State> finalStates;
 
     /**
@@ -25,8 +24,7 @@ public class FA extends AbstractFA<State, Transition> {
      * @param finalStates the set (eventually empty) of final states
      */
     FA(MutableNetwork<State, Transition> network, State initialState, Set<State> finalStates) {
-        super(network);
-        this.initialState = initialState;
+        super(network, initialState);
         this.finalStates = finalStates;
     }
 

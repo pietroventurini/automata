@@ -19,7 +19,7 @@ public class FABuilder {
     private MutableNetwork<State, Transition> network;
 
     /**
-     * Invokes the constructor of the superclass, which instantiates the underlying network
+     * Instantiate the underlying network
      */
     public FABuilder() {
         network = NetworkBuilder.directed()

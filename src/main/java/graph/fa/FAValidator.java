@@ -34,7 +34,10 @@ public class FAValidator {
      * @return true if fa has exactly one initial state, false otherwise
      */
     public static boolean hasOnlyOneInitialState(FA fa) {
-        return retrieveInitialState(fa) == fa.getInitialState();
+        return fa.getNodes()
+                .stream()
+                .filter(State::isInitial)
+                .count() == 1;
     }
 
     /**
@@ -52,22 +55,10 @@ public class FAValidator {
     }
 
     /**
-     * @return the initial state of the FA
-     * @throws NoSuchElementException if the iterable is empty
-     * @throws IllegalArgumentException if the iterable contains multiple elements
-     */
-    private static State retrieveInitialState(FA fa) {
-        return fa.getNetwork().nodes()
-                .stream()
-                .filter(State::isInitial)
-                .collect(MoreCollectors.onlyElement());
-    }
-
-    /**
      * @return the set of final states of the FA
      */
     private static Set<State> retrieveFinalStates(FA fa) {
-        return fa.getNetwork().nodes()
+        return fa.getNodes()
                 .stream()
                 .filter(State::isFinal)
                 .collect(Collectors.toSet());
@@ -76,7 +67,7 @@ public class FAValidator {
     private static Set<State> getIsolatedStates(FA fa) {
         return fa.getNetwork().nodes()
                 .stream()
-                .filter(n -> fa.getNetwork().degree(n) == 0)
+                .filter(n -> fa.getNetwork().inDegree(n) == 0 && fa.getNetwork().outDegree(n) == 0)
                 .collect(Collectors.toSet());
     }
 }

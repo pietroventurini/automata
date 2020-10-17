@@ -3,19 +3,64 @@ package graph.bfa;
 import graph.edges.EdgeWithEvents;
 import graph.edges.EdgeWithName;
 
+import java.util.Collections;
+import java.util.Optional;
 import java.util.Set;
 
 /**
  * EventTransition represents a single transition of a behavioral FA
+ * TODO: since transition's names must be unique, should we override equals?
  */
 public class EventTransition implements EdgeWithName, EdgeWithEvents {
 
     private String name;
-    private String inEvent; //FIXME: 1) should it be an Optional<String>? 2) should we create a class Event?
+    private String inEvent;
     private Set<String> outEvents;
 
-    public EventTransition(String name) {
-        this.name = name;
+    /**
+     * Builder used to construct instances of EventTransition
+     */
+    public static class Builder {
+        // Required parameters
+        private final String name;
+
+        // Mandatory parameters initialized to default values
+        private String inEvent = null;
+        private Set<String> outEvents = Collections.emptySet();;
+
+        /**
+         * @param name the name of the transition
+         */
+        public Builder(String name) {
+            this.name = name;
+        }
+
+        /**
+         * Set the input event to the transition
+         */
+        public Builder inEvent(String inEvent) {
+            this.inEvent = inEvent;
+            return this;
+        }
+
+        /**
+         * Add an output event to the transition
+         * @param outEvent the output event to add
+         */
+        public Builder addOutEvent(String outEvent) {
+            outEvents.add(outEvent);
+            return this;
+        }
+
+        public EventTransition build() {
+            return new EventTransition(this);
+        }
+    }
+
+    private EventTransition(EventTransition.Builder builder) {
+        this.name = builder.name;
+        this.inEvent = builder.inEvent;
+        this.outEvents = builder.outEvents;
     }
 
     @Override
@@ -29,8 +74,8 @@ public class EventTransition implements EdgeWithName, EdgeWithEvents {
     }
 
     @Override
-    public String getInEvent() {
-        return inEvent;
+    public Optional<String> getInEvent() {
+        return Optional.<String>ofNullable(inEvent);
     }
 
     @Override

@@ -17,6 +17,10 @@ simbolo iniziale anch'esso come una regex?
 ad ogni iterazione del ciclo while ()
 - EspressioniRegolari, per ciascun stato di accettazione marca la corrispondente
 regex con un pedice. Come lo si codifica?
+- Valutare se validare solo il MutableNetwork al posto di FA prima di istanziare
+quest'ultimo all'interno del builder (altrimenti rischieremmo di
+creare un FA non valido, ad esempio con più stati iniziali, causando un'eccezione
+ancora in fase di costruzione con `retrieveInitialState)`.
 
 ### 👨🏻‍💻 graph.fa.graph.fa comportamentale (estensione di graph.fa.graph.fa)
 - non ci sono stati di accettazione

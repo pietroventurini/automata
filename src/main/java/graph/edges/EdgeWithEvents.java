@@ -1,5 +1,6 @@
 package graph.edges;
 
+import java.util.Optional;
 import java.util.Set;
 
 /**
@@ -10,10 +11,11 @@ import java.util.Set;
  * @author Pietro Venturini
  */
 public interface EdgeWithEvents extends Edge {
+
     /**
      * @return the input event of the edge
      */
-    String getInEvent();
+    Optional<String> getInEvent();
 
     /**
      * Set the input event of the edge

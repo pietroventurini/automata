@@ -10,7 +10,7 @@ import java.util.Set;
  * This class represents the common structure to all types of FAs. FAs, BFAs and Behavioral spaces (DFAs)
  * all have an initial state.
  * @param <S> The type of states (note: if we don't want to differentiate between FA's states and BFA's states
- *           then instead of having the type parameter E, we should fix the type argument State. i.e.
+ *           then instead of having the type parameter S, we should fix the type argument State. i.e.
  *           declaring it as class AbstractFA<T extends Edge> extends Graph<State, T>
  * @param <T> The type of transitions
  */
@@ -18,8 +18,9 @@ public abstract class AbstractFA<S extends State, T extends Edge> extends Graph<
 
     protected S initialState;
 
-    public AbstractFA(MutableNetwork<S, T> network) {
+    public AbstractFA(MutableNetwork<S, T> network, S initialState) {
         super(network);
+        this.initialState = initialState;
     }
 
     public S getInitialState() {

@@ -3,13 +3,15 @@ package graph.bfa;
 import graph.edges.EdgeWithEvents;
 import graph.edges.EdgeWithName;
 
-import java.util.Collections;
+import java.util.HashSet;
 import java.util.Optional;
 import java.util.Set;
 
 /**
  * EventTransition represents a single transition of a behavioral FA
  * TODO: since transition's names must be unique, should we override equals?
+ *
+ * @author Pietro Venturini
  */
 public class EventTransition implements EdgeWithName, EdgeWithEvents {
 
@@ -26,7 +28,7 @@ public class EventTransition implements EdgeWithName, EdgeWithEvents {
 
         // Mandatory parameters initialized to default values
         private String inEvent = null;
-        private Set<String> outEvents = Collections.emptySet();;
+        private Set<String> outEvents = new HashSet<>();
 
         /**
          * @param name the name of the transition

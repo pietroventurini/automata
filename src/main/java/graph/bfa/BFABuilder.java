@@ -10,6 +10,8 @@ import java.util.NoSuchElementException;
 /**
  * This class is used to instantiate Behavioral FAs (BFAs), simplifying the construction process
  * of complex objects with different representations.
+ *
+ * @author Pietro Venturini
  */
 public class BFABuilder {
 

@@ -63,16 +63,6 @@ public class FATest {
     }
 
     /**
-     * Check if FA of page 9 is built correctly
-     */
-    @Test
-    public void itShouldBuildFA() {
-        fa = FAofPage9();
-        assertSame(fa.getInitialState(), initialState);
-        assertEquals(fa.getFinalStates(), finalStates);
-    }
-
-    /**
      * Build the FA from the example of page 21 of the project description
      */
     private FA FAofPage21() {
@@ -91,14 +81,22 @@ public class FATest {
                 .putTransition(s1, s3, t13).putTransition(s2, s3, t23).build();
     }
 
-
+    /**
+     * Check if FA of page 9 is built correctly
+     */
+    @Test
+    public void itShouldBuildFA() {
+        fa = FAofPage9();
+        assertSame(fa.getInitialState(), initialState);
+        assertEquals(fa.getFinalStates(), finalStates);
+    }
 
     /**
      * Construct a FA without an initial state and check that it throws a
      * NoSuchElementException
      */
     @Test
-    public void itShouldThrowExceptionIfInitialStateIsMissingWhenBuilding() {
+    public void itShouldThrowExceptionIfInitialStateIsMissing() {
         assertThrows(NoSuchElementException.class, () -> faBuilder.putState(s4).build());
     }
 

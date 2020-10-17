@@ -50,7 +50,6 @@ public class StateBuilder {
     }
 
     public State build() {
-        // optional: add validatation
         return new State(name, type);
     }
 }

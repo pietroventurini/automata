@@ -8,6 +8,8 @@ import graph.nodes.Node;
 /**
  * This class represents a behavioral FA (BFA). It inherits all the methods of its superclass AbstractFA.
  * A BFA has a name and doesn't have final states. The transitions have input and output events associated to them.
+ *
+ * @author Pietro Venturini
  */
 public class BFA extends AbstractFA<State, EventTransition> implements Node {
 

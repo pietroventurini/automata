@@ -8,14 +8,16 @@ import java.util.Optional;
 import java.util.Set;
 
 /**
- * EventTransition represents a single transition of a behavioral FA
- * TODO: since transition's names must be unique, should we override equals?
+ * EventTransition represents a single transition of a behavioral FA TODO: since
+ * transition's names must be unique, should we override equals?
  */
 public class EventTransition implements EdgeWithName, EdgeWithEvents {
 
     private String name;
     private String inEvent;
     private Set<String> outEvents;
+    private String observabilityLabel;
+    private String relevanceLabel;
 
     /**
      * Builder used to construct instances of EventTransition
@@ -26,7 +28,9 @@ public class EventTransition implements EdgeWithName, EdgeWithEvents {
 
         // Mandatory parameters initialized to default values
         private String inEvent = null;
-        private Set<String> outEvents = Collections.emptySet();;
+        private Set<String> outEvents = Collections.emptySet();
+        private String observabilityLabel = "";
+        private String relevanceLabel = "";
 
         /**
          * @param name the name of the transition
@@ -45,10 +49,31 @@ public class EventTransition implements EdgeWithName, EdgeWithEvents {
 
         /**
          * Add an output event to the transition
+         * 
          * @param outEvent the output event to add
          */
         public Builder addOutEvent(String outEvent) {
             outEvents.add(outEvent);
+            return this;
+        }
+
+        /**
+         * Set the observability label
+         * 
+         * @param label the observability label
+         */
+        public Builder observabilityLabel(String label) {
+            this.observabilityLabel = label;
+            return this;
+        }
+
+        /**
+         * Set the relevance label
+         * 
+         * @param label the relevance label
+         */
+        public Builder relevanceLabel(String label) {
+            this.relevanceLabel = label;
             return this;
         }
 
@@ -61,6 +86,8 @@ public class EventTransition implements EdgeWithName, EdgeWithEvents {
         this.name = builder.name;
         this.inEvent = builder.inEvent;
         this.outEvents = builder.outEvents;
+        this.observabilityLabel = builder.observabilityLabel;
+        this.relevanceLabel = builder.relevanceLabel;
     }
 
     @Override
@@ -101,5 +128,21 @@ public class EventTransition implements EdgeWithName, EdgeWithEvents {
     @Override
     public boolean removeOutEvent(String outEvent) {
         return outEvents.remove(outEvent);
+    }
+
+    public String getObservabilityLabel() {
+        return observabilityLabel;
+    }
+
+    public void setObservabilityLabel(String label) {
+        this.observabilityLabel = label;
+    }
+
+    public String getRelevanceLabel() {
+        return relevanceLabel;
+    }
+
+    public void setRelevanceLabel(String label) {
+        this.relevanceLabel = label;
     }
 }

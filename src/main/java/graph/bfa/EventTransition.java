@@ -3,7 +3,7 @@ package graph.bfa;
 import graph.edges.EdgeWithEvents;
 import graph.edges.EdgeWithName;
 
-import java.util.Collections;
+import java.util.HashSet;
 import java.util.Optional;
 import java.util.Set;
 
@@ -28,7 +28,7 @@ public class EventTransition implements EdgeWithName, EdgeWithEvents {
 
         // Mandatory parameters initialized to default values
         private String inEvent = null;
-        private Set<String> outEvents = Collections.emptySet();
+        private Set<String> outEvents = new HashSet<>();
         private String observabilityLabel = "";
         private String relevanceLabel = "";
 
@@ -98,6 +98,11 @@ public class EventTransition implements EdgeWithName, EdgeWithEvents {
     @Override
     public void setName(String name) {
         this.name = name;
+    }
+
+    @Override
+    public void removeInEvent() {
+        this.inEvent = null;
     }
 
     @Override

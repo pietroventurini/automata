@@ -23,6 +23,11 @@ public interface EdgeWithEvents extends Edge {
     void setInEvent(String name);
 
     /**
+     * Remove the input event
+     */
+    void removeInEvent();
+
+    /**
      * @return the set of output events
      */
     Set<String> getOutEvents();

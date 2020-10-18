@@ -76,6 +76,11 @@ public class EventTransition implements EdgeWithName, EdgeWithEvents {
     }
 
     @Override
+    public void removeInEvent() {
+        this.inEvent = null;
+    }
+
+    @Override
     public Optional<String> getInEvent() {
         return Optional.<String>ofNullable(inEvent);
     }

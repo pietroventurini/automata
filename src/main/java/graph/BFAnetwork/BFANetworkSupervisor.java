@@ -15,7 +15,6 @@ import graph.bfa.EventTransition;
  * This class monitors and operates on the network of BFA; in particular, it is
  * able retrieves all the current transitions enabled and execute a particular
  * transition enabled inside a BFA.
- *
  */
 
 public final class BFANetworkSupervisor {
@@ -25,26 +24,29 @@ public final class BFANetworkSupervisor {
     }
 
     /**
-     * This method returns all the links having a specified event inside their
+     * Return all the links having the specified event inside their
      * buffer.
-     *
+     * @param links The set of links to be filtered
+     * @param event the event to look for
      */
     private static final Set<Link> getLinksWithSpecifiedEvent(Set<Link> links, String event) {
-        return links.stream().filter(l -> l.getEvent().get().equals(event)).collect(Collectors.toSet());
+        return links.stream()
+                .filter(l -> l.getEvent().get().equals(event))
+                .collect(Collectors.toSet());
     }
 
     /**
-     * This method returns all the links having an empty buffer.
-     *
+     * Return all the links having an empty buffer.
      */
     private static final Set<Link> getEmptyLinks(Set<Link> links) {
-        return links.stream().filter(l -> l.getEvent().isEmpty()).collect(Collectors.toSet());
+        return links.stream()
+                .filter(l -> l.getEvent().isEmpty())
+                .collect(Collectors.toSet());
     }
 
     /**
-     * This method return a set consisting of all the transition enabled inside a
+     * Return a set consisting of all the transition enabled inside the specified
      * BFA.
-     *
      */
     public static final Set<EventTransition> getTransitionsEnabledInBfa(BFANetwork bfaNetwork, BFA bfa) {
         network = Graphs.copyOf(bfaNetwork.getNetwork());
@@ -70,9 +72,7 @@ public final class BFANetworkSupervisor {
     }
 
     /**
-     * This method executes a particular transition enabled inside a BFA
-     * 
-     *
+     * Execute a particular transition enabled inside a BFA
      */
     public static final void executeTransition(BFANetwork bfaNetwork, BFA bfa, EventTransition transition) {
         network = Graphs.copyOf(bfaNetwork.getNetwork());

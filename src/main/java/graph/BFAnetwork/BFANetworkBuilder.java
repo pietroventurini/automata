@@ -16,7 +16,9 @@ public class BFANetworkBuilder {
      * Instantiate the underlying network
      */
     public BFANetworkBuilder() {
-        network = NetworkBuilder.directed().allowsParallelEdges(true).build();
+        network = NetworkBuilder.directed()
+                .allowsParallelEdges(true)
+                .build();
     }
 
     public BFANetworkBuilder putBFA(BFA nodeU) {

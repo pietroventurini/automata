@@ -4,12 +4,11 @@ import java.util.Optional;
 import graph.edges.EdgeWithName;
 
 /**
- * This class represents a single link conncecting two BFAs inside a BFANetwork.
- *
+ * This class represents a single link connecting two BFAs inside a BFANetwork.
  */
 public class Link implements EdgeWithName {
     private String name;
-    private String event; // this string represent the single event that can be contained in a Link.
+    private String event; // the only event that can be contained in a Link
 
     public Link(String name) {
         this.name = name;

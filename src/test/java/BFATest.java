@@ -28,7 +28,7 @@ public class BFATest {
     /**
      * @return the behavioral FA C2 from page 24
      */
-    public BFA BFAc2FromPage24() {
+    private static BFA BFAc2FromPage24() {
         return new BFABuilder("C2")
                 .putTransition(s20, s21, t2a)
                 .putTransition(s21, s20, t2b)
@@ -38,7 +38,7 @@ public class BFATest {
     /**
      * @return the behavioral FA C3 from page 24
      */
-    public BFA BFAc3FromPage24() {
+    private static BFA BFAc3FromPage24() {
         return new BFABuilder("C3")
                 .putTransition(s30, s31, t3a)
                 .putTransition(s31, s30, t3b)

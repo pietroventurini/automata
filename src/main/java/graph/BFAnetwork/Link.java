@@ -11,9 +11,8 @@ public class Link implements EdgeWithName {
     private String name;
     private String event; // this string represent the single event that can be contained in a Link.
 
-    public Link(String name, String event) {
+    public Link(String name) {
         this.name = name;
-        this.event = event;
     }
 
     @Override

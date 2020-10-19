@@ -1,10 +1,10 @@
 package graph.BFAnetwork;
 
+import com.google.common.graph.Graphs;
 import com.google.common.graph.MutableNetwork;
 
 import java.util.Collections;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.HashSet;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -20,8 +20,6 @@ import graph.bfa.EventTransition;
 
 public final class BFANetworkSupervisor {
     private static MutableNetwork<BFA, Link> network;
-    private static Map<BFA, Set<EventTransition>> bfaAndTransitions; // this map represents the association between a
-                                                                     // bfa and its transitions enbled
 
     private BFANetworkSupervisor() {
     }
@@ -32,7 +30,7 @@ public final class BFANetworkSupervisor {
      *
      */
     private static final Set<Link> getLinksWithSpecifiedEvent(Set<Link> links, String event) {
-        return links.stream().filter(l -> l.getEvent().equals(event)).collect(Collectors.toSet());
+        return links.stream().filter(l -> l.getEvent().get().equals(event)).collect(Collectors.toSet());
     }
 
     /**
@@ -40,7 +38,7 @@ public final class BFANetworkSupervisor {
      *
      */
     private static final Set<Link> getEmptyLinks(Set<Link> links) {
-        return links.stream().filter(l -> l.getEvent().isPresent()).collect(Collectors.toSet());
+        return links.stream().filter(l -> l.getEvent().isEmpty()).collect(Collectors.toSet());
     }
 
     /**
@@ -48,13 +46,13 @@ public final class BFANetworkSupervisor {
      * BFA.
      *
      */
-    public static final Set<EventTransition> getTransitionsEnabledInBfa(BFA bfa) {
+    public static final Set<EventTransition> getTransitionsEnabledInBfa(BFANetwork bfaNetwork, BFA bfa) {
+        network = Graphs.copyOf(bfaNetwork.getNetwork());
         Set<Link> inLinks = network.inEdges(bfa);
         Set<Link> outLinks = network.outEdges(bfa);
 
-        Set<EventTransition> transitionsEnabled = Collections.emptySet();
-
-        for (EventTransition transition : bfa.getEdges()) {
+        Set<EventTransition> transitionsEnabled = new HashSet<>();
+        for (EventTransition transition : bfa.getNetwork().outEdges(bfa.getCurrentState())) {
             boolean saveTransition = true;
             if (transition.getInEvent().isPresent()
                     && getLinksWithSpecifiedEvent(inLinks, transition.getInEvent().get()).isEmpty())
@@ -65,25 +63,10 @@ public final class BFANetworkSupervisor {
 
             if (saveTransition)
                 transitionsEnabled.add(transition);
+
         }
 
         return transitionsEnabled;
-    }
-
-    /**
-     * This method adds to "bfaAndTransitions" every bfa with its transitions
-     * enabled.
-     * 
-     *
-     */
-    public static final void getTransitionsEnabledInNetwork() {
-        Set<BFA> bfas = network.nodes();
-
-        bfaAndTransitions = new HashMap<>();
-
-        for (BFA bfa : bfas) {
-            bfaAndTransitions.put(bfa, getTransitionsEnabledInBfa(bfa));
-        }
     }
 
     /**
@@ -91,17 +74,25 @@ public final class BFANetworkSupervisor {
      * 
      *
      */
-    public static final void executeTransition(BFA bfa, EventTransition transition) {
+    public static final void executeTransition(BFANetwork bfaNetwork, BFA bfa, EventTransition transition) {
+        network = Graphs.copyOf(bfaNetwork.getNetwork());
         Set<Link> inLinks = network.inEdges(bfa);
         Set<Link> outLinks = getEmptyLinks(network.outEdges(bfa));
 
+        // if the transition has the inEvent, then I "pop" that event from the first
+        // link containing such event in his buffer
         if (transition.getInEvent().isPresent())
             getLinksWithSpecifiedEvent(inLinks, transition.getInEvent().get()).iterator().next().removeEvent();
 
+        // here I put all the outEvents of the transitions inside the empty links
         for (String event : transition.getOutEvents()) {
             Link link = outLinks.iterator().next();
             link.setEvent(event);
             outLinks.remove(link);
         }
+
+        // here I update the current state
+        bfa.setCurrentState(bfa.getNetwork().incidentNodes(transition).nodeV());
+
     }
 }

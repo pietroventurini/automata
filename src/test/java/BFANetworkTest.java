@@ -86,7 +86,7 @@ public class BFANetworkTest {
         BFANetworkSupervisor.executeTransition(bfaNetwork, c3, t3a);
         assertSame(c3.getCurrentState(), s31);
         assertSame(c2.getCurrentState(), s20);
-        assertTrue(l2.getEvent().get().equals("e2(L2)")); //FIXME why not assertEquals?
+        assertEquals("e2(L2)", l2.getEvent().get());
         assertTrue(l3.getEvent().isEmpty());
     }
 
@@ -104,7 +104,12 @@ public class BFANetworkTest {
         assertSame(c3.getCurrentState(), s31);
         assertSame(c2.getCurrentState(), s21);
         assertTrue(l2.getEvent().isEmpty());
-        assertTrue(l3.getEvent().get().equals("e3(L3)")); //FIXME why not assertEquals?
+        assertEquals("e3(L3)", l3.getEvent().get());
+    }
+
+    @Test
+    public void computeBehavioralSpaceOfNetwork() {
+        fail("Test not yet implemented"); //TODO
     }
 
 }

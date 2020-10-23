@@ -5,6 +5,8 @@ import graph.edges.EdgeWithName;
 
 /**
  * This class represents a single link connecting two BFAs inside a BFANetwork.
+ *
+ * @author Giacomo Bontempi
  */
 public class Link implements EdgeWithName {
     private String name;

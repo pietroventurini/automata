@@ -15,6 +15,8 @@ import graph.bfa.EventTransition;
  * This class monitors and operates on the network of BFA; in particular, it is
  * able retrieves all the current transitions enabled and execute a particular
  * transition enabled inside a BFA.
+ *
+ * @author Giacomo Bontempi
  */
 
 public final class BFANetworkSupervisor {

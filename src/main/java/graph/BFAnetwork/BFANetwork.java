@@ -8,6 +8,8 @@ import java.util.Set;
 
 /**
  * This class represents a network consisting of BFAs and Links connecting them.
+ *
+ * @author Giacomo Bontempi
  */
 public class BFANetwork extends Graph<BFA, Link> {
 

@@ -6,7 +6,9 @@ import graph.bfa.BFA;
 
 /**
  * This class is used to instantiate Behavioral FAs (BFAs), simplifying the
- * construction process of complex objects with different representations.
+ * construction process of complex objects with different representations
+ *
+ * @author Giacomo Bontempi
  */
 public class BFANetworkBuilder {
 

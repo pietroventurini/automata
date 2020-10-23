@@ -33,18 +33,18 @@ public class FATest {
     private static final Transition t22 = new Transition("c");
     private static final Transition t23 = new Transition("b");
 
-    FA fa;
-    FABuilder faBuilder;
+    FA<State, Transition> fa;
+    FABuilder<State, Transition> faBuilder;
 
     @BeforeEach
     public void setUp() {
-        faBuilder = new FABuilder();
+        faBuilder = new FABuilder<>();
     }
 
     /**
      * Build the FA from the example of page 9 of the project desctiption
      */
-    private FA FAofPage9() {
+    private FA<State, Transition> FAofPage9() {
         return faBuilder.putTransition(s0, s1, t01)
                 .putTransition(s0, s2, t02)
                 .putTransition(s1, s3, t13)
@@ -58,14 +58,14 @@ public class FATest {
     /**
      * Build a FA having only one state
      */
-    private FA FAWithOnlyOneState() {
+    private FA<State, Transition> FAWithOnlyOneState() {
         return faBuilder.putState(new StateBuilder("theOnlyState").isInitial(true).isFinal(true).build()).build();
     }
 
     /**
      * Build the FA from the example of page 21 of the project description
      */
-    private FA FAofPage21() {
+    private FA<State, Transition> FAofPage21() {
         State s0 = new StateBuilder("0").isInitial(true).build();
         State s1 = new StateBuilder("1").isFinal(true).build();
         State s2 = new StateBuilder("2").isFinal(true).build();
@@ -178,7 +178,7 @@ public class FATest {
      */
     @Test
     public void itShouldComputeAcceptedLanguageOfSingleStateWithSelfLoop() {
-        FA fa = FAWithOnlyOneState();
+        FA<State, Transition> fa = FAWithOnlyOneState();
         // add the self-loop
         fa.addEdge(fa.getInitialState(), fa.getInitialState(), new Transition("a"));
         String acceptedLanguage = AcceptedLanguage.reduceFAtoRegex(fa);
@@ -193,10 +193,11 @@ public class FATest {
      */
     @Test
     public void itShouldComputeAcceptedLanguagesRelativeToEachAcceptanceStateOfFaOfPage21() {
-        FA fa = FAofPage21();
+        FA<State, Transition> fa = FAofPage21();
         Set<String> acceptedLanguages = AcceptedLanguages.reduceFAtoMultipleRegex(fa);
         Set<String> realAcceptedLanguages = Set.of("(a(b)*)", "((a(b)*)|(b(a)*b))", "(b(a)*)");
         acceptedLanguages.removeAll(realAcceptedLanguages);
         assertTrue(acceptedLanguages.isEmpty());
     }
+
 }

@@ -12,9 +12,9 @@ import java.util.Set;
  *
  * @author Pietro Venturini
  */
-public class FA extends AbstractFA<State, Transition> {
+public class FA<S extends State, T extends Transition> extends AbstractFA<S,T> {
 
-    private Set<State> finalStates;
+    private Set<S> finalStates;
 
     /**
      * Just for testing purposes, later on we will build it from a file containing
@@ -23,16 +23,16 @@ public class FA extends AbstractFA<State, Transition> {
      * @param initialState the initial state of the FA
      * @param finalStates the set (eventually empty) of final states
      */
-    FA(MutableNetwork<State, Transition> network, State initialState, Set<State> finalStates) {
+    FA(MutableNetwork<S, T> network, S initialState, Set<S> finalStates) {
         super(network, initialState);
         this.finalStates = finalStates;
     }
 
-    public State getInitialState() {
+    public S getInitialState() {
         return initialState;
     }
 
-    public Set<State> getFinalStates() {
+    public Set<S> getFinalStates() {
         return finalStates;
     }
 
@@ -40,7 +40,7 @@ public class FA extends AbstractFA<State, Transition> {
      * Since edges of a FA are called transitions, this is a facade to Graph.getEdges()
      * @return the set of transitions of the FA
      */
-    public Set<Transition> getTransitions() {
+    public Set<T> getTransitions() {
         return getEdges();
     }
 

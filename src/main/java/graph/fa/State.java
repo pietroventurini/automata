@@ -5,8 +5,8 @@ import graph.nodes.Node;
 import java.util.EnumSet;
 
 /**
- * This class represents a state of a FA.FA. A state is a node of the underlying graph, with a type associated (described
- * by the FA.StateType enum) and a unique name.
+ * This class represents a state of a FA. A state is a node of the underlying graph, with a type associated (described
+ * by the StateType enum) and a unique name.
  *
  * @author Pietro Venturini
  */

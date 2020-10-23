@@ -17,7 +17,7 @@ public class FAValidator {
      * @throws IllegalStateException if the fa is not valid (has isolated states / doesn't have any final state /
      *  has more than one initial state / doesn't have a final state)
      */
-    public static boolean validate(FA fa) {
+    public static <S extends State, T extends Transition> boolean validate(FA<S,T> fa) {
         if (hasOnlyOneInitialState(fa) && thereAreNotIsolatedStates(fa) && hasAtLeastOneFinalState(fa)) {
             return true;
         } else {
@@ -30,39 +30,39 @@ public class FAValidator {
      * @param fa the FA to check
      * @return true if fa has exactly one initial state, false otherwise
      */
-    public static boolean hasOnlyOneInitialState(FA fa) {
+    public static <S extends State, T extends Transition> boolean hasOnlyOneInitialState(FA<S,T> fa) {
         return fa.getNodes()
                 .stream()
-                .filter(State::isInitial)
+                .filter(S::isInitial)
                 .count() == 1;
     }
 
     /**
      * Check that, unless the set of states contains only one state, then there are no isolated states
      */
-    public static boolean thereAreNotIsolatedStates(FA fa) {
+    public static <S extends State, T extends Transition> boolean thereAreNotIsolatedStates(FA<S,T> fa) {
         if (fa.getStates().size() > 1)
             if (getIsolatedStates(fa).size() > 0)
                 throw new IllegalStateException();
         return true;
     }
 
-    public static boolean hasAtLeastOneFinalState(FA fa) {
+    public static <S extends State, T extends Transition> boolean hasAtLeastOneFinalState(FA<S,T> fa) {
         return fa.getFinalStates().size() > 0;
     }
 
     /**
      * @return the set of final states of the FA
      */
-    private static Set<State> retrieveFinalStates(FA fa) {
+    private static <S extends State, T extends Transition> Set<S> retrieveFinalStates(FA<S,T> fa) {
         return fa.getNodes()
                 .stream()
-                .filter(State::isFinal)
+                .filter(S::isFinal)
                 .collect(Collectors.toSet());
     }
 
-    private static Set<State> getIsolatedStates(FA fa) {
-        return fa.getNetwork().nodes()
+    private static <S extends State, T extends Transition> Set<S> getIsolatedStates(FA<S,T> fa) {
+        return fa.getNodes()
                 .stream()
                 .filter(n -> fa.getNetwork().inDegree(n) == 0 && fa.getNetwork().outDegree(n) == 0)
                 .collect(Collectors.toSet());

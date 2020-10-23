@@ -14,9 +14,9 @@ import java.util.stream.Collectors;
  *
  * @author Pietro Venturini
  */
-public class FABuilder {
+public class FABuilder<S extends State, T extends Transition> {
 
-    private MutableNetwork<State, Transition> network;
+    private MutableNetwork<S, T> network;
 
     /**
      * Instantiate the underlying network
@@ -28,21 +28,21 @@ public class FABuilder {
                 .build();
     }
 
-    public FABuilder putState(State nodeU) {
+    public FABuilder putState(S nodeU) {
         network.addNode(nodeU);
         return this;
     }
 
-    public FABuilder putTransition(State nodeU, State nodeV, Transition transition) {
+    public FABuilder putTransition(S nodeU, S nodeV, T transition) {
         network.addEdge(nodeU, nodeV, transition);
         return this;
     }
 
 
-    public FA build() {
-        State initialState = retrieveInitialState();
-        Set<State> finalStates = retrieveFinalStates();
-        FA fa = new FA(network, initialState, finalStates);
+    public FA<S,T> build() {
+        S initialState = retrieveInitialState();
+        Set<S> finalStates = retrieveFinalStates();
+        FA<S,T> fa = new FA(network, initialState, finalStates);
 
         FAValidator.validate(fa);
 
@@ -54,20 +54,20 @@ public class FABuilder {
      * @throws NoSuchElementException if the iterable is empty
      * @throws IllegalArgumentException if the iterable contains multiple elements
      */
-    private State retrieveInitialState() {
+    private S retrieveInitialState() {
         return network.nodes()
                 .stream()
-                .filter(State::isInitial)
+                .filter(S::isInitial)
                 .collect(MoreCollectors.onlyElement());
     }
 
     /**
      * @return the set of final states of the FA
      */
-    private Set<State> retrieveFinalStates() {
+    private Set<S> retrieveFinalStates() {
         return network.nodes()
                 .stream()
-                .filter(State::isFinal)
+                .filter(S::isFinal)
                 .collect(Collectors.toSet());
     }
 

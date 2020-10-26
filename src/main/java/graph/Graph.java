@@ -7,10 +7,10 @@ import graph.nodes.Node;
 import java.util.Set;
 
 /**
- * An abstract structure that represents a graph (it can be a FA, a behavioral FA, a network of BFA,
- * a behavioral space, ...)
- * Since the Guava Network is a final class (we can't extend it), this is a kind of a container
- * for that data structure
+ * An abstract structure that represents a graph (it can be a FA, a behavioral
+ * FA, a network of BFA, a behavioral space, ...) Since the Guava Network is a
+ * final class (we can't extend it), this is a kind of a container for that data
+ * structure
  *
  * @param <N> Node parameter type
  * @param <E> Edge parameter type

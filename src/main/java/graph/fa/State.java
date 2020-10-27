@@ -12,7 +12,7 @@ import java.util.EnumSet;
  */
 public class State implements Node {
 
-    private String name; // maybe can change to a more complex type (e.g. see pag 35 of the project description)
+    private String name;
     private EnumSet<StateType> type;
 
     /**

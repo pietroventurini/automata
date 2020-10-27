@@ -9,6 +9,7 @@ import java.util.Set;
 import java.util.Map;
 import java.util.stream.Collectors;
 
+import com.google.common.graph.Network;
 import graph.fa.FA;
 import graph.fa.FABuilder;
 import graph.bfa.BFA;
@@ -26,7 +27,6 @@ import graph.BFAnetwork.BSTransition;
  */
 
 public final class BFANetworkSupervisor {
-    private static MutableNetwork<BFA, Link> network;
 
     private BFANetworkSupervisor() {
     }
@@ -53,7 +53,7 @@ public final class BFANetworkSupervisor {
      * BFA.
      */
     public static final Set<EventTransition> getTransitionsEnabledInBfa(BFANetwork bfaNetwork, BFA bfa) {
-        network = Graphs.copyOf(bfaNetwork.getNetwork());
+        Network<BFA, Link> network;network = Graphs.copyOf(bfaNetwork.getNetwork());
         Set<Link> inLinks = network.inEdges(bfa);
         inLinks = inLinks.stream().filter(l -> l.getEvent().isPresent()).collect(Collectors.toSet());
         Set<Link> outLinks = network.outEdges(bfa);
@@ -62,14 +62,17 @@ public final class BFANetworkSupervisor {
         for (EventTransition transition : bfa.getNetwork().outEdges(bfa.getCurrentState())) {
             boolean saveTransition = true;
             if (transition.getInEvent().isPresent()
-                    && getLinksWithSpecifiedEvent(inLinks, transition.getInEvent().get()).isEmpty())
+                    && getLinksWithSpecifiedEvent(inLinks, transition.getInEvent().get()).isEmpty()) {
                 saveTransition = false;
+            }
 
-            if (getEmptyLinks(outLinks).size() < transition.getOutEvents().size())
+            if (getEmptyLinks(outLinks).size() < transition.getOutEvents().size()) {
                 saveTransition = false;
+            }
 
-            if (saveTransition)
+            if (saveTransition) {
                 transitionsEnabled.add(transition);
+            }
 
         }
 
@@ -80,7 +83,7 @@ public final class BFANetworkSupervisor {
      * Execute a particular transition enabled inside a BFA
      */
     public static final void executeTransition(BFANetwork bfaNetwork, BFA bfa, EventTransition transition) {
-        network = Graphs.copyOf(bfaNetwork.getNetwork());
+        Network<BFA, Link> network = Graphs.copyOf(bfaNetwork.getNetwork());
         Set<Link> inLinks = network.inEdges(bfa);
         inLinks = inLinks.stream().filter(l -> l.getEvent().isPresent()).collect(Collectors.toSet());
         Set<Link> outLinks = getEmptyLinks(network.outEdges(bfa));
@@ -106,7 +109,7 @@ public final class BFANetworkSupervisor {
      * Retrieve the current state of a BFANetwork
      */
     public static final BSState getBFANetworkState(BFANetwork bfaNetwork, String name) {
-        network = bfaNetwork.getNetwork();
+        Network<BFA, Link> network = bfaNetwork.getNetwork();
         Map<BFA, State> currentStates = new HashMap<>();
         Map<Link, String> links = new HashMap<>();
 
@@ -174,17 +177,42 @@ public final class BFANetworkSupervisor {
                         faBuilder.putState(newState);
                     }
                     faBuilder.putTransition(state, newState, new BSTransition(transition.getName(),
-                            transition.getRelevanceLabel(), transition.getObservabilityLabel()));
+                                            transition.getRelevanceLabel(), transition.getObservabilityLabel()));
                     rollbackBFANetwork(state);
-
                 }
             }
             toExplore.remove(state);
             closed.add(state);
-
         }
-
         return faBuilder.build();
+    }
 
+    /**
+     * Removes the states of the provided FA from which it can't be reached a final state.
+     */
+    public static <S extends State, T extends Transition> boolean pruneFA(FA<S, T> bs) {
+        Set<S> toRemove = getNonfinalStatesWithoutOutgoingTransitions(bs);
+        if (toRemove.isEmpty()) {
+            return false;
+        }
+        while(!toRemove.isEmpty()) {
+            toRemove.forEach(s -> bs.getNetwork().removeNode(s));
+            toRemove = getNonfinalStatesWithoutOutgoingTransitions(bs);
+        }
+        return true;
+    }
+
+    /**
+     * Retrieve the set of non-final states that don't have any outgoing transitions, i.e. from
+     * which we can't reach any other state.
+     * @param fa the finite automata
+     * @param <S> the type of nodes
+     * @return the set of non-final states that don't have any outgoing transition
+     */
+    private static <S extends State> Set<S> getNonfinalStatesWithoutOutgoingTransitions(FA<S, ? extends Transition> fa) {
+        return fa.getStates()
+                .stream()
+                .filter(s -> fa.getNetwork().outDegree(s)==0 && !s.isFinal())
+                .collect(Collectors.toSet());
     }
 }

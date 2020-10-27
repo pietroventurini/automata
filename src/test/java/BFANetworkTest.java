@@ -144,7 +144,7 @@ public class BFANetworkTest {
 
         // there should be 18 transitions
         assertEquals(18, space.getTransitions().size());
-
+/*
         for (BSState state : space.getStates()) {
             System.out.println(state.description());
         }
@@ -154,7 +154,17 @@ public class BFANetworkTest {
             System.out.println(
                     pair.nodeU().description() + "-> " + transition.getSymbol() + "-> " + pair.nodeV().description());
         }
-
+*/
     }
 
+    /**
+     * Check that the BS of page 35-36 is pruned correctly (
+     */
+    @Test
+    public void itShouldPruneBehavioralSpace() {
+        FA<BSState, BSTransition> space = BFANetworkSupervisor.getBehavioralSpace(bfaNetwork);
+        assertEquals(15, space.getStates().size(), "The BS of page 35 should have 15 states");
+        BFANetworkSupervisor.pruneFA(space);
+        assertEquals(13, space.getStates().size(), "The pruned BS should have 13 states");
+    }
 }

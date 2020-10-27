@@ -14,8 +14,6 @@ import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-import com.google.common.graph.EndpointPair;
-
 import static org.junit.jupiter.api.Assertions.*;
 
 public class BFANetworkTest {
@@ -144,7 +142,7 @@ public class BFANetworkTest {
 
         // there should be 18 transitions
         assertEquals(18, space.getTransitions().size());
-/*
+        /*
         for (BSState state : space.getStates()) {
             System.out.println(state.description());
         }
@@ -154,7 +152,7 @@ public class BFANetworkTest {
             System.out.println(
                     pair.nodeU().description() + "-> " + transition.getSymbol() + "-> " + pair.nodeV().description());
         }
-*/
+        */
     }
 
     /**
@@ -167,4 +165,6 @@ public class BFANetworkTest {
         BFANetworkSupervisor.pruneFA(space);
         assertEquals(13, space.getStates().size(), "The pruned BS should have 13 states");
     }
+
+
 }

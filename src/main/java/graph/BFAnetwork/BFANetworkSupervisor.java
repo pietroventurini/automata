@@ -1,7 +1,7 @@
 package graph.BFAnetwork;
 
-import com.google.common.graph.Graphs;
-import com.google.common.graph.MutableNetwork;
+import com.google.common.collect.ImmutableSet;
+import com.google.common.graph.*;
 
 import java.util.HashMap;
 import java.util.HashSet;
@@ -9,7 +9,6 @@ import java.util.Set;
 import java.util.Map;
 import java.util.stream.Collectors;
 
-import com.google.common.graph.Network;
 import graph.fa.FA;
 import graph.fa.FABuilder;
 import graph.bfa.BFA;
@@ -17,6 +16,8 @@ import graph.fa.State;
 import graph.fa.Transition;
 import graph.bfa.EventTransition;
 import graph.BFAnetwork.BSTransition;
+
+import static com.google.common.base.Preconditions.checkArgument;
 
 /**
  * This class monitors and operates on the network of BFA; in particular, it is
@@ -189,30 +190,36 @@ public final class BFANetworkSupervisor {
 
     /**
      * Removes the states of the provided FA from which it can't be reached a final state.
+     * @param fa the Finite automata to be pruned
+     * @param <S> the type of states (nodes) of the FA
+     * @return true if at least one state has been removed, false otherwise
      */
-    public static <S extends State, T extends Transition> boolean pruneFA(FA<S, T> bs) {
-        Set<S> toRemove = getNonfinalStatesWithoutOutgoingTransitions(bs);
-        if (toRemove.isEmpty()) {
-            return false;
+    public static <S extends State> boolean pruneFA(FA<S, ?> fa) {
+        Set<S> toRemove = new HashSet<>();
+        for (S s : fa.getStates()) {
+            Set<S> reachableNodes= reachableNodes(fa.getNetwork(), s); // get the set of nodes reachable from s
+            if (reachableNodes.stream().noneMatch(S::isFinal)) {
+                toRemove.add(s);
+            }
         }
-        while(!toRemove.isEmpty()) {
-            toRemove.forEach(s -> bs.getNetwork().removeNode(s));
-            toRemove = getNonfinalStatesWithoutOutgoingTransitions(bs);
-        }
-        return true;
+        toRemove.forEach(s -> fa.getNetwork().removeNode(s));
+        return toRemove.isEmpty() ? false : true;
     }
 
     /**
-     * Retrieve the set of non-final states that don't have any outgoing transitions, i.e. from
-     * which we can't reach any other state.
-     * @param fa the finite automata
-     * @param <S> the type of nodes
-     * @return the set of non-final states that don't have any outgoing transition
+     * This method is inspired from Graphs.reachableNodes() of the guava graph library
+     * Returns the set of nodes that are reachable from {@code node}. Node B is defined as reachable
+     * from node A if there exists a path (a sequence of adjacent outgoing edges) starting at node A
+     * and ending at node B. Note that a node is always reachable from itself via a zero-length path.
+     *
+     * <p>This is a "snapshot" based on the current topology of {@code network}, rather than a live view
+     * of the set of nodes reachable from {@code node}. In other words, the returned {@link Set} will
+     * not be updated after modifications to {@code network}.
+     *
+     * @throws IllegalArgumentException if {@code node} is not present in {@code network}
      */
-    private static <S extends State> Set<S> getNonfinalStatesWithoutOutgoingTransitions(FA<S, ? extends Transition> fa) {
-        return fa.getStates()
-                .stream()
-                .filter(s -> fa.getNetwork().outDegree(s)==0 && !s.isFinal())
-                .collect(Collectors.toSet());
+    private static <N> Set<N> reachableNodes(Network<N,?> network, N node) {
+        checkArgument(network.nodes().contains(node), "Node %s is not an element of this network.", node);
+        return ImmutableSet.copyOf(Traverser.forGraph(network).breadthFirst(node));
     }
 }

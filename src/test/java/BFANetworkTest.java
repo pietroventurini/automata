@@ -8,13 +8,11 @@ import graph.fa.StateBuilder;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
+import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
-
-import com.google.common.graph.EndpointPair;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -24,13 +22,14 @@ public class BFANetworkTest {
     private static final State s20 = new StateBuilder("20").isInitial(true).build();
     private static final State s21 = new StateBuilder("21").build();
     private static final EventTransition t2a = new EventTransition.Builder("t2a").inEvent("e2(L2)")
-            .addOutEvent("e3(L3)").build();
+            .addOutEvent("e3(L3)").observabilityLabel("o2").build();
     private static final EventTransition t2b = new EventTransition.Builder("t2b").addOutEvent("e3(L3)").build();
 
     // nodes and transitions of BFA C3 from page 24
     private static final State s30 = new StateBuilder("30").isInitial(true).build();
     private static final State s31 = new StateBuilder("31").build();
-    private static final EventTransition t3a = new EventTransition.Builder("t3a").addOutEvent("e2(L2)").build();
+    private static final EventTransition t3a = new EventTransition.Builder("t3a").addOutEvent("e2(L2)")
+            .observabilityLabel("o3").build();
     private static final EventTransition t3b = new EventTransition.Builder("t3b").inEvent("e3(L3)").build();
     private static final EventTransition t3c = new EventTransition.Builder("t3c").inEvent("e3(L3)").build();
 
@@ -108,7 +107,7 @@ public class BFANetworkTest {
 
     @Test
     public void itShouldGetTheBFANetworkState() {
-        BSState state = BFANetworkSupervisor.getBFANetworkState(bfaNetwork, "");
+        BSState state = BFANetworkSupervisor.getBFANetworkState(bfaNetwork);
         Map<BFA, State> bfas = new HashMap<>();
         Map<Link, String> links = new HashMap<>();
         bfas.put(c2, s20);
@@ -122,13 +121,11 @@ public class BFANetworkTest {
 
     @Test
     public void itShouldRollback() {
-        BSState oldState = BFANetworkSupervisor.getBFANetworkState(bfaNetwork, "");
+        BSState oldState = BFANetworkSupervisor.getBFANetworkState(bfaNetwork);
         BFANetworkSupervisor.executeTransition(bfaNetwork, c3, t3a);
         BFANetworkSupervisor.rollbackBFANetwork(oldState);
-        BSState newState = BFANetworkSupervisor.getBFANetworkState(bfaNetwork, "");
-        Set<BSState> closed = new HashSet<>();
-        closed.add(oldState);
-        assertTrue(closed.contains(newState));
+        BSState newState = BFANetworkSupervisor.getBFANetworkState(bfaNetwork);
+
         assertEquals(oldState, newState);
     }
 
@@ -145,15 +142,34 @@ public class BFANetworkTest {
         // there should be 18 transitions
         assertEquals(18, space.getTransitions().size());
 
-        for (BSState state : space.getStates()) {
-            System.out.println(state.description());
-        }
+        /*
+         * for (BSState state : space.getStates()) {
+         * System.out.println(state.description()); }
+         * 
+         * for (BSTransition transition : space.getTransitions()) {
+         * EndpointPair<BSState> pair = space.getNetwork().incidentNodes(transition);
+         * System.out.println( pair.nodeU().description() + "-> " +
+         * transition.getSymbol() + "-> " + pair.nodeV().description()); }
+         */
 
-        for (BSTransition transition : space.getTransitions()) {
-            EndpointPair<BSState> pair = space.getNetwork().incidentNodes(transition);
-            System.out.println(
-                    pair.nodeU().description() + "-> " + transition.getSymbol() + "-> " + pair.nodeV().description());
-        }
+    }
+
+    @Test
+    public void computeBehavioralSpaceOfLinearObservation() {
+        ArrayList<String> linearObservation = new ArrayList<>();
+        linearObservation.add("o3");
+        linearObservation.add("o2");
+        FA<LOBSState, BSTransition> space = BFANetworkSupervisor.getBehavioralSpaceForLinearObservation(bfaNetwork,
+                linearObservation);
+
+        // there should be 9 states
+        assertEquals(9, space.getStates().size());
+
+        // there should be 4 final states
+        assertEquals(4, space.getStates().stream().filter(s -> s.isFinal()).collect(Collectors.toSet()).size());
+
+        // there should be 18 transitions
+        assertEquals(8, space.getTransitions().size());
 
     }
 

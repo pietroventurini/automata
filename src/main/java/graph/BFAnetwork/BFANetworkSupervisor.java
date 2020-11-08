@@ -3,6 +3,7 @@ package graph.BFAnetwork;
 import com.google.common.graph.Graphs;
 import com.google.common.graph.MutableNetwork;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Set;
@@ -13,9 +14,7 @@ import graph.fa.FA;
 import graph.fa.FABuilder;
 import graph.bfa.BFA;
 import graph.fa.State;
-import graph.fa.Transition;
 import graph.bfa.EventTransition;
-import graph.BFAnetwork.BSTransition;
 
 /**
  * This class monitors and operates on the network of BFA; in particular, it is
@@ -105,24 +104,30 @@ public final class BFANetworkSupervisor {
     /**
      * Retrieve the current state of a BFANetwork
      */
-    public static final BSState getBFANetworkState(BFANetwork bfaNetwork, String name) {
+    public static final LOBSState getBFANetworkState(BFANetwork bfaNetwork) {
         network = bfaNetwork.getNetwork();
         Map<BFA, State> currentStates = new HashMap<>();
         Map<Link, String> links = new HashMap<>();
 
-        for (Link link : network.edges()) {
-            if (link.getEvent().isPresent())
-                links.put(link, link.getEvent().get());
-            else
-                links.put(link, null);
-
-        }
+        String name = "";
 
         for (BFA bfa : network.nodes()) {
             currentStates.put(bfa, bfa.getCurrentState());
+            name += " " + bfa.getCurrentState().getName();
         }
 
-        return new BSState(name, currentStates, links);
+        for (Link link : network.edges()) {
+            if (link.getEvent().isPresent()) {
+                links.put(link, link.getEvent().get());
+                name += " " + link.getEvent().get();
+            } else {
+                links.put(link, null);
+                name += " eps";
+            }
+
+        }
+
+        return new LOBSState(name, currentStates, links);
     }
 
     /**
@@ -148,7 +153,7 @@ public final class BFANetworkSupervisor {
     public static final FA<BSState, BSTransition> getBehavioralSpace(BFANetwork bfaNetwork) {
         FABuilder<BSState, BSTransition> faBuilder = new FABuilder<>();
 
-        BSState networkState = getBFANetworkState(bfaNetwork, "");
+        BSState networkState = getBFANetworkState(bfaNetwork);
         networkState.isInitial(true);
         networkState.checkFinal();
         faBuilder.putState(networkState);
@@ -167,7 +172,7 @@ public final class BFANetworkSupervisor {
             for (BFA bfa : bfaNetwork.getBFAs()) {
                 for (EventTransition transition : getTransitionsEnabledInBfa(bfaNetwork, bfa)) {
                     executeTransition(bfaNetwork, bfa, transition);
-                    BSState newState = getBFANetworkState(bfaNetwork, "");
+                    BSState newState = getBFANetworkState(bfaNetwork);
                     newState.checkFinal();
                     if (!closed.contains(newState) && !toExplore.contains(newState)) {
                         toExplore.add(newState);
@@ -184,6 +189,59 @@ public final class BFANetworkSupervisor {
 
         }
 
+        return faBuilder.build();
+
+    }
+
+    /**
+     * Create the behavioral space related to a linear observation
+     */
+    public static final FA<LOBSState, BSTransition> getBehavioralSpaceForLinearObservation(BFANetwork bfaNetwork,
+            ArrayList<String> linearObservation) {
+        FABuilder<LOBSState, BSTransition> faBuilder = new FABuilder<>();
+
+        LOBSState networkState = getBFANetworkState(bfaNetwork);
+        networkState.isInitial(true);
+        networkState.setObservationIndex(0);
+        faBuilder.putState(networkState);
+
+        // the set containing the BSStates to explore
+        Set<LOBSState> toExplore = new HashSet<>();
+
+        toExplore.add(networkState);
+        while (!toExplore.isEmpty()) {
+            LOBSState state = toExplore.iterator().next();
+            rollbackBFANetwork(state);
+
+            for (BFA bfa : bfaNetwork.getBFAs()) {
+                for (EventTransition transition : getTransitionsEnabledInBfa(bfaNetwork, bfa)) {
+                    if (transition.getObservabilityLabel().equals("")
+                            || (state.getObservationIndex() < linearObservation.size() && linearObservation
+                                    .get(state.getObservationIndex()).equals(transition.getObservabilityLabel()))) {
+
+                        executeTransition(bfaNetwork, bfa, transition);
+                        LOBSState newState = getBFANetworkState(bfaNetwork);
+                        if (!transition.getObservabilityLabel().equals(""))
+                            newState.setObservationIndex(state.getObservationIndex() + 1);
+                        else
+                            newState.setObservationIndex(state.getObservationIndex());
+
+                        if (newState.getObservationIndex() == linearObservation.size())
+                            newState.checkFinal();
+
+                        toExplore.add(newState);
+                        faBuilder.putState(newState);
+
+                        faBuilder.putTransition(state, newState, new BSTransition(transition.getName(),
+                                transition.getRelevanceLabel(), transition.getObservabilityLabel()));
+                        rollbackBFANetwork(state);
+                    }
+
+                }
+            }
+            toExplore.remove(state);
+
+        }
         return faBuilder.build();
 
     }

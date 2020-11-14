@@ -1,6 +1,7 @@
 package graph.fa;
 
 import java.util.Set;
+import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
 /**
@@ -41,9 +42,8 @@ public class FAValidator {
      * Check that, unless the set of states contains only one state, then there are no isolated states
      */
     public static <S extends State, T extends Transition> boolean thereAreNotIsolatedStates(FA<S,T> fa) {
-        if (fa.getStates().size() > 1)
-            if (getIsolatedStates(fa).size() > 0)
-                throw new IllegalStateException();
+        if (getIsolatedStates(fa).stream().anyMatch(Predicate.not(S::isInitial)))
+            throw new IllegalStateException();
         return true;
     }
 

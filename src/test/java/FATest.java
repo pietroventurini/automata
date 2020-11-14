@@ -42,7 +42,7 @@ public class FATest {
     }
 
     /**
-     * Build the FA from the example of page 9 of the project desctiption
+     * Build the FA from the example of page 9 of the project description
      */
     private FA<State, Transition> FAofPage9() {
         return faBuilder.putTransition(s0, s1, t01)
@@ -140,23 +140,20 @@ public class FATest {
      * states is a singleton
      */
     @Test
-    public void itShouldAllowIsolatedStateIfThereIsOnlyOneState() {
+    public void itShouldAllowIsolatedStatesIfThereIsOnlyOneState() {
         fa = FAWithOnlyOneState();
         assertTrue(FAValidator.validate(fa));
     }
 
     /**
      * Check the example of 13 computing the accepted language of the FA of page 9
+     * Note: since there can be equivalent languages, it is quite difficult to test
+     *       whether the accepted language is correct. Furthermore, since we elaborate
+     *       transitions working on Sets (unordered collection), order of regex's elements
+     *       can change at every execution
      */
     @Test
     public void itShouldComputeLanguageAcceptedFromFA() {
-        /*
-         * Note: since there can be equivalent languages, it is quite difficult to test
-         * whether the accepted language is correct. Furthermore, since we elaborate
-         * transitions working on Sets (unordered collection), order of regex's elements
-         * can change at every execution
-         */
-
         String acceptedLanguage = AcceptedLanguage.reduceFAtoRegex(FAofPage9());
         // check equivalent languages
         assertTrue(acceptedLanguage.equals("aa*c|ac*ba*c") || acceptedLanguage.equals("a(a*|c*ba*)c")

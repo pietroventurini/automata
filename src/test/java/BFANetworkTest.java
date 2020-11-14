@@ -2,9 +2,7 @@ import graph.BFAnetwork.*;
 import graph.bfa.BFA;
 import graph.bfa.BFABuilder;
 import graph.bfa.EventTransition;
-import graph.fa.FA;
-import graph.fa.State;
-import graph.fa.StateBuilder;
+import graph.fa.*;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
@@ -173,14 +171,44 @@ public class BFANetworkTest {
     }
 
     /**
-     * Check that the BS of page 35-36 is pruned correctly (
+     * Check that the BS of page 35-36 is pruned correctly
      */
     @Test
     public void itShouldPruneBehavioralSpace() {
         FA<BSState, BSTransition> space = BFANetworkSupervisor.getBehavioralSpace(bfaNetwork);
         assertEquals(15, space.getStates().size(), "The BS of page 35 should have 15 states");
         BFANetworkSupervisor.pruneFA(space);
-        assertEquals(13, space.getStates().size(), "The pruned BS should have 13 states");
+        assertEquals(13, space.getStates().size(), "The BS after pruning should have 13 states");
+    }
+
+    /**
+     * Check that a FA containing a loop of non-final states gets pruned correctly by removing that loop.
+     * The FA under test is the following:
+     *
+     *      s0
+     *      s1 --> s2
+     *      s2 --> s1
+     *
+     * where:
+     * initial state: s0
+     * final states: {s0}
+     *
+     * The expected FA after pruning should contain only s0.
+     */
+    @Test
+    public void itShouldPruneFAWithLoopOfNonFinalStates() {
+        State s0 = new StateBuilder("s0").isInitial(true).isFinal(true).build();
+        State s1 = new State("s1");
+        State s2 = new State("s2");
+        FA<State, Transition> space = new FABuilder<>()
+                .putState(s0)
+                .putTransition(s1, s2, new Transition(""))
+                .putTransition(s2, s1, new Transition(""))
+                .build();
+        BFANetworkSupervisor.pruneFA(space);
+        assertTrue(space.getStates().contains(s0), "The BS after pruning should contain s0");
+        assertFalse(space.getStates().contains(s1), "The BS after pruning should not contain s1");
+        assertFalse(space.getStates().contains(s2), "The BS after pruning should not contain s2");
     }
 
 

@@ -28,12 +28,12 @@ public class FABuilder<S extends State, T extends Transition> {
                 .build();
     }
 
-    public FABuilder putState(S nodeU) {
+    public FABuilder<S,T> putState(S nodeU) {
         network.addNode(nodeU);
         return this;
     }
 
-    public FABuilder putTransition(S nodeU, S nodeV, T transition) {
+    public FABuilder<S,T> putTransition(S nodeU, S nodeV, T transition) {
         network.addEdge(nodeU, nodeV, transition);
         return this;
     }
@@ -42,7 +42,7 @@ public class FABuilder<S extends State, T extends Transition> {
     public FA<S,T> build() {
         S initialState = retrieveInitialState();
         Set<S> finalStates = retrieveFinalStates();
-        FA<S,T> fa = new FA(network, initialState, finalStates);
+        FA<S,T> fa = new FA<>(network, initialState, finalStates);
 
         FAValidator.validate(fa);
 

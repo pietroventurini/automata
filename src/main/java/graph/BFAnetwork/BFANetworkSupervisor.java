@@ -245,7 +245,6 @@ public final class BFANetworkSupervisor {
     }
 
     /**
-     * FIXME: this approach is not correct (e.g. a loop of non-final nodes won't be removed)
      * Removes the states of the provided FA from which it can't be reached a final state.
      * @param fa the Finite automata to be pruned
      * @param <S> the type of states (nodes) of the FA

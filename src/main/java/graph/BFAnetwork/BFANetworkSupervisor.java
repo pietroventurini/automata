@@ -3,6 +3,7 @@ package graph.BFAnetwork;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.graph.*;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Set;
@@ -13,9 +14,7 @@ import graph.fa.FA;
 import graph.fa.FABuilder;
 import graph.bfa.BFA;
 import graph.fa.State;
-import graph.fa.Transition;
 import graph.bfa.EventTransition;
-import graph.BFAnetwork.BSTransition;
 
 import static com.google.common.base.Preconditions.checkArgument;
 
@@ -54,7 +53,7 @@ public final class BFANetworkSupervisor {
      * BFA.
      */
     public static final Set<EventTransition> getTransitionsEnabledInBfa(BFANetwork bfaNetwork, BFA bfa) {
-        Network<BFA, Link> network;network = Graphs.copyOf(bfaNetwork.getNetwork());
+        Network<BFA, Link> network = Graphs.copyOf(bfaNetwork.getNetwork()); // FIXME: perché fare copia?
         Set<Link> inLinks = network.inEdges(bfa);
         inLinks = inLinks.stream().filter(l -> l.getEvent().isPresent()).collect(Collectors.toSet());
         Set<Link> outLinks = network.outEdges(bfa);
@@ -63,17 +62,14 @@ public final class BFANetworkSupervisor {
         for (EventTransition transition : bfa.getNetwork().outEdges(bfa.getCurrentState())) {
             boolean saveTransition = true;
             if (transition.getInEvent().isPresent()
-                    && getLinksWithSpecifiedEvent(inLinks, transition.getInEvent().get()).isEmpty()) {
+                    && getLinksWithSpecifiedEvent(inLinks, transition.getInEvent().get()).isEmpty())
                 saveTransition = false;
-            }
 
-            if (getEmptyLinks(outLinks).size() < transition.getOutEvents().size()) {
+            if (getEmptyLinks(outLinks).size() < transition.getOutEvents().size())
                 saveTransition = false;
-            }
 
-            if (saveTransition) {
+            if (saveTransition)
                 transitionsEnabled.add(transition);
-            }
 
         }
 
@@ -84,7 +80,7 @@ public final class BFANetworkSupervisor {
      * Execute a particular transition enabled inside a BFA
      */
     public static final void executeTransition(BFANetwork bfaNetwork, BFA bfa, EventTransition transition) {
-        Network<BFA, Link> network = Graphs.copyOf(bfaNetwork.getNetwork());
+        Network<BFA, Link> network = Graphs.copyOf(bfaNetwork.getNetwork()); //FIXME: perché fare copia?
         Set<Link> inLinks = network.inEdges(bfa);
         inLinks = inLinks.stream().filter(l -> l.getEvent().isPresent()).collect(Collectors.toSet());
         Set<Link> outLinks = getEmptyLinks(network.outEdges(bfa));
@@ -109,24 +105,30 @@ public final class BFANetworkSupervisor {
     /**
      * Retrieve the current state of a BFANetwork
      */
-    public static final BSState getBFANetworkState(BFANetwork bfaNetwork, String name) {
+    public static final LOBSState getBFANetworkState(BFANetwork bfaNetwork) {
         Network<BFA, Link> network = bfaNetwork.getNetwork();
         Map<BFA, State> currentStates = new HashMap<>();
         Map<Link, String> links = new HashMap<>();
 
-        for (Link link : network.edges()) {
-            if (link.getEvent().isPresent())
-                links.put(link, link.getEvent().get());
-            else
-                links.put(link, null);
-
-        }
+        String name = "";
 
         for (BFA bfa : network.nodes()) {
             currentStates.put(bfa, bfa.getCurrentState());
+            name += " " + bfa.getCurrentState().getName();
         }
 
-        return new BSState(name, currentStates, links);
+        for (Link link : network.edges()) {
+            if (link.getEvent().isPresent()) {
+                links.put(link, link.getEvent().get());
+                name += " " + link.getEvent().get();
+            } else {
+                links.put(link, null);
+                name += " eps";
+            }
+
+        }
+
+        return new LOBSState(name, currentStates, links);
     }
 
     /**
@@ -152,7 +154,7 @@ public final class BFANetworkSupervisor {
     public static final FA<BSState, BSTransition> getBehavioralSpace(BFANetwork bfaNetwork) {
         FABuilder<BSState, BSTransition> faBuilder = new FABuilder<>();
 
-        BSState networkState = getBFANetworkState(bfaNetwork, "");
+        BSState networkState = getBFANetworkState(bfaNetwork);
         networkState.isInitial(true);
         networkState.checkFinal();
         faBuilder.putState(networkState);
@@ -171,24 +173,79 @@ public final class BFANetworkSupervisor {
             for (BFA bfa : bfaNetwork.getBFAs()) {
                 for (EventTransition transition : getTransitionsEnabledInBfa(bfaNetwork, bfa)) {
                     executeTransition(bfaNetwork, bfa, transition);
-                    BSState newState = getBFANetworkState(bfaNetwork, "");
+                    BSState newState = getBFANetworkState(bfaNetwork);
                     newState.checkFinal();
                     if (!closed.contains(newState) && !toExplore.contains(newState)) {
                         toExplore.add(newState);
                         faBuilder.putState(newState);
                     }
                     faBuilder.putTransition(state, newState, new BSTransition(transition.getName(),
-                                            transition.getRelevanceLabel(), transition.getObservabilityLabel()));
+                            transition.getRelevanceLabel(), transition.getObservabilityLabel()));
                     rollbackBFANetwork(state);
                 }
             }
             toExplore.remove(state);
             closed.add(state);
         }
+
+        return faBuilder.build();
+
+    }
+
+    /**
+     * Create the behavioral space related to a linear observation
+     */
+    public static final FA<LOBSState, BSTransition> getBehavioralSpaceForLinearObservation(BFANetwork bfaNetwork,
+            ArrayList<String> linearObservation) {
+        FABuilder<LOBSState, BSTransition> faBuilder = new FABuilder<>();
+
+        LOBSState networkState = getBFANetworkState(bfaNetwork);
+        networkState.isInitial(true);
+        networkState.setObservationIndex(0);
+        faBuilder.putState(networkState);
+
+        // the set containing the BSStates to explore
+        Set<LOBSState> toExplore = new HashSet<>();
+
+        toExplore.add(networkState);
+        while (!toExplore.isEmpty()) {
+            LOBSState state = toExplore.iterator().next();
+            rollbackBFANetwork(state);
+
+            for (BFA bfa : bfaNetwork.getBFAs()) {
+                for (EventTransition transition : getTransitionsEnabledInBfa(bfaNetwork, bfa)) {
+                    if (transition.getObservabilityLabel().equals("")
+                            || (state.getObservationIndex() < linearObservation.size() && linearObservation
+                                    .get(state.getObservationIndex()).equals(transition.getObservabilityLabel()))) {
+
+                        executeTransition(bfaNetwork, bfa, transition);
+                        LOBSState newState = getBFANetworkState(bfaNetwork);
+                        if (!transition.getObservabilityLabel().equals(""))
+                            newState.setObservationIndex(state.getObservationIndex() + 1);
+                        else
+                            newState.setObservationIndex(state.getObservationIndex());
+
+                        if (newState.getObservationIndex() == linearObservation.size())
+                            newState.checkFinal();
+
+                        toExplore.add(newState);
+                        faBuilder.putState(newState);
+
+                        faBuilder.putTransition(state, newState, new BSTransition(transition.getName(),
+                                transition.getRelevanceLabel(), transition.getObservabilityLabel()));
+                        rollbackBFANetwork(state);
+                    }
+
+                }
+            }
+            toExplore.remove(state);
+
+        }
         return faBuilder.build();
     }
 
     /**
+     * FIXME: this approach is not correct (e.g. a loop of non-final nodes won't be removed)
      * Removes the states of the provided FA from which it can't be reached a final state.
      * @param fa the Finite automata to be pruned
      * @param <S> the type of states (nodes) of the FA

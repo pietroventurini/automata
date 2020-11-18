@@ -5,6 +5,11 @@ import java.util.Map;
 import graph.bfa.BFA;
 import graph.fa.State;
 
+/**
+ * LOBSState is the State of a Behavioral Space related to a linear observation.
+ * This class just extends BSState by adding an observation index related to the
+ * label of the next expected observable event in the linear observation.
+ */
 public class LOBSState extends BSState {
 
     private int observationIndex;
@@ -21,6 +26,11 @@ public class LOBSState extends BSState {
         return observationIndex;
     }
 
+    /**
+     * Here we rewrite the equals method: two LOBSStates are equals if and only if
+     * the current state is the same for each BFA, each link has the same content
+     * and they have the same observation index.
+     */
     @Override
     public boolean equals(Object o) {
         // If the object is compared with itself then return true

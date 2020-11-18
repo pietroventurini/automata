@@ -8,8 +8,9 @@ import java.util.Set;
 import static org.junit.jupiter.api.Assertions.*;
 
 /**
- * Test different FAs' instantiations and the utility classes that implement the logic to retrieve
- * the language accepted by a FA or the languages accepted by each of its acceptance states.
+ * Test different FAs' instantiations and the utility classes that implement the
+ * logic to retrieve the language accepted by a FA or the languages accepted by
+ * each of its acceptance states.
  *
  * @author Pietro Venturini
  */
@@ -20,7 +21,7 @@ public class FATest {
     private static final State s1 = new StateBuilder("1").build();
     private static final State s2 = new StateBuilder("2").build();
     private static final State s3 = new StateBuilder("3").build();
-    private static final State s4 = new StateBuilder("4").isFinal(true).build();
+    private static final State s4 = new StateBuilder("4").isFinal(true).isAcceptance(true).build();
 
     private static final State initialState = s0;
     private static final Set<State> finalStates = Set.of(s4);
@@ -45,21 +46,18 @@ public class FATest {
      * Build the FA from the example of page 9 of the project desctiption
      */
     private FA<State, Transition> FAofPage9() {
-        return faBuilder.putTransition(s0, s1, t01)
-                .putTransition(s0, s2, t02)
-                .putTransition(s1, s3, t13)
-                .putTransition(s3, s3, t33)
-                .putTransition(s3, s4, t34)
-                .putTransition(s2, s2, t22)
-                .putTransition(s2, s3, t23)
-                .build();
+        return faBuilder.putTransition(s0, s1, t01).putTransition(s0, s2, t02).putTransition(s1, s3, t13)
+                .putTransition(s3, s3, t33).putTransition(s3, s4, t34).putTransition(s2, s2, t22)
+                .putTransition(s2, s3, t23).build();
     }
 
     /**
      * Build a FA having only one state
      */
     private FA<State, Transition> FAWithOnlyOneState() {
-        return faBuilder.putState(new StateBuilder("theOnlyState").isInitial(true).isFinal(true).build()).build();
+        return faBuilder
+                .putState(new StateBuilder("theOnlyState").isInitial(true).isFinal(true).isAcceptance(true).build())
+                .build();
     }
 
     /**
@@ -67,9 +65,9 @@ public class FATest {
      */
     private FA<State, Transition> FAofPage21() {
         State s0 = new StateBuilder("0").isInitial(true).build();
-        State s1 = new StateBuilder("1").isFinal(true).build();
-        State s2 = new StateBuilder("2").isFinal(true).build();
-        State s3 = new StateBuilder("3").isFinal(true).build();
+        State s1 = new StateBuilder("1").isFinal(true).isAcceptance(true).build();
+        State s2 = new StateBuilder("2").isFinal(true).isAcceptance(true).build();
+        State s3 = new StateBuilder("3").isFinal(true).isAcceptance(true).build();
         Transition t01 = new Transition("a");
         Transition t11 = new Transition("b");
         Transition t02 = new Transition("b");
@@ -118,8 +116,7 @@ public class FATest {
         assertThrows(IllegalArgumentException.class,
                 () -> faBuilder.putState(new StateBuilder("anInitialState").isInitial(true).build())
                         .putState(new StateBuilder("anotherInitialState").isInitial(true).isFinal(true).build())
-                        .build()
-        );
+                        .build());
     }
 
     /**
@@ -130,9 +127,7 @@ public class FATest {
     public void itShouldThrowExceptionIfContainsIsolatedStates() {
         assertThrows(IllegalStateException.class,
                 () -> faBuilder.putState(new StateBuilder("initialIsolatedState").isInitial(true).build())
-                        .putState(new StateBuilder("anotherIsolatedState").isFinal(true).build())
-                        .build()
-        );
+                        .putState(new StateBuilder("anotherIsolatedState").isFinal(true).build()).build());
     }
 
     /**
@@ -195,7 +190,7 @@ public class FATest {
     public void itShouldComputeAcceptedLanguagesRelativeToEachAcceptanceStateOfFaOfPage21() {
         FA<State, Transition> fa = FAofPage21();
         Set<String> acceptedLanguages = AcceptedLanguages.reduceFAtoMultipleRegex(fa);
-        Set<String> realAcceptedLanguages = Set.of("(a(b)*)", "((a(b)*)|(b(a)*b))", "(b(a)*)");
+        Set<String> realAcceptedLanguages = Set.of("(a(b)*)", "((b(a)*b)|(a(b)*))", "(b(a)*)");
         acceptedLanguages.removeAll(realAcceptedLanguages);
         assertTrue(acceptedLanguages.isEmpty());
     }

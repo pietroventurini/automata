@@ -5,14 +5,16 @@ import graph.nodes.Node;
 import java.util.EnumSet;
 
 /**
- * This class represents a state of a FA. A state is a node of the underlying graph, with a type associated (described
- * by the StateType enum) and a unique name.
+ * This class represents a state of a FA. A state is a node of the underlying
+ * graph, with a type associated (described by the StateType enum) and a unique
+ * name.
  *
  * @author Pietro Venturini
  */
 public class State implements Node {
 
-    private String name; // maybe can change to a more complex type (e.g. see pag 35 of the project description)
+    private String name; // maybe can change to a more complex type (e.g. see pag 35 of the project
+                         // description)
     private EnumSet<StateType> type;
 
     /**
@@ -25,6 +27,7 @@ public class State implements Node {
 
     /**
      * Initialize a state given its name and type
+     * 
      * @param type a set of FA.StateType indicating the type of the state
      */
     public State(String name, EnumSet<StateType> type) {
@@ -38,6 +41,10 @@ public class State implements Node {
 
     public boolean isFinal() {
         return this.type.contains(StateType.FINAL);
+    }
+
+    public boolean isAcceptance() {
+        return this.type.contains(StateType.ACCEPTANCE);
     }
 
     @Override
@@ -74,5 +81,12 @@ public class State implements Node {
         }
     }
 
+    public void isAcceptance(boolean isAcceptance) {
+        if (isAcceptance) {
+            type.add(StateType.ACCEPTANCE);
+        } else {
+            type.remove(StateType.ACCEPTANCE);
+        }
+    }
 
 }

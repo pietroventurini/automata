@@ -18,8 +18,9 @@ import java.util.stream.Collectors;
  */
 public class BSState extends State {
 
-    private Map<BFA, State> bfas;
-    private Map<Link, String> links;
+    private Map<BFA, State> bfas; // this map stores for each BFA (in a BFANetwork) a copy of its current state
+    private Map<Link, String> links; // this map stores for each Link (in a BFANetwork) a copy of the event inside
+                                     // its buffer
 
     public BSState(String name, Map<BFA, State> bfas, Map<Link, String> links) {
         super(name);
@@ -59,6 +60,10 @@ public class BSState extends State {
 
     }
 
+    /**
+     * Here we rewrite the equals method: two BSStates are equals if and only if the
+     * current state is the same for each BFA and each link has the same content
+     */
     @Override
     public boolean equals(Object o) {
         // If the object is compared with itself then return true
@@ -80,15 +85,4 @@ public class BSState extends State {
         return 1;
     }
 
-    public String description() {
-        String statesDescription = "";
-        String linksDescription = "";
-        for (State state : bfas.values()) {
-            statesDescription = statesDescription + " " + state.getName();
-        }
-        for (String link : links.values()) {
-            linksDescription = linksDescription + " " + link;
-        }
-        return statesDescription + " " + linksDescription;
-    }
 }

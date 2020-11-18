@@ -212,7 +212,6 @@ public final class BFANetworkSupervisor {
         while (!toExplore.isEmpty()) {
             LOBSState state = toExplore.iterator().next();
             rollbackBFANetwork(state);
-
             for (BFA bfa : bfaNetwork.getBFAs()) {
                 for (EventTransition transition : getTransitionsEnabledInBfa(bfaNetwork, bfa)) {
                     if (transition.getObservabilityLabel().equals("")
@@ -221,6 +220,7 @@ public final class BFANetworkSupervisor {
 
                         executeTransition(bfaNetwork, bfa, transition);
                         LOBSState newState = getBFANetworkState(bfaNetwork);
+
                         if (!transition.getObservabilityLabel().equals(""))
                             newState.setObservationIndex(state.getObservationIndex() + 1);
                         else

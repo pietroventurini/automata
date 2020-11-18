@@ -6,6 +6,5 @@ package graph.fa;
  * @author Pietro Venturini
  */
 public enum StateType {
-    INITIAL,
-    FINAL
+    INITIAL, FINAL, ACCEPTANCE
 }

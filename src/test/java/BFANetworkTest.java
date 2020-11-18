@@ -2,6 +2,8 @@ import graph.BFAnetwork.*;
 import graph.bfa.BFA;
 import graph.bfa.BFABuilder;
 import graph.bfa.EventTransition;
+import graph.fa.AcceptedLanguage;
+import graph.fa.AcceptedLanguages;
 import graph.fa.FA;
 import graph.fa.State;
 import graph.fa.StateBuilder;
@@ -14,6 +16,8 @@ import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 
+import com.google.common.graph.EndpointPair;
+
 import static org.junit.jupiter.api.Assertions.*;
 
 public class BFANetworkTest {
@@ -23,7 +27,8 @@ public class BFANetworkTest {
     private static final State s21 = new StateBuilder("21").build();
     private static final EventTransition t2a = new EventTransition.Builder("t2a").inEvent("e2(L2)")
             .addOutEvent("e3(L3)").observabilityLabel("o2").build();
-    private static final EventTransition t2b = new EventTransition.Builder("t2b").addOutEvent("e3(L3)").build();
+    private static final EventTransition t2b = new EventTransition.Builder("t2b").addOutEvent("e3(L3)")
+            .relevanceLabel("r").build();
 
     // nodes and transitions of BFA C3 from page 24
     private static final State s30 = new StateBuilder("30").isInitial(true).build();
@@ -31,7 +36,8 @@ public class BFANetworkTest {
     private static final EventTransition t3a = new EventTransition.Builder("t3a").addOutEvent("e2(L2)")
             .observabilityLabel("o3").build();
     private static final EventTransition t3b = new EventTransition.Builder("t3b").inEvent("e3(L3)").build();
-    private static final EventTransition t3c = new EventTransition.Builder("t3c").inEvent("e3(L3)").build();
+    private static final EventTransition t3c = new EventTransition.Builder("t3c").inEvent("e3(L3)").relevanceLabel("f")
+            .build();
 
     // links in the BFA Network's topology of page 26
     private Link l2 = new Link("L2");
@@ -171,6 +177,47 @@ public class BFANetworkTest {
         // there should be 18 transitions
         assertEquals(8, space.getTransitions().size());
 
+        LOBSState toDelete = space.getStates().stream().filter(s -> s.getName().equals(" 30 20 eps e3(L3)"))
+                .collect(Collectors.toSet()).iterator().next();
+        space.getNetwork().removeNode(toDelete);
+
+        Set<LOBSState> finalStates = space.getFinalStates();
+        for (LOBSState state : finalStates) {
+            state.isAcceptance(true);
+        }
+
+        Set<String> acceptedLanguages = AcceptedLanguages.reduceFAtoMultipleRegex(space);
+
+        Set<String> realAcceptedLanguages = Set.of("", "f", "fr", "frf");
+
+        assertEquals(acceptedLanguages, realAcceptedLanguages);
+
     }
 
+    // TO-DO (this test is non fully implemented, it is just an idea for silent
+    // closures)
+    @Test
+    public void computeSilentClosure() {
+        ArrayList<String> linearObservation = new ArrayList<>();
+        BFANetworkSupervisor.executeTransition(bfaNetwork, c3, t3a);
+        BFANetworkSupervisor.executeTransition(bfaNetwork, c2, t2a);
+        FA<LOBSState, BSTransition> space = BFANetworkSupervisor.getBehavioralSpaceForLinearObservation(bfaNetwork,
+                linearObservation);
+
+        LOBSState toDelete = space.getStates().stream().filter(s -> s.getName().equals(" 30 20 eps e3(L3)"))
+                .collect(Collectors.toSet()).iterator().next();
+        toDelete.isAcceptance(true);
+        // space.getNetwork().removeNode(toDelete);
+
+        Set<LOBSState> finalStates = space.getFinalStates();
+        for (LOBSState state : finalStates) {
+            state.isAcceptance(true);
+        }
+
+        String acceptedLanguage = AcceptedLanguage.reduceFAtoRegex(space);
+
+        System.out.println(acceptedLanguage);
+        assertTrue(true);
+
+    }
 }

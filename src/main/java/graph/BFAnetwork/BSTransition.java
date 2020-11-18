@@ -1,24 +1,33 @@
 package graph.BFAnetwork;
 
+import graph.edges.EdgeWithName;
 import graph.fa.Transition;
 
-public class BSTransition extends Transition {
+public class BSTransition extends Transition implements EdgeWithName {
 
     private String observabilityLabel;
-    private String relevanceLabel;
+    private String name;
 
     public BSTransition(String name, String relevanceLabel, String observabilityLabel) {
-        super(name);
+        super(relevanceLabel);
+        this.name = name;
         this.observabilityLabel = observabilityLabel;
-        this.relevanceLabel = relevanceLabel;
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public void setName(String name) {
+        this.name = name;
     }
 
     public String getRelevanceLabel() {
-        return relevanceLabel;
+        return getSymbol();
     }
 
     public void setRelevanceLabel(String relevanceLabel) {
-        this.relevanceLabel = relevanceLabel;
+        setSymbol(relevanceLabel);
     }
 
     public String getObservabilityLabel() {
@@ -28,4 +37,5 @@ public class BSTransition extends Transition {
     public void setObservabilityLabel(String observabilityLabel) {
         this.observabilityLabel = observabilityLabel;
     }
+
 }

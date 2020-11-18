@@ -7,7 +7,6 @@ import com.google.common.graph.MutableNetwork;
 
 import java.util.*;
 import java.util.function.Predicate;
-import java.util.stream.Collector;
 import java.util.stream.Collectors;
 
 import static java.util.function.Predicate.not;
@@ -66,10 +65,8 @@ public final class AcceptedLanguages {
     private static final boolean isThereMultipleTransitionsWithSamePedix() {
         for (State s : acceptedStates) {
             if (markedTransitions.keySet().stream().filter(t -> markedTransitions.get(t) == s)
-                    .collect(Collectors.toSet()).size() > 1) {
-                System.out.println("ciao");
+                    .collect(Collectors.toSet()).size() > 1)
                 return true;
-            }
 
         }
         return false;

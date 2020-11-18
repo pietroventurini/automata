@@ -12,8 +12,6 @@ import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-import com.google.common.graph.EndpointPair;
-
 import static org.junit.jupiter.api.Assertions.*;
 
 public class BFANetworkTest {
@@ -171,9 +169,9 @@ public class BFANetworkTest {
         // there should be 18 transitions
         assertEquals(8, space.getTransitions().size());
 
-        LOBSState toDelete = space.getStates().stream().filter(s -> s.getName().equals(" 30 20 eps e3(L3)"))
-                .collect(Collectors.toSet()).iterator().next();
-        space.getNetwork().removeNode(toDelete);
+        BFANetworkSupervisor.pruneFA(space);
+
+        assertEquals(8, space.getStates().size());
 
         Set<LOBSState> finalStates = space.getFinalStates();
         for (LOBSState state : finalStates) {

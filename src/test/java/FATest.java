@@ -143,9 +143,9 @@ public class FATest {
     /**
      * Check the example of 13 computing the accepted language of the FA of page 9
      * Note: since there can be equivalent languages, it is quite difficult to test
-     *       whether the accepted language is correct. Furthermore, since we elaborate
-     *       transitions working on Sets (unordered collection), order of regex's elements
-     *       can change at every execution
+     * whether the accepted language is correct. Furthermore, since we elaborate
+     * transitions working on Sets (unordered collection), order of regex's elements
+     * can change at every execution
      */
     @Test
     public void itShouldComputeLanguageAcceptedFromFA() {
@@ -188,8 +188,7 @@ public class FATest {
         FA<State, Transition> fa = FAofPage21();
         Set<String> acceptedLanguages = AcceptedLanguages.reduceFAtoMultipleRegex(fa);
         Set<String> realAcceptedLanguages = Set.of("(a(b)*)", "((b(a)*b)|(a(b)*))", "(b(a)*)");
-        acceptedLanguages.removeAll(realAcceptedLanguages);
-        assertTrue(acceptedLanguages.isEmpty());
+        assertEquals(acceptedLanguages, realAcceptedLanguages);
     }
 
 }

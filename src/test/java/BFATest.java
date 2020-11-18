@@ -48,11 +48,9 @@ public class BFATest {
 
     @Test
     public void itThrowExceptionIfInitialStateIsMissing() {
-        assertThrows(NoSuchElementException.class, () -> {
-            new BFABuilder("")
-                    .putState(new StateBuilder("aNonInitialState").build())
-                    .build();
-        });
+        assertThrows(NoSuchElementException.class, () -> new BFABuilder("")
+                .putState(new StateBuilder("aNonInitialState").build())
+                .build());
     }
 
     /**
@@ -63,11 +61,9 @@ public class BFATest {
     public void itShouldThrowExceptionIfThereAreStateWithSameName() {
         State s1 = new StateBuilder("sameName").isInitial(true).build();
         State s2 = new StateBuilder("sameName").build();
-        assertThrows(IllegalStateException.class, () -> {
-            new BFABuilder("")
-                    .putTransition(s1, s2, t2a)
-                    .build();
-        });
+        assertThrows(IllegalStateException.class, () -> new BFABuilder("BFAWithHomonymousStates")
+                .putTransition(s1, s2, t2a)
+                .build());
     }
 
     /**
@@ -79,11 +75,9 @@ public class BFATest {
         EventTransition t1 = new EventTransition.Builder("sameName").build();
         EventTransition t2 = new EventTransition.Builder("sameName").build();
 
-        assertThrows(IllegalStateException.class, () -> {
-            new BFABuilder("")
-                    .putTransition(s20, s21, t1)
-                    .putTransition(s21, s20, t2)
-                    .build();
-        });
+        assertThrows(IllegalStateException.class, () -> new BFABuilder("BFAWithHomonymousTransitions")
+                .putTransition(s20, s21, t1)
+                .putTransition(s21, s20, t2)
+                .build());
     }
 }

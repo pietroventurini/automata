@@ -1,7 +1,7 @@
 package graph.BFAnetwork;
 
-import com.google.common.graph.Graphs;
-import com.google.common.graph.MutableNetwork;
+import com.google.common.collect.ImmutableSet;
+import com.google.common.graph.*;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -16,6 +16,8 @@ import graph.bfa.BFA;
 import graph.fa.State;
 import graph.bfa.EventTransition;
 
+import static com.google.common.base.Preconditions.checkArgument;
+
 /**
  * This class monitors and operates on the network of BFA; in particular, it is
  * able to retrieve all the current transitions enabled and execute a particular
@@ -25,7 +27,6 @@ import graph.bfa.EventTransition;
  */
 
 public final class BFANetworkSupervisor {
-    private static MutableNetwork<BFA, Link> network;
 
     private BFANetworkSupervisor() {
     }
@@ -52,7 +53,7 @@ public final class BFANetworkSupervisor {
      * BFA.
      */
     public static final Set<EventTransition> getTransitionsEnabledInBfa(BFANetwork bfaNetwork, BFA bfa) {
-        network = Graphs.copyOf(bfaNetwork.getNetwork());
+        Network<BFA, Link> network = Graphs.copyOf(bfaNetwork.getNetwork()); // FIXME: perché fare copia?
         Set<Link> inLinks = network.inEdges(bfa);
         inLinks = inLinks.stream().filter(l -> l.getEvent().isPresent()).collect(Collectors.toSet());
         Set<Link> outLinks = network.outEdges(bfa);
@@ -79,7 +80,7 @@ public final class BFANetworkSupervisor {
      * Execute a particular transition enabled inside a BFA
      */
     public static final void executeTransition(BFANetwork bfaNetwork, BFA bfa, EventTransition transition) {
-        network = Graphs.copyOf(bfaNetwork.getNetwork());
+        Network<BFA, Link> network = Graphs.copyOf(bfaNetwork.getNetwork()); //FIXME: perché fare copia?
         Set<Link> inLinks = network.inEdges(bfa);
         inLinks = inLinks.stream().filter(l -> l.getEvent().isPresent()).collect(Collectors.toSet());
         Set<Link> outLinks = getEmptyLinks(network.outEdges(bfa));
@@ -105,7 +106,7 @@ public final class BFANetworkSupervisor {
      * Retrieve the current state of a BFANetwork
      */
     public static final LOBSState getBFANetworkState(BFANetwork bfaNetwork) {
-        network = bfaNetwork.getNetwork();
+        Network<BFA, Link> network = bfaNetwork.getNetwork();
         Map<BFA, State> currentStates = new HashMap<>();
         Map<Link, String> links = new HashMap<>();
 
@@ -181,12 +182,10 @@ public final class BFANetworkSupervisor {
                     faBuilder.putTransition(state, newState, new BSTransition(transition.getName(),
                             transition.getRelevanceLabel(), transition.getObservabilityLabel()));
                     rollbackBFANetwork(state);
-
                 }
             }
             toExplore.remove(state);
             closed.add(state);
-
         }
 
         return faBuilder.build();
@@ -243,6 +242,40 @@ public final class BFANetworkSupervisor {
 
         }
         return faBuilder.build();
+    }
 
+    /**
+     * Removes the states of the provided FA from which it can't be reached a final state.
+     * @param fa the Finite automata to be pruned
+     * @param <S> the type of states (nodes) of the FA
+     * @return true if at least one state has been removed, false otherwise
+     */
+    public static <S extends State> boolean pruneFA(FA<S, ?> fa) {
+        Set<S> toRemove = new HashSet<>();
+        for (S s : fa.getStates()) {
+            Set<S> reachableNodes= reachableNodes(fa.getNetwork(), s); // get the set of nodes reachable from s
+            if (reachableNodes.stream().noneMatch(S::isFinal)) {
+                toRemove.add(s);
+            }
+        }
+        toRemove.forEach(s -> fa.getNetwork().removeNode(s));
+        return toRemove.isEmpty() ? false : true;
+    }
+
+    /**
+     * This method is inspired from Graphs.reachableNodes() of the guava graph library
+     * Returns the set of nodes that are reachable from {@code node}. Node B is defined as reachable
+     * from node A if there exists a path (a sequence of adjacent outgoing edges) starting at node A
+     * and ending at node B. Note that a node is always reachable from itself via a zero-length path.
+     *
+     * <p>This is a "snapshot" based on the current topology of {@code network}, rather than a live view
+     * of the set of nodes reachable from {@code node}. In other words, the returned {@link Set} will
+     * not be updated after modifications to {@code network}.
+     *
+     * @throws IllegalArgumentException if {@code node} is not present in {@code network}
+     */
+    private static <N> Set<N> reachableNodes(Network<N,?> network, N node) {
+        checkArgument(network.nodes().contains(node), "Node %s is not an element of this network.", node);
+        return ImmutableSet.copyOf(Traverser.forGraph(network).breadthFirst(node));
     }
 }

@@ -29,6 +29,11 @@ public class BFABuilder {
                 .build();
     }
 
+    public BFABuilder name(String name) {
+        this.name = name;
+        return this;
+    }
+
 
     public BFABuilder putState(State nodeU) {
         network.addNode(nodeU);

@@ -6,12 +6,18 @@ import graph.fa.Transition;
 public class BSTransition extends Transition implements EdgeWithName {
 
     private String observabilityLabel;
+    private String relevanceLabel;
     private String name;
 
     public BSTransition(String name, String relevanceLabel, String observabilityLabel) {
-        super(relevanceLabel);
         this.name = name;
         this.observabilityLabel = observabilityLabel;
+        this.relevanceLabel = relevanceLabel;
+    }
+
+    @Override
+    public String getSymbol() {
+        return relevanceLabel;
     }
 
     public String getName() {
@@ -23,11 +29,11 @@ public class BSTransition extends Transition implements EdgeWithName {
     }
 
     public String getRelevanceLabel() {
-        return getSymbol();
+        return relevanceLabel;
     }
 
     public void setRelevanceLabel(String relevanceLabel) {
-        setSymbol(relevanceLabel);
+        this.relevanceLabel = relevanceLabel;
     }
 
     public String getObservabilityLabel() {

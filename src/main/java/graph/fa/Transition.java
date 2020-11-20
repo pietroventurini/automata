@@ -17,6 +17,10 @@ public class Transition implements EdgeWithSymbol {
         this.symbol = symbol;
     }
 
+    public Transition() {
+        this.symbol = "";
+    }
+
     @Override
     public String getSymbol() {
         return symbol;

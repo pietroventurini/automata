@@ -23,12 +23,10 @@ public class BFA extends AbstractFA<State, EventTransition> implements Node {
         this.currentState = currentState;
     }
 
-    @Override
     public String getName() {
         return name;
     }
 
-    @Override
     public void setName(String name) {
         this.name = name;
     }

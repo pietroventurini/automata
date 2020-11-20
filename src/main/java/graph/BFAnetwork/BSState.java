@@ -15,6 +15,7 @@ import java.util.stream.Collectors;
  * node (each of which is a BFA) and the content of the network's links.
  *
  * @author Pietro Venturini
+ * @author Giacomo Bontempi
  */
 public class BSState extends State {
 
@@ -55,9 +56,8 @@ public class BSState extends State {
      * BFANetwork in which all the Links are empty)
      */
     public void checkFinal() {
-        if (this.links.values().stream().filter(l -> l != null).collect(Collectors.toSet()).isEmpty())
+        if (this.links.values().stream().filter(l -> l != null).collect(Collectors.toSet()).isEmpty()) // FIXME: credo possa essere semplificato in this.links.values().stream().allMatch(Objects::isNull)
             this.isFinal(true);
-
     }
 
     /**

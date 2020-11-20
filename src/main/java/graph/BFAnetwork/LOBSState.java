@@ -27,7 +27,7 @@ public class LOBSState extends BSState {
     }
 
     /**
-     * Here we rewrite the equals method: two LOBSStates are equals if and only if
+     * Override the equals method: two LOBSStates are equals if and only if
      * the current state is the same for each BFA, each link has the same content
      * and they have the same observation index.
      */
@@ -44,7 +44,8 @@ public class LOBSState extends BSState {
         }
 
         LOBSState state = (LOBSState) o;
-        return (this.getBfas().equals(state.getBfas()) && this.getLinks().equals(state.getLinks())
+        return (this.getBfas().equals(state.getBfas())
+                && this.getLinks().equals(state.getLinks())
                 && this.observationIndex == state.getObservationIndex());
 
     }

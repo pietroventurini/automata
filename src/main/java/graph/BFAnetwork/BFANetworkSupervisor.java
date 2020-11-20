@@ -24,6 +24,7 @@ import static com.google.common.base.Preconditions.checkArgument;
  * transition enabled inside a BFA.
  *
  * @author Giacomo Bontempi
+ * @author Pietro Venturini
  */
 
 public final class BFANetworkSupervisor {
@@ -55,22 +56,26 @@ public final class BFANetworkSupervisor {
     public static final Set<EventTransition> getTransitionsEnabledInBfa(BFANetwork bfaNetwork, BFA bfa) {
         Network<BFA, Link> network = Graphs.copyOf(bfaNetwork.getNetwork()); // FIXME: perché fare copia?
         Set<Link> inLinks = network.inEdges(bfa);
+        // keep only non-empty inLinks
         inLinks = inLinks.stream().filter(l -> l.getEvent().isPresent()).collect(Collectors.toSet());
         Set<Link> outLinks = network.outEdges(bfa);
 
         Set<EventTransition> transitionsEnabled = new HashSet<>();
         for (EventTransition transition : bfa.getNetwork().outEdges(bfa.getCurrentState())) {
+
             boolean saveTransition = true;
+
+            // check if the triggering event (if it exists) is missing on the incoming link
             if (transition.getInEvent().isPresent()
                     && getLinksWithSpecifiedEvent(inLinks, transition.getInEvent().get()).isEmpty())
                 saveTransition = false;
 
+            // check emptiness of every recipient link of transition
             if (getEmptyLinks(outLinks).size() < transition.getOutEvents().size())
                 saveTransition = false;
 
             if (saveTransition)
                 transitionsEnabled.add(transition);
-
         }
 
         return transitionsEnabled;
@@ -149,23 +154,28 @@ public final class BFANetworkSupervisor {
     }
 
     /**
-     * Create the behavioral space
+     * Compute the behavioral space of the provided network of behavioral FAs.
+     * @param bfaNetwork the network of behavioral FAs of which to compute the behavioral space
+     * @return a FA representing the behavioral space that has been computed
      */
     public static final FA<BSState, BSTransition> getBehavioralSpace(BFANetwork bfaNetwork) {
         FABuilder<BSState, BSTransition> faBuilder = new FABuilder<>();
 
+        // create the initial state
         BSState networkState = getBFANetworkState(bfaNetwork);
         networkState.isInitial(true);
         networkState.checkFinal();
+
+        // pass the initial state to the FABuilder
         faBuilder.putState(networkState);
 
-        // the set containing all the BSStates explored
+        // the set containing all the BSStates already explored
         Set<BSState> closed = new HashSet<>();
 
         // the set containing the BSStates to explore
         Set<BSState> toExplore = new HashSet<>();
-
         toExplore.add(networkState);
+
         while (!toExplore.isEmpty()) {
             BSState state = toExplore.iterator().next();
             rollbackBFANetwork(state);
@@ -173,6 +183,7 @@ public final class BFANetworkSupervisor {
             for (BFA bfa : bfaNetwork.getBFAs()) {
                 for (EventTransition transition : getTransitionsEnabledInBfa(bfaNetwork, bfa)) {
                     executeTransition(bfaNetwork, bfa, transition);
+
                     BSState newState = getBFANetworkState(bfaNetwork);
                     newState.checkFinal();
                     if (!closed.contains(newState) && !toExplore.contains(newState)) {
@@ -199,15 +210,16 @@ public final class BFANetworkSupervisor {
             ArrayList<String> linearObservation) {
         FABuilder<LOBSState, BSTransition> faBuilder = new FABuilder<>();
 
+        // Construct the initial state of the behavioral space relative to linearObservation
         LOBSState networkState = getBFANetworkState(bfaNetwork);
         networkState.isInitial(true);
         networkState.setObservationIndex(0);
         faBuilder.putState(networkState);
 
-        // the set containing the BSStates to explore
+        // the set containing the BSStates still to be explored
         Set<LOBSState> toExplore = new HashSet<>();
-
         toExplore.add(networkState);
+
         while (!toExplore.isEmpty()) {
             LOBSState state = toExplore.iterator().next();
             rollbackBFANetwork(state);

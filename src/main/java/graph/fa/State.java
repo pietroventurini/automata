@@ -3,6 +3,7 @@ package graph.fa;
 import graph.nodes.Node;
 
 import java.util.EnumSet;
+import java.util.Objects;
 
 /**
  * This class represents a state of a FA. A state is a node of the underlying
@@ -86,6 +87,12 @@ public class State implements Node {
         } else {
             type.remove(StateType.ACCEPTANCE);
         }
+    }
+
+    @Override
+    public String toString() {
+        return "name='" + name +'\''
+                + ", type=" + type;
     }
 
 }

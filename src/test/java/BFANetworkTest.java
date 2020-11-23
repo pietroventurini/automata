@@ -1,3 +1,4 @@
+import com.google.common.collect.MoreCollectors;
 import graph.BFAnetwork.*;
 import graph.bfa.BFA;
 import graph.bfa.BFABuilder;
@@ -10,6 +11,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
+import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -47,14 +49,14 @@ public class BFANetworkTest {
     /**
      * @return the behavioral FA C2 from page 24
      */
-    private static BFA BFAc2FromPage24() {
+    private final static BFA BFAc2FromPage24() {
         return new BFABuilder("C2").putTransition(s20, s21, t2a).putTransition(s21, s20, t2b).build();
     }
 
     /**
      * @return the behavioral FA C3 from page 24
      */
-    private static BFA BFAc3FromPage24() {
+    private final static BFA BFAc3FromPage24() {
         return new BFABuilder("C3").putTransition(s30, s31, t3a).putTransition(s31, s30, t3b)
                 .putTransition(s31, s31, t3c).build();
     }
@@ -62,11 +64,12 @@ public class BFANetworkTest {
     /**
      * @return the behavioral FA Network from page 26
      */
-    public BFANetwork BFANetworkFromPage26() {
+    private BFANetwork BFANetworkFromPage26() {
         c2 = BFAc2FromPage24();
         c3 = BFAc3FromPage24();
         return new BFANetworkBuilder().putLink(c3, c2, l2).putLink(c2, c3, l3).build();
     }
+
 
     @BeforeEach
     public void setUp() {
@@ -160,20 +163,23 @@ public class BFANetworkTest {
         FA<LOBSState, BSTransition> space = BFANetworkSupervisor.getBehavioralSpaceForLinearObservation(bfaNetwork,
                 linearObservation);
 
+        // Before pruning
         // there should be 9 states
         assertEquals(9, space.getStates().size());
 
         // there should be 4 final states
         assertEquals(4, space.getStates().stream().filter(s -> s.isFinal()).collect(Collectors.toSet()).size());
 
-        // there should be 18 transitions
+        // there should be 8 transitions
         assertEquals(8, space.getTransitions().size());
 
         BFANetworkSupervisor.pruneFA(space);
 
+        // After pruning
+        // there should be 8 states
         assertEquals(8, space.getStates().size());
 
-        Set<LOBSState> finalStates = space.getFinalStates();
+        Set<LOBSState> finalStates = space.getAcceptanceStates();
         for (LOBSState state : finalStates) {
             state.isAcceptance(true);
         }
@@ -188,8 +194,7 @@ public class BFANetworkTest {
 
     // TO-DO (this test is non fully implemented, it is just an idea for silent
     // closures)
-    @Test
-    public void computeSilentClosure() {
+    /*public void computeSilentClosure() {
         ArrayList<String> linearObservation = new ArrayList<>();
         BFANetworkSupervisor.executeTransition(bfaNetwork, c3, t3a);
         BFANetworkSupervisor.executeTransition(bfaNetwork, c2, t2a);
@@ -201,7 +206,7 @@ public class BFANetworkTest {
         toDelete.isAcceptance(true);
         // space.getNetwork().removeNode(toDelete);
 
-        Set<LOBSState> finalStates = space.getFinalStates();
+        Set<LOBSState> finalStates = space.getAcceptanceStates();
         for (LOBSState state : finalStates) {
             state.isAcceptance(true);
         }
@@ -212,6 +217,7 @@ public class BFANetworkTest {
         assertTrue(true);
 
     }
+    */
 
     /**
      * Check that the BS of page 35-36 is pruned correctly
@@ -245,6 +251,69 @@ public class BFANetworkTest {
         assertTrue(space.getStates().contains(s0), "The BS after pruning should contain s0");
         assertFalse(space.getStates().contains(s1), "The BS after pruning should not contain s1");
         assertFalse(space.getStates().contains(s2), "The BS after pruning should not contain s2");
+    }
+
+    /**
+     * @return the behavioral space showed at page 38 of the project description. It is computed
+     * on the network of bfas from page 26.
+     */
+    private FA<BSState, BSTransition> behavioralSpaceFromPage38() {
+
+        // compute behavioral space of network of page 26
+        FA<BSState, BSTransition> bs = BFANetworkSupervisor.getBehavioralSpace(BFANetworkFromPage26());
+
+        // prune it
+        BFANetworkSupervisor.pruneFA(bs);
+
+        // rename states like at page 38
+        bs.getNode("30 20 eps eps").orElseThrow().setName("0");
+        bs.getNode("31 20 e2(L2) eps").orElseThrow().setName("1");
+        bs.getNode("31 21 eps e3(L3)").orElseThrow().setName("2");
+        bs.getNode("31 21 eps eps").orElseThrow().setName("3");
+        bs.getNode("31 20 eps e3(L3)").orElseThrow().setName("4");
+        bs.getNode("31 20 eps eps").orElseThrow().setName("5");
+        bs.getNode("30 21 eps eps").orElseThrow().setName("6");
+        bs.getNode("30 20 eps e3(L3)").orElseThrow().setName("7");
+        bs.getNode("31 20 e2(L2) e3(L3)").orElseThrow().setName("8");
+        bs.getNode("30 20 e2(L2) eps").orElseThrow().setName("9");
+        bs.getNode("30 21 eps e3(L3)").orElseThrow().setName("10");
+        bs.getNode("31 21 e2(L2) e3(L3)").orElseThrow().setName("11");
+        bs.getNode("31 21 e2(L2) eps").orElseThrow().setName("12");
+
+        return bs;
+    }
+
+    @Test
+    public void itShouldThrowExceptionWhenComputingSilentClosureOfStateWithoutObservableIngoingTransitions() {
+        FA<BSState, BSTransition> bs = behavioralSpaceFromPage38();
+
+        // get a non-initial state which hasn't any observable ingoing transitions.
+        BSState nonObservableState = null;
+        for (BSState s : bs.getStates()) {
+            if (!s.isInitial() && bs.getNetwork().inEdges(s).stream().noneMatch(BSTransition::hasObservabilityLabel)) {
+                nonObservableState = s;
+                break;
+            }
+        }
+
+        BSState finalNonObservableState = nonObservableState;
+        assertThrows(IllegalArgumentException.class, () -> BFANetworkSupervisor.silentClosure(bs, finalNonObservableState));
+    }
+
+    @Test
+    public void itShouldComputeSilentClosure() {
+        FA<BSState, BSTransition> bs = behavioralSpaceFromPage38();
+
+        // get state 2
+        BSState s2 = bs.getNode("2").orElseThrow();
+        FA<BSState, BSTransition> silentClosure = BFANetworkSupervisor.silentClosure(bs, s2);
+
+        assertTrue(silentClosure.getAcceptanceStates().contains(bs.getNode("3")));
+        assertTrue(silentClosure.getAcceptanceStates().contains(bs.getNode("6")));
+        assertTrue(silentClosure.getAcceptanceStates().contains(bs.getNode("7")));
+        assertTrue(silentClosure.getAcceptanceStates().contains(bs.getNode("5")));
+        assertTrue(silentClosure.getAcceptanceStates().contains(bs.getNode("0")));
+
     }
 
 }

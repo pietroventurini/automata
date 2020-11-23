@@ -4,6 +4,8 @@ import com.google.common.graph.MutableNetwork;
 import graph.edges.Edge;
 import graph.nodes.Node;
 
+import java.util.Objects;
+import java.util.Optional;
 import java.util.Set;
 
 /**
@@ -43,4 +45,21 @@ public abstract class Graph<N extends Node, E extends Edge> {
     public MutableNetwork<N, E> getNetwork() {
         return network;
     }
+
+    /**
+     * Return node having name equal to {@code name}
+     */
+    public Optional<N> getNode(String name) {
+        return network.nodes().stream().filter(n -> n.getName().equals(name)).findAny();
+    }
+
+    public Set<N> successors(N n) {
+        return network.successors(n);
+    }
+
+    @Override
+    public String toString() {
+        return "network='" + network + '\'';
+    }
+
 }

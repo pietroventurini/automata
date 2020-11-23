@@ -24,7 +24,7 @@ public class FATest {
     private static final State s4 = new StateBuilder("4").isFinal(true).isAcceptance(true).build();
 
     private static final State initialState = s0;
-    private static final Set<State> finalStates = Set.of(s4);
+    private static final Set<State> acceptanceStates = Set.of(s4);
 
     private static final Transition t01 = new Transition("a");
     private static final Transition t02 = new Transition("a");
@@ -86,7 +86,7 @@ public class FATest {
     public void itShouldBuildFA() {
         fa = FAofPage9();
         assertSame(fa.getInitialState(), initialState);
-        assertEquals(fa.getFinalStates(), finalStates);
+        assertEquals(fa.getAcceptanceStates(), acceptanceStates);
     }
 
     /**
@@ -99,11 +99,11 @@ public class FATest {
     }
 
     /**
-     * Construct a FA without any final state and check that it throws an
+     * Construct a FA without any acceptance state and check that it throws an
      * IllegalStateException
      */
     @Test
-    public void itShouldThrowExceptionIfThereIsntAnyFinalState() {
+    public void itShouldThrowExceptionIfThereIsntAnyAcceptanceState() {
         assertThrows(IllegalStateException.class, () -> faBuilder.putState(s0).build());
     }
 
@@ -181,7 +181,6 @@ public class FATest {
      * Check the example of page 21 applying the EspressioniRegolari described at
      * pages 17-20
      *
-     * @author Giacomo Bontempi
      */
     @Test
     public void itShouldComputeAcceptedLanguagesRelativeToEachAcceptanceStateOfFaOfPage21() {

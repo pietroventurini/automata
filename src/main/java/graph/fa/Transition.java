@@ -50,6 +50,9 @@ public class Transition implements EdgeWithSymbol {
         }
     }
 
-    
+    @Override
+    public String toString() {
+        return "symbol='" + symbol + '\'';
+    }
 
 }

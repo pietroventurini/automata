@@ -19,7 +19,7 @@ public class FAValidator {
      *  has more than one initial state / doesn't have a final state)
      */
     public static <S extends State, T extends Transition> boolean validate(FA<S,T> fa) {
-        if (hasOnlyOneInitialState(fa) && thereAreNotIsolatedStates(fa) && hasAtLeastOneFinalState(fa)) {
+        if (hasOnlyOneInitialState(fa) && thereAreNotIsolatedStates(fa) && hasAtLeastOneAcceptanceState(fa)) {
             return true;
         } else {
             throw new IllegalStateException();
@@ -47,8 +47,8 @@ public class FAValidator {
         return true;
     }
 
-    public static <S extends State, T extends Transition> boolean hasAtLeastOneFinalState(FA<S,T> fa) {
-        return fa.getFinalStates().size() > 0;
+    public static <S extends State, T extends Transition> boolean hasAtLeastOneAcceptanceState(FA<S,T> fa) {
+        return fa.getAcceptanceStates().size() > 0;
     }
 
     /**

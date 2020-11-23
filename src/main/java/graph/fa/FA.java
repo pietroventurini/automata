@@ -3,6 +3,7 @@ package graph.fa;
 import com.google.common.graph.MutableNetwork;
 import graph.AbstractFA;
 
+import java.util.Objects;
 import java.util.Set;
 
 /**
@@ -15,24 +16,26 @@ import java.util.Set;
  */
 public class FA<S extends State, T extends Transition> extends AbstractFA<S, T> {
 
-    private Set<S> finalStates;
+    private Set<S> acceptanceStates;
 
     /**
-     * Just for testing purposes, later on we will build it from a file containing
-     * states and transitions
-     * 
+     * Constructor of a Finite Automata.
+     *
+     * @param name         the name of the FA
      * @param network      the underlying network of the FA
      * @param initialState the initial state of the FA
-     * @param finalStates  the set (eventually empty) of final states
+     * @param acceptanceStates  the set (eventually empty) of acceptance states
      */
-    FA(MutableNetwork<S, T> network, S initialState, Set<S> finalStates) {
-        super(network, initialState);
-        this.finalStates = finalStates;
+    public FA(String name, MutableNetwork<S, T> network, S initialState, Set<S> acceptanceStates) {
+        super(name, network, initialState);
+        this.acceptanceStates = acceptanceStates;
     }
 
-    public Set<S> getFinalStates() {
-        return finalStates;
+    public Set<S> getAcceptanceStates() {
+        return acceptanceStates;
     }
+
+
 
     /**
      * Reduce the FA to an equivalent regular expression describing the language

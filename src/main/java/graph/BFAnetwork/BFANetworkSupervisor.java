@@ -1,6 +1,7 @@
 package graph.BFAnetwork;
 
 import com.google.common.collect.ImmutableSet;
+import com.google.common.collect.Sets;
 import com.google.common.graph.*;
 
 import java.util.ArrayList;
@@ -15,6 +16,7 @@ import graph.fa.FABuilder;
 import graph.bfa.BFA;
 import graph.fa.State;
 import graph.bfa.EventTransition;
+import graph.fa.StateBuilder;
 
 import static com.google.common.base.Preconditions.checkArgument;
 
@@ -130,8 +132,9 @@ public final class BFANetworkSupervisor {
                 links.put(link, null);
                 name += " eps";
             }
-
         }
+
+        name = name.trim();
 
         return new LOBSState(name, currentStates, links);
     }
@@ -265,7 +268,7 @@ public final class BFANetworkSupervisor {
     public static <S extends State> boolean pruneFA(FA<S, ?> fa) {
         Set<S> toRemove = new HashSet<>();
         for (S s : fa.getStates()) {
-            Set<S> reachableNodes= reachableNodes(fa.getNetwork(), s); // get the set of nodes reachable from s
+            Set<S> reachableNodes = reachableNodes(fa.getNetwork(), s); // get the set of nodes reachable from s
             if (reachableNodes.stream().noneMatch(S::isFinal)) {
                 toRemove.add(s);
             }
@@ -285,9 +288,57 @@ public final class BFANetworkSupervisor {
      * not be updated after modifications to {@code network}.
      *
      * @throws IllegalArgumentException if {@code node} is not present in {@code network}
+     *
+     * FIXME: it looks like there's a bug (some of the states in the returned set are not the same of network
      */
     private static <N> Set<N> reachableNodes(Network<N,?> network, N node) {
         checkArgument(network.nodes().contains(node), "Node %s is not an element of this network.", node);
         return ImmutableSet.copyOf(Traverser.forGraph(network).breadthFirst(node));
+    }
+
+
+    /**
+     * Compute the silent closure of {@code state} relative to {@code behavioralSpace}, by extracting the subspace
+     * of the nodes that are reachable from {@code state} through non-observable transitions.
+     * States of {@code behavioralSpace} that are final and exit states (those that has an observable outgoing
+     * transition), are marked as acceptance states in the returned FA.
+     *
+     * @param behavioralSpace the behavioral space to which {@code state} must belong.
+     * @param state the state of {@code behavioralSpace} whose silent closure we want to compute.
+     * @return a FA corresponding to the silent closure of {@code state}
+     */
+    public static <S extends State> FA<S, BSTransition> silentClosure(FA<S, BSTransition> behavioralSpace, S state) {
+        checkArgument(behavioralSpace.getStates().contains(state), "State %s does not belong to behavioral space %s", state, behavioralSpace);
+        // check that state has at least one incoming observable transition
+        checkArgument(behavioralSpace.getNetwork().inEdges(state).stream().anyMatch(BSTransition::hasObservabilityLabel), "The provided state has no incoming observable transition");
+
+        MutableNetwork<S,BSTransition> network = Graphs.copyOf(behavioralSpace.getNetwork());
+
+        // collect and remove observable transitions
+        Set<BSTransition> observableTransitions = network.edges().stream().filter(BSTransition::hasObservabilityLabel).collect(Collectors.toSet());
+        observableTransitions.forEach(t -> network.removeEdge(t));
+
+        // find nodes reachable through non-observable transitions (since those transitions have just been removed)
+        Set<S> nodes = reachableNodes(network, state);
+
+        // keep only transitions between nodes both reachable from state
+        MutableNetwork<S, BSTransition> inducedSubgraph = Graphs.inducedSubgraph(network, nodes);
+
+        // collect all final and exit states into acceptance states
+        Set<S> finalStates = inducedSubgraph.nodes().stream().filter(S::isFinal).collect(Collectors.toSet());
+        Set<S> exitStates = inducedSubgraph.nodes().stream().filter(
+                        s -> behavioralSpace.getNetwork()
+                                .outEdges(s)
+                                .stream()
+                                .anyMatch(BSTransition::hasObservabilityLabel)
+                ).collect(Collectors.toSet());
+
+        Set<S> acceptanceStates = Sets.union(finalStates, exitStates);
+
+        // mark acceptance states as such
+        acceptanceStates.forEach(s -> s.isAcceptance(true));
+
+        FA<S, BSTransition> silentClosure = new FA<>("", inducedSubgraph, state, acceptanceStates);
+        return silentClosure;
     }
 }

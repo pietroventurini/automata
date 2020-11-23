@@ -3,24 +3,42 @@ package graph;
 import com.google.common.graph.MutableNetwork;
 import graph.edges.Edge;
 import graph.fa.State;
+import graph.nodes.Node;
 
+import java.util.Objects;
 import java.util.Set;
 
 /**
- * This class represents the common structure to all types of FAs. FAs, BFAs and Behavioral spaces (DFAs)
+ * This class represents the common structure to all types of FAs. FAs, BFAs and Behavioral spaces
  * all have an initial state.
- * @param <S> The type of states (note: if we don't want to differentiate between FA's states and BFA's states
- *           then instead of having the type parameter S, we should fix the type argument State. i.e.
- *           declaring it as class AbstractFA<T extends Edge> extends Graph<State, T>
+ * @param <S> The type of states
  * @param <T> The type of transitions
  */
-public abstract class AbstractFA<S extends State, T extends Edge> extends Graph<S, T> {
+public abstract class AbstractFA<S extends State, T extends Edge> extends Graph<S, T> implements Node {
 
-    protected S initialState;
+    private String name;
+    private S initialState;
 
-    public AbstractFA(MutableNetwork<S, T> network, S initialState) {
+    /**
+     * Constructor of an Abstract finite automata. It has the parameters in common
+     * to both FA and BFA.
+     *
+     * @param name         the name of the FA
+     * @param network      the underlying network of the FA
+     * @param initialState the initial state of the FA
+     */
+    public AbstractFA(String name, MutableNetwork<S, T> network, S initialState) {
         super(network);
+        this.name = name;
         this.initialState = initialState;
+    }
+
+    @Override
+    public String getName() { return name; }
+
+    @Override
+    public void setName(String name) {
+        this.name = name;
     }
 
     public S getInitialState() {
@@ -41,5 +59,11 @@ public abstract class AbstractFA<S extends State, T extends Edge> extends Graph<
      */
     public Set<S> getStates() {
         return super.getNodes();
+    }
+
+    @Override
+    public String toString() {
+        return "name='" + name + '\'' +
+                ", initialState=" + initialState;
     }
 }

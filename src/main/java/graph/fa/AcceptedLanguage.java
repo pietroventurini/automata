@@ -91,7 +91,7 @@ public final class AcceptedLanguage {
         State nq = new StateBuilder("nq").isAcceptance(true).build();
 
         // if there is a single acceptance state, check if there are outgoing
-        // graph.edges from it
+        // edges from it
         boolean outgoing = false;
         if (acceptanceStates.size() == 1) {
             State onlyAcceptanceState = acceptanceStates.stream().collect(MoreCollectors.onlyElement());
@@ -102,7 +102,7 @@ public final class AcceptedLanguage {
         }
 
         // if there are multiple acceptance states or a single one having outgoing
-        // graph.edges, create surrogate acceptance state nq
+        // edges, create surrogate acceptance state nq
         if (acceptanceStates.size() > 1 || outgoing) {
             for (State beta_q : acceptanceStates) {
                 beta_q.isAcceptance(false);

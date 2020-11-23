@@ -44,4 +44,11 @@ public class BSTransition extends Transition implements EdgeWithName {
         this.observabilityLabel = observabilityLabel;
     }
 
+    public boolean hasObservabilityLabel() {
+        return observabilityLabel != null && !observabilityLabel.isEmpty();
+    }
+
+    public boolean hasRelevanceLabel() {
+        return relevanceLabel != null && !relevanceLabel.isEmpty();
+    }
 }

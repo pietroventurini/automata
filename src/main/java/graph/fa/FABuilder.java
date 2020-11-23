@@ -16,7 +16,8 @@ import java.util.stream.Collectors;
  */
 public class FABuilder<S extends State, T extends Transition> {
 
-    private MutableNetwork<S, T> network;
+    private MutableNetwork<S,T> network;
+    private String name;
 
     /**
      * Instantiate the underlying network
@@ -26,6 +27,11 @@ public class FABuilder<S extends State, T extends Transition> {
                 .allowsParallelEdges(true)
                 .allowsSelfLoops(true)
                 .build();
+    }
+
+    public FABuilder<S,T> name(String name) {
+        this.name = name;
+        return this;
     }
 
     public FABuilder<S,T> putState(S nodeU) {
@@ -42,7 +48,7 @@ public class FABuilder<S extends State, T extends Transition> {
     public FA<S,T> build() {
         S initialState = retrieveInitialState();
         Set<S> finalStates = retrieveFinalStates();
-        FA<S,T> fa = new FA<>(network, initialState, finalStates);
+        FA<S,T> fa = new FA<>(name, network, initialState, finalStates);
 
         FAValidator.validate(fa);
 

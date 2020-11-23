@@ -39,7 +39,7 @@ public final class AcceptedLanguages {
     public static final Set<String> reduceFAtoMultipleRegex(FA fa) {
         network = Graphs.copyOf(fa.getNetwork());
 
-        // retrieve the accepted states in the original FA.FA
+        // retrieve the accepted states in the original FA
         acceptedStates = network.nodes().stream().filter(State::isAcceptance).collect(Collectors.toList());
 
         // initialize the list of set of transitions marked
@@ -49,7 +49,7 @@ public final class AcceptedLanguages {
         State n0 = createSurrogateInitialState();
         State nq = createSurrogateAcceptanceState();
 
-        while (network.nodes().size() > 2 || isThereMultipleTransitionsWithSamePedix()) {
+        while (network.nodes().size() > 2 || areThereMultipleTransitionsWithSamePedix()) {
             if (thereIsASequenceOfTransitions()) {
                 concatenateSequenceOfTransitions();
             } else if (thereAreParallelTransitions()) {
@@ -62,7 +62,7 @@ public final class AcceptedLanguages {
         return network.edges().stream().map(t -> t.getSymbol()).collect(Collectors.toSet());
     }
 
-    private static final boolean isThereMultipleTransitionsWithSamePedix() {
+    private static final boolean areThereMultipleTransitionsWithSamePedix() {
         for (State s : acceptedStates) {
             if (markedTransitions.keySet().stream().filter(t -> markedTransitions.get(t) == s)
                     .collect(Collectors.toSet()).size() > 1)
@@ -170,7 +170,7 @@ public final class AcceptedLanguages {
     }
 
     /**
-     * Filter a set of parallel transition to make them homogeneus
+     * Filter a set of parallel transition to make them homogeneous
      * 
      * @param transitions a set of parallel transitions
      * @return a set of homogeneus parallel transitions

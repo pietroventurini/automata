@@ -8,8 +8,7 @@ import java.util.Optional;
 import java.util.Set;
 
 /**
- * EventTransition represents a single transition of a behavioral FA TODO: since
- * transition's names must be unique, should we override equals?
+ * EventTransition represents a single transition of a behavioral FA
  */
 public class EventTransition implements EdgeWithName, EdgeWithEvents {
 

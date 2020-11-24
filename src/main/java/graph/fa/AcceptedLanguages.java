@@ -76,7 +76,7 @@ public final class AcceptedLanguages {
      * If there are ingoing graph.edges into the initial state beta0, create a
      * surrogate initial state n0 and an epsilon-transition from n0 to beta0.
      * 
-     * @return the surrogate initial FA.State n0
+     * @return the surrogate initial State n0
      */
     private static final State createSurrogateInitialState() {
         // retrieve the initial state
@@ -96,7 +96,7 @@ public final class AcceptedLanguages {
      * graph.edges from the only acceptance state beta_q, create a surrogate
      * acceptance state nq and epsilon-transitions from each beta_q to nq.
      * 
-     * @return the surrogate acceptance FA.State nq
+     * @return the surrogate acceptance State nq
      */
     private static final State createSurrogateAcceptanceState() {
 

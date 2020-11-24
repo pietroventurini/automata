@@ -1,6 +1,7 @@
 package graph.BFAnetwork;
 
 import java.util.Map;
+import java.util.Objects;
 
 import graph.bfa.BFA;
 import graph.fa.State;
@@ -47,10 +48,10 @@ public class LOBSState extends BSState {
         return (this.getBfas().equals(state.getBfas())
                 && this.getLinks().equals(state.getLinks())
                 && this.observationIndex == state.getObservationIndex());
-
     }
 
+    @Override
     public int hashCode() {
-        return 1;
+        return Objects.hash(this.getBfas(), this.getLinks(), observationIndex);
     }
 }

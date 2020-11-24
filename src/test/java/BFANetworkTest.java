@@ -283,6 +283,7 @@ public class BFANetworkTest {
         return bs;
     }
 
+
     @Test
     public void itShouldThrowExceptionWhenComputingSilentClosureOfStateWithoutObservableIngoingTransitions() {
         FA<BSState, BSTransition> bs = behavioralSpaceFromPage38();
@@ -313,7 +314,17 @@ public class BFANetworkTest {
         assertTrue(silentClosure.getAcceptanceStates().contains(bs.getNode("7")));
         assertTrue(silentClosure.getAcceptanceStates().contains(bs.getNode("5")));
         assertTrue(silentClosure.getAcceptanceStates().contains(bs.getNode("0")));
+    }
 
+    @Test
+    public void itShouldComputeDiagnosisOfSilentClosure() {
+        FA<BSState, BSTransition> bs = behavioralSpaceFromPage38();
+
+        // get state 2
+        BSState s2 = bs.getNode("2").orElseThrow();
+        FA<BSState, BSTransition> silentClosure = BFANetworkSupervisor.silentClosure(bs, s2);
+
+        assertEquals(Set.of("f","fr","frf",""), BFANetworkSupervisor.diagnosis(silentClosure));
     }
 
 }

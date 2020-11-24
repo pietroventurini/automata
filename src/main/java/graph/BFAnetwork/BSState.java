@@ -6,6 +6,7 @@ import graph.fa.StateType;
 
 import java.util.EnumSet;
 import java.util.Map;
+import java.util.Objects;
 import java.util.stream.Collectors;
 
 /**
@@ -77,12 +78,12 @@ public class BSState extends State {
         }
 
         BSState state = (BSState) o;
-        return (this.bfas.equals(state.getBfas()) && this.links.equals(state.getLinks()));
+        return (bfas.equals(state.getBfas()) && links.equals(state.getLinks()));
 
     }
 
+    @Override
     public int hashCode() {
-        return 1;
+        return Objects.hash(bfas, links);
     }
-
 }

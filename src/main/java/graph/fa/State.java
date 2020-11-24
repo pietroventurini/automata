@@ -94,5 +94,4 @@ public class State implements Node {
         return "name='" + name +'\''
                 + ", type=" + type;
     }
-
 }

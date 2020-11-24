@@ -4,19 +4,12 @@ import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Sets;
 import com.google.common.graph.*;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Set;
-import java.util.Map;
+import java.util.*;
 import java.util.stream.Collectors;
 
-import graph.fa.FA;
-import graph.fa.FABuilder;
+import graph.fa.*;
 import graph.bfa.BFA;
-import graph.fa.State;
 import graph.bfa.EventTransition;
-import graph.fa.StateBuilder;
 
 import static com.google.common.base.Preconditions.checkArgument;
 
@@ -111,6 +104,11 @@ public final class BFANetworkSupervisor {
 
     /**
      * Retrieve the current state of a BFANetwork
+     * FIXME: we should make it deterministic by writing the state in alphabetical order:
+     *  - first the states of the bfas
+     *  - then the events on the links
+     *  e.g. "C2.state C3.state L2.event L3.Event" --> "20 30 e3(L2) e2(L1)".
+     *  Note that if we knew it follow this rule, we could just write "20 30 e3 e2"
      */
     public static final LOBSState getBFANetworkState(BFANetwork bfaNetwork) {
         Network<BFA, Link> network = bfaNetwork.getNetwork();
@@ -165,7 +163,7 @@ public final class BFANetworkSupervisor {
         FABuilder<BSState, BSTransition> faBuilder = new FABuilder<>();
 
         // create the initial state
-        BSState networkState = getBFANetworkState(bfaNetwork);
+        BSState networkState = getBFANetworkState(bfaNetwork); //FIXME: getBFANetworkState restituisce un LOBSState al posto di un BSState
         networkState.isInitial(true);
         networkState.checkFinal();
 
@@ -291,9 +289,31 @@ public final class BFANetworkSupervisor {
      *
      * FIXME: it looks like there's a bug (some of the states in the returned set are not the same of network
      */
-    private static <N> Set<N> reachableNodes(Network<N,?> network, N node) {
+    /*private static <N> Set<N> reachableNodes(Network<N,?> network, N node) {
         checkArgument(network.nodes().contains(node), "Node %s is not an element of this network.", node);
         return ImmutableSet.copyOf(Traverser.forGraph(network).breadthFirst(node));
+    }*/
+
+    /**
+     * Returns the nodes in {@code network} that are reachable from {@code n}.
+     */
+    private static <N> Set<N> reachableNodes(Network<N,?> network, N n) {
+        checkArgument(network.nodes().contains(n), "Node %s is not an element of this network.", n);
+        Queue<N> queue = new ArrayDeque<>();
+        Set<N> visited = new HashSet<>();
+        visited.add(n);
+        queue.add(n);
+
+        while (!queue.isEmpty()) {
+            N current = queue.remove();
+            for (N neighbor : network.successors(current)) {
+                if (visited.add(neighbor)) {
+                    queue.add(neighbor);
+                }
+            }
+        }
+
+        return visited;
     }
 
 
@@ -340,5 +360,9 @@ public final class BFANetworkSupervisor {
 
         FA<S, BSTransition> silentClosure = new FA<>("", inducedSubgraph, state, acceptanceStates);
         return silentClosure;
+    }
+
+    public static <S extends State> Set<String> diagnosis(FA<S, BSTransition> silentClosure) {
+        return AcceptedLanguages.reduceFAtoMultipleRegex(silentClosure);
     }
 }

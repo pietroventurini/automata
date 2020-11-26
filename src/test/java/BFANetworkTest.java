@@ -239,19 +239,19 @@ public class BFANetworkTest {
         BFANetworkSupervisor.pruneFA(bs);
 
         // rename states like at page 38
-        bs.getNode("30 20 eps eps").orElseThrow().setName("0");
-        bs.getNode("31 20 e2(L2) eps").orElseThrow().setName("1");
-        bs.getNode("31 21 eps e3(L3)").orElseThrow().setName("2");
-        bs.getNode("31 21 eps eps").orElseThrow().setName("3");
-        bs.getNode("31 20 eps e3(L3)").orElseThrow().setName("4");
-        bs.getNode("31 20 eps eps").orElseThrow().setName("5");
-        bs.getNode("30 21 eps eps").orElseThrow().setName("6");
-        bs.getNode("30 20 eps e3(L3)").orElseThrow().setName("7");
-        bs.getNode("31 20 e2(L2) e3(L3)").orElseThrow().setName("8");
-        bs.getNode("30 20 e2(L2) eps").orElseThrow().setName("9");
-        bs.getNode("30 21 eps e3(L3)").orElseThrow().setName("10");
-        bs.getNode("31 21 e2(L2) e3(L3)").orElseThrow().setName("11");
-        bs.getNode("31 21 e2(L2) eps").orElseThrow().setName("12");
+        bs.getNode("20 30 eps eps").orElseThrow().setName("0");
+        bs.getNode("20 31 e2(L2) eps").orElseThrow().setName("1");
+        bs.getNode("21 31 eps e3(L3)").orElseThrow().setName("2");
+        bs.getNode("21 31 eps eps").orElseThrow().setName("3");
+        bs.getNode("20 31 eps e3(L3)").orElseThrow().setName("4");
+        bs.getNode("20 31 eps eps").orElseThrow().setName("5");
+        bs.getNode("21 30 eps eps").orElseThrow().setName("6");
+        bs.getNode("20 30 eps e3(L3)").orElseThrow().setName("7");
+        bs.getNode("20 31 e2(L2) e3(L3)").orElseThrow().setName("8");
+        bs.getNode("20 30 e2(L2) eps").orElseThrow().setName("9");
+        bs.getNode("21 30 eps e3(L3)").orElseThrow().setName("10");
+        bs.getNode("21 31 e2(L2) e3(L3)").orElseThrow().setName("11");
+        bs.getNode("21 31 e2(L2) eps").orElseThrow().setName("12");
 
         return bs;
     }
@@ -282,11 +282,11 @@ public class BFANetworkTest {
         BSState s2 = bs.getNode("2").orElseThrow();
         FA<BSState, BSTransition> silentClosure = BFANetworkSupervisor.silentClosure(bs, s2);
 
-        assertTrue(silentClosure.getAcceptanceStates().contains(bs.getNode("3")));
-        assertTrue(silentClosure.getAcceptanceStates().contains(bs.getNode("6")));
-        assertTrue(silentClosure.getAcceptanceStates().contains(bs.getNode("7")));
-        assertTrue(silentClosure.getAcceptanceStates().contains(bs.getNode("5")));
-        assertTrue(silentClosure.getAcceptanceStates().contains(bs.getNode("0")));
+        assertTrue(silentClosure.getAcceptanceStates().contains(bs.getNode("3").orElseThrow()));
+        assertTrue(silentClosure.getAcceptanceStates().contains(bs.getNode("6").orElseThrow()));
+        assertTrue(silentClosure.getAcceptanceStates().contains(bs.getNode("7").orElseThrow()));
+        assertTrue(silentClosure.getAcceptanceStates().contains(bs.getNode("5").orElseThrow()));
+        assertTrue(silentClosure.getAcceptanceStates().contains(bs.getNode("0").orElseThrow()));
     }
 
     @Test

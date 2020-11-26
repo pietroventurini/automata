@@ -78,7 +78,8 @@ public class BSState extends State {
         }
 
         BSState state = (BSState) o;
-        return (bfas.equals(state.getBfas()) && links.equals(state.getLinks()));
+        return (bfas.equals(state.getBfas()) && links.equals(state.getLinks())
+                && this.getName().equals(state.getName()));
 
     }
 

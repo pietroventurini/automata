@@ -1,6 +1,7 @@
 package graph.BFAnetwork;
 
 import com.google.common.collect.ImmutableSet;
+import com.google.common.collect.MoreCollectors;
 import com.google.common.collect.Sets;
 import com.google.common.graph.*;
 
@@ -194,12 +195,21 @@ public final class BFANetworkSupervisor {
                     if (!closed.contains(newState) && !toExplore.contains(newState)) {
                         toExplore.add(newState);
                         faBuilder.putState(newState);
+                        faBuilder.putTransition(state, newState, new BSTransition(transition.getName(),
+                                transition.getRelevanceLabel(), transition.getObservabilityLabel()));
+                    } else {
+                        BSState existent = closed.contains(newState)
+                                ? closed.stream().filter(s -> s.equals(newState)).collect(MoreCollectors.onlyElement())
+                                : toExplore.stream().filter(s -> s.equals(newState))
+                                        .collect(MoreCollectors.onlyElement());
+                        faBuilder.putTransition(state, existent, new BSTransition(transition.getName(),
+                                transition.getRelevanceLabel(), transition.getObservabilityLabel()));
                     }
-                    faBuilder.putTransition(state, newState, new BSTransition(transition.getName(),
-                            transition.getRelevanceLabel(), transition.getObservabilityLabel()));
+
                     rollbackBFANetwork(state);
                 }
             }
+
             toExplore.remove(state);
             closed.add(state);
         }

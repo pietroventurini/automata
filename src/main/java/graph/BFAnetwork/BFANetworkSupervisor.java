@@ -5,6 +5,7 @@ import com.google.common.collect.Sets;
 import com.google.common.graph.*;
 
 import java.util.*;
+import java.util.stream.Collector;
 import java.util.stream.Collectors;
 
 import graph.fa.*;
@@ -49,7 +50,7 @@ public final class BFANetworkSupervisor {
      * BFA.
      */
     public static final Set<EventTransition> getTransitionsEnabledInBfa(BFANetwork bfaNetwork, BFA bfa) {
-        Network<BFA, Link> network = Graphs.copyOf(bfaNetwork.getNetwork()); // FIXME: perché fare copia?
+        Network<BFA, Link> network = bfaNetwork.getNetwork();
         Set<Link> inLinks = network.inEdges(bfa);
         // keep only non-empty inLinks
         inLinks = inLinks.stream().filter(l -> l.getEvent().isPresent()).collect(Collectors.toSet());
@@ -80,7 +81,7 @@ public final class BFANetworkSupervisor {
      * Execute a particular transition enabled inside a BFA
      */
     public static final void executeTransition(BFANetwork bfaNetwork, BFA bfa, EventTransition transition) {
-        Network<BFA, Link> network = Graphs.copyOf(bfaNetwork.getNetwork()); //FIXME: perché fare copia?
+        Network<BFA, Link> network = bfaNetwork.getNetwork();
         Set<Link> inLinks = network.inEdges(bfa);
         inLinks = inLinks.stream().filter(l -> l.getEvent().isPresent()).collect(Collectors.toSet());
         Set<Link> outLinks = getEmptyLinks(network.outEdges(bfa));
@@ -104,25 +105,25 @@ public final class BFANetworkSupervisor {
 
     /**
      * Retrieve the current state of a BFANetwork
-     * FIXME: we should make it deterministic by writing the state in alphabetical order:
-     *  - first the states of the bfas
-     *  - then the events on the links
-     *  e.g. "C2.state C3.state L2.event L3.Event" --> "20 30 e3(L2) e2(L1)".
-     *  Note that if we knew it follow this rule, we could just write "20 30 e3 e2"
      */
-    public static final LOBSState getBFANetworkState(BFANetwork bfaNetwork) {
+    public static final BSState getBFANetworkState(BFANetwork bfaNetwork) {
         Network<BFA, Link> network = bfaNetwork.getNetwork();
         Map<BFA, State> currentStates = new HashMap<>();
         Map<Link, String> links = new HashMap<>();
 
         String name = "";
 
-        for (BFA bfa : network.nodes()) {
+        List<BFA> orderedBfas = network.nodes().stream().sorted(Comparator.comparing(BFA::getName))
+                .collect(Collectors.toList());
+        List<Link> orderedLinks = network.edges().stream().sorted(Comparator.comparing(Link::getName))
+                .collect(Collectors.toList());
+
+        for (BFA bfa : orderedBfas) {
             currentStates.put(bfa, bfa.getCurrentState());
             name += " " + bfa.getCurrentState().getName();
         }
 
-        for (Link link : network.edges()) {
+        for (Link link : orderedLinks) {
             if (link.getEvent().isPresent()) {
                 links.put(link, link.getEvent().get());
                 name += " " + link.getEvent().get();
@@ -134,7 +135,7 @@ public final class BFANetworkSupervisor {
 
         name = name.trim();
 
-        return new LOBSState(name, currentStates, links);
+        return new BSState(name, currentStates, links);
     }
 
     /**
@@ -156,14 +157,17 @@ public final class BFANetworkSupervisor {
 
     /**
      * Compute the behavioral space of the provided network of behavioral FAs.
-     * @param bfaNetwork the network of behavioral FAs of which to compute the behavioral space
+     * 
+     * @param bfaNetwork the network of behavioral FAs of which to compute the
+     *                   behavioral space
      * @return a FA representing the behavioral space that has been computed
      */
     public static final FA<BSState, BSTransition> getBehavioralSpace(BFANetwork bfaNetwork) {
         FABuilder<BSState, BSTransition> faBuilder = new FABuilder<>();
 
         // create the initial state
-        BSState networkState = getBFANetworkState(bfaNetwork); //FIXME: getBFANetworkState restituisce un LOBSState al posto di un BSState
+        BSState networkState = getBFANetworkState(bfaNetwork); // FIXME: getBFANetworkState restituisce un LOBSState al
+                                                               // posto di un BSState
         networkState.isInitial(true);
         networkState.checkFinal();
 
@@ -204,6 +208,11 @@ public final class BFANetworkSupervisor {
 
     }
 
+    private static final LOBSState getBFANetworkLOBSState(BFANetwork bfaNetwork) {
+        BSState networkState = getBFANetworkState(bfaNetwork);
+        return new LOBSState(networkState.getName(), networkState.getBfas(), networkState.getLinks());
+    }
+
     /**
      * Create the behavioral space related to a linear observation
      */
@@ -211,8 +220,9 @@ public final class BFANetworkSupervisor {
             ArrayList<String> linearObservation) {
         FABuilder<LOBSState, BSTransition> faBuilder = new FABuilder<>();
 
-        // Construct the initial state of the behavioral space relative to linearObservation
-        LOBSState networkState = getBFANetworkState(bfaNetwork);
+        // Construct the initial state of the behavioral space relative to
+        // linearObservation
+        LOBSState networkState = getBFANetworkLOBSState(bfaNetwork);
         networkState.isInitial(true);
         networkState.setObservationIndex(0);
         faBuilder.putState(networkState);
@@ -231,7 +241,7 @@ public final class BFANetworkSupervisor {
                                     .get(state.getObservationIndex()).equals(transition.getObservabilityLabel()))) {
 
                         executeTransition(bfaNetwork, bfa, transition);
-                        LOBSState newState = getBFANetworkState(bfaNetwork);
+                        LOBSState newState = getBFANetworkLOBSState(bfaNetwork);
 
                         if (!transition.getObservabilityLabel().equals(""))
                             newState.setObservationIndex(state.getObservationIndex() + 1);
@@ -258,8 +268,10 @@ public final class BFANetworkSupervisor {
     }
 
     /**
-     * Removes the states of the provided FA from which it can't be reached a final state.
-     * @param fa the Finite automata to be pruned
+     * Removes the states of the provided FA from which it can't be reached a final
+     * state.
+     * 
+     * @param fa  the Finite automata to be pruned
      * @param <S> the type of states (nodes) of the FA
      * @return true if at least one state has been removed, false otherwise
      */
@@ -276,28 +288,36 @@ public final class BFANetworkSupervisor {
     }
 
     /**
-     * This method is inspired from Graphs.reachableNodes() of the guava graph library
-     * Returns the set of nodes that are reachable from {@code node}. Node B is defined as reachable
-     * from node A if there exists a path (a sequence of adjacent outgoing edges) starting at node A
-     * and ending at node B. Note that a node is always reachable from itself via a zero-length path.
+     * This method is inspired from Graphs.reachableNodes() of the guava graph
+     * library Returns the set of nodes that are reachable from {@code node}. Node B
+     * is defined as reachable from node A if there exists a path (a sequence of
+     * adjacent outgoing edges) starting at node A and ending at node B. Note that a
+     * node is always reachable from itself via a zero-length path.
      *
-     * <p>This is a "snapshot" based on the current topology of {@code network}, rather than a live view
-     * of the set of nodes reachable from {@code node}. In other words, the returned {@link Set} will
-     * not be updated after modifications to {@code network}.
+     * <p>
+     * This is a "snapshot" based on the current topology of {@code network}, rather
+     * than a live view of the set of nodes reachable from {@code node}. In other
+     * words, the returned {@link Set} will not be updated after modifications to
+     * {@code network}.
      *
-     * @throws IllegalArgumentException if {@code node} is not present in {@code network}
+     * @throws IllegalArgumentException if {@code node} is not present in
+     *                                  {@code network}
      *
-     * FIXME: it looks like there's a bug (some of the states in the returned set are not the same of network
+     *                                  FIXME: it looks like there's a bug (some of
+     *                                  the states in the returned set are not the
+     *                                  same of network
      */
-    /*private static <N> Set<N> reachableNodes(Network<N,?> network, N node) {
-        checkArgument(network.nodes().contains(node), "Node %s is not an element of this network.", node);
-        return ImmutableSet.copyOf(Traverser.forGraph(network).breadthFirst(node));
-    }*/
+    /*
+     * private static <N> Set<N> reachableNodes(Network<N,?> network, N node) {
+     * checkArgument(network.nodes().contains(node),
+     * "Node %s is not an element of this network.", node); return
+     * ImmutableSet.copyOf(Traverser.forGraph(network).breadthFirst(node)); }
+     */
 
     /**
      * Returns the nodes in {@code network} that are reachable from {@code n}.
      */
-    private static <N> Set<N> reachableNodes(Network<N,?> network, N n) {
+    private static <N> Set<N> reachableNodes(Network<N, ?> network, N n) {
         checkArgument(network.nodes().contains(n), "Node %s is not an element of this network.", n);
         Queue<N> queue = new ArrayDeque<>();
         Set<N> visited = new HashSet<>();
@@ -316,29 +336,37 @@ public final class BFANetworkSupervisor {
         return visited;
     }
 
-
     /**
-     * Compute the silent closure of {@code state} relative to {@code behavioralSpace}, by extracting the subspace
-     * of the nodes that are reachable from {@code state} through non-observable transitions.
-     * States of {@code behavioralSpace} that are final and exit states (those that has an observable outgoing
-     * transition), are marked as acceptance states in the returned FA.
+     * Compute the silent closure of {@code state} relative to
+     * {@code behavioralSpace}, by extracting the subspace of the nodes that are
+     * reachable from {@code state} through non-observable transitions. States of
+     * {@code behavioralSpace} that are final and exit states (those that has an
+     * observable outgoing transition), are marked as acceptance states in the
+     * returned FA.
      *
-     * @param behavioralSpace the behavioral space to which {@code state} must belong.
-     * @param state the state of {@code behavioralSpace} whose silent closure we want to compute.
+     * @param behavioralSpace the behavioral space to which {@code state} must
+     *                        belong.
+     * @param state           the state of {@code behavioralSpace} whose silent
+     *                        closure we want to compute.
      * @return a FA corresponding to the silent closure of {@code state}
      */
     public static <S extends State> FA<S, BSTransition> silentClosure(FA<S, BSTransition> behavioralSpace, S state) {
-        checkArgument(behavioralSpace.getStates().contains(state), "State %s does not belong to behavioral space %s", state, behavioralSpace);
+        checkArgument(behavioralSpace.getStates().contains(state), "State %s does not belong to behavioral space %s",
+                state, behavioralSpace);
         // check that state has at least one incoming observable transition
-        checkArgument(behavioralSpace.getNetwork().inEdges(state).stream().anyMatch(BSTransition::hasObservabilityLabel), "The provided state has no incoming observable transition");
+        checkArgument(
+                behavioralSpace.getNetwork().inEdges(state).stream().anyMatch(BSTransition::hasObservabilityLabel),
+                "The provided state has no incoming observable transition");
 
-        MutableNetwork<S,BSTransition> network = Graphs.copyOf(behavioralSpace.getNetwork());
+        MutableNetwork<S, BSTransition> network = Graphs.copyOf(behavioralSpace.getNetwork());
 
         // collect and remove observable transitions
-        Set<BSTransition> observableTransitions = network.edges().stream().filter(BSTransition::hasObservabilityLabel).collect(Collectors.toSet());
+        Set<BSTransition> observableTransitions = network.edges().stream().filter(BSTransition::hasObservabilityLabel)
+                .collect(Collectors.toSet());
         observableTransitions.forEach(t -> network.removeEdge(t));
 
-        // find nodes reachable through non-observable transitions (since those transitions have just been removed)
+        // find nodes reachable through non-observable transitions (since those
+        // transitions have just been removed)
         Set<S> nodes = reachableNodes(network, state);
 
         // keep only transitions between nodes both reachable from state
@@ -347,11 +375,8 @@ public final class BFANetworkSupervisor {
         // collect all final and exit states into acceptance states
         Set<S> finalStates = inducedSubgraph.nodes().stream().filter(S::isFinal).collect(Collectors.toSet());
         Set<S> exitStates = inducedSubgraph.nodes().stream().filter(
-                        s -> behavioralSpace.getNetwork()
-                                .outEdges(s)
-                                .stream()
-                                .anyMatch(BSTransition::hasObservabilityLabel)
-                ).collect(Collectors.toSet());
+                s -> behavioralSpace.getNetwork().outEdges(s).stream().anyMatch(BSTransition::hasObservabilityLabel))
+                .collect(Collectors.toSet());
 
         Set<S> acceptanceStates = Sets.union(finalStates, exitStates);
 

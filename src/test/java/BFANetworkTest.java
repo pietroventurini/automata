@@ -70,7 +70,6 @@ public class BFANetworkTest {
         return new BFANetworkBuilder().putLink(c3, c2, l2).putLink(c2, c3, l3).build();
     }
 
-
     @BeforeEach
     public void setUp() {
         bfaNetwork = BFANetworkFromPage26();
@@ -192,33 +191,6 @@ public class BFANetworkTest {
 
     }
 
-    // TO-DO (this test is non fully implemented, it is just an idea for silent
-    // closures)
-    /*public void computeSilentClosure() {
-        ArrayList<String> linearObservation = new ArrayList<>();
-        BFANetworkSupervisor.executeTransition(bfaNetwork, c3, t3a);
-        BFANetworkSupervisor.executeTransition(bfaNetwork, c2, t2a);
-        FA<LOBSState, BSTransition> space = BFANetworkSupervisor.getBehavioralSpaceForLinearObservation(bfaNetwork,
-                linearObservation);
-
-        LOBSState toDelete = space.getStates().stream().filter(s -> s.getName().equals(" 30 20 eps e3(L3)"))
-                .collect(Collectors.toSet()).iterator().next();
-        toDelete.isAcceptance(true);
-        // space.getNetwork().removeNode(toDelete);
-
-        Set<LOBSState> finalStates = space.getAcceptanceStates();
-        for (LOBSState state : finalStates) {
-            state.isAcceptance(true);
-        }
-
-        String acceptedLanguage = AcceptedLanguage.reduceFAtoRegex(space);
-
-        System.out.println(acceptedLanguage);
-        assertTrue(true);
-
-    }
-    */
-
     /**
      * Check that the BS of page 35-36 is pruned correctly
      */
@@ -234,7 +206,7 @@ public class BFANetworkTest {
      * Check that a FA containing a loop of non-final states gets pruned correctly
      * by removing that loop. The FA under test is the following:
      *
-     * s0 s1 --> s2 s2 --> s1
+     * s0 --> s1 s1 --> s2 s2 --> s1
      *
      * where: initial state: s0 final states: {s0}
      *
@@ -245,8 +217,9 @@ public class BFANetworkTest {
         State s0 = new StateBuilder("s0").isInitial(true).isFinal(true).build();
         State s1 = new State("s1");
         State s2 = new State("s2");
-        FA<State, Transition> space = new FABuilder<>().putState(s0).putTransition(s1, s2, new Transition(""))
-                .putTransition(s2, s1, new Transition("")).build();
+        FA<State, Transition> space = new FABuilder<>().putState(s0).putTransition(s0, s1, new Transition(""))
+                .putTransition(s1, s2, new Transition("")).putTransition(s2, s1, new Transition("")).build();
+
         BFANetworkSupervisor.pruneFA(space);
         assertTrue(space.getStates().contains(s0), "The BS after pruning should contain s0");
         assertFalse(space.getStates().contains(s1), "The BS after pruning should not contain s1");
@@ -254,8 +227,8 @@ public class BFANetworkTest {
     }
 
     /**
-     * @return the behavioral space showed at page 38 of the project description. It is computed
-     * on the network of bfas from page 26.
+     * @return the behavioral space showed at page 38 of the project description. It
+     *         is computed on the network of bfas from page 26.
      */
     private FA<BSState, BSTransition> behavioralSpaceFromPage38() {
 
@@ -283,7 +256,6 @@ public class BFANetworkTest {
         return bs;
     }
 
-
     @Test
     public void itShouldThrowExceptionWhenComputingSilentClosureOfStateWithoutObservableIngoingTransitions() {
         FA<BSState, BSTransition> bs = behavioralSpaceFromPage38();
@@ -298,7 +270,8 @@ public class BFANetworkTest {
         }
 
         BSState finalNonObservableState = nonObservableState;
-        assertThrows(IllegalArgumentException.class, () -> BFANetworkSupervisor.silentClosure(bs, finalNonObservableState));
+        assertThrows(IllegalArgumentException.class,
+                () -> BFANetworkSupervisor.silentClosure(bs, finalNonObservableState));
     }
 
     @Test
@@ -324,7 +297,7 @@ public class BFANetworkTest {
         BSState s2 = bs.getNode("2").orElseThrow();
         FA<BSState, BSTransition> silentClosure = BFANetworkSupervisor.silentClosure(bs, s2);
 
-        assertEquals(Set.of("f","fr","frf",""), BFANetworkSupervisor.diagnosis(silentClosure));
+        assertEquals(Set.of("f", "fr", "frf", ""), BFANetworkSupervisor.diagnosis(silentClosure));
     }
 
 }

@@ -12,6 +12,7 @@ import java.util.stream.Collectors;
 import graph.fa.*;
 import graph.bfa.BFA;
 import graph.bfa.EventTransition;
+import graph.nodes.Node;
 
 import static com.google.common.base.Preconditions.checkArgument;
 
@@ -297,32 +298,6 @@ public final class BFANetworkSupervisor {
         return toRemove.isEmpty() ? false : true;
     }
 
-    /**
-     * This method is inspired from Graphs.reachableNodes() of the guava graph
-     * library Returns the set of nodes that are reachable from {@code node}. Node B
-     * is defined as reachable from node A if there exists a path (a sequence of
-     * adjacent outgoing edges) starting at node A and ending at node B. Note that a
-     * node is always reachable from itself via a zero-length path.
-     *
-     * <p>
-     * This is a "snapshot" based on the current topology of {@code network}, rather
-     * than a live view of the set of nodes reachable from {@code node}. In other
-     * words, the returned {@link Set} will not be updated after modifications to
-     * {@code network}.
-     *
-     * @throws IllegalArgumentException if {@code node} is not present in
-     *                                  {@code network}
-     *
-     *                                  FIXME: it looks like there's a bug (some of
-     *                                  the states in the returned set are not the
-     *                                  same of network
-     */
-    /*
-     * private static <N> Set<N> reachableNodes(Network<N,?> network, N node) {
-     * checkArgument(network.nodes().contains(node),
-     * "Node %s is not an element of this network.", node); return
-     * ImmutableSet.copyOf(Traverser.forGraph(network).breadthFirst(node)); }
-     */
 
     /**
      * Returns the nodes in {@code network} that are reachable from {@code n}.
@@ -397,7 +372,19 @@ public final class BFANetworkSupervisor {
         return silentClosure;
     }
 
+
+    /**
+     * Compute the diagnosis associated to a silent closure, i.e. the alternative of the decorations
+     * related to each final state of the closure.
+     * @return a map where keys are the final states of the closure and values are the corresponding decorations
+     */
     public static <S extends State> Set<String> diagnosis(FA<S, BSTransition> silentClosure) {
-        return AcceptedLanguages.reduceFAtoMultipleRegex(silentClosure);
+        Map<S,String> acceptedLanguages = AcceptedLanguages.reduceFAtoMapOfRegex(silentClosure);
+        Set<String> diagnosis = new HashSet<>();
+        for (S s : acceptedLanguages.keySet()) {
+            if (s.isFinal())
+                diagnosis.add(acceptedLanguages.get(s));
+        }
+        return diagnosis;
     }
 }

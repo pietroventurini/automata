@@ -17,8 +17,9 @@ import static java.util.function.Predicate.not;
 /**
  * This class implements the functionality described by algorithms
  * EspressioneRegolare (page 9) and EspressioniRegolari (page 17), allowing to
- * retrieve the language accepted by a FA. FIXME: Rewrite and re-organize the
- * code in a better way !!!
+ * retrieve the language accepted by a FA.
+ * FIXME: Rewrite and re-organize the code in a better way !!!
+ * FIXME: use generics and not raw types.
  *
  * @author Pietro Venturini
  */

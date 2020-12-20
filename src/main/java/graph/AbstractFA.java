@@ -11,6 +11,8 @@ import java.util.Set;
 /**
  * This class represents the common structure to all types of FAs. FAs, BFAs and Behavioral spaces
  * all have an initial state.
+ * TODO: since we added setter methods, we lost guarantee of the fa's validity. We should check validation after
+ *   a invoking any mutator method.
  * @param <S> The type of states
  * @param <T> The type of transitions
  */
@@ -43,6 +45,10 @@ public abstract class AbstractFA<S extends State, T extends Edge> extends Graph<
 
     public S getInitialState() {
         return initialState;
+    }
+
+    public void setInitialState(S initialState) {
+        this.initialState = initialState;
     }
 
     /**

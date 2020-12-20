@@ -4,7 +4,6 @@ import com.google.common.graph.MutableNetwork;
 import graph.AbstractFA;
 import graph.fa.State;
 
-import java.util.Objects;
 
 /**
  * This class represents a behavioral FA (BFA). It inherits all the methods of

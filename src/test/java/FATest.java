@@ -180,7 +180,6 @@ public class FATest {
     /**
      * Check the example of page 21 applying the EspressioniRegolari described at
      * pages 17-20
-     *
      */
     @Test
     public void itShouldComputeAcceptedLanguagesRelativeToEachAcceptanceStateOfFaOfPage21() {

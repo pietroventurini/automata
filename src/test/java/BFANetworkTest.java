@@ -282,11 +282,14 @@ public class BFANetworkTest {
         BSState s2 = bs.getNode("2").orElseThrow();
         FA<BSState, BSTransition> silentClosure = BFANetworkSupervisor.silentClosure(bs, s2);
 
+        assertTrue(silentClosure.getInitialState().equals(bs.getNode("2").orElseThrow()));
         assertTrue(silentClosure.getAcceptanceStates().contains(bs.getNode("3").orElseThrow()));
         assertTrue(silentClosure.getAcceptanceStates().contains(bs.getNode("6").orElseThrow()));
         assertTrue(silentClosure.getAcceptanceStates().contains(bs.getNode("7").orElseThrow()));
         assertTrue(silentClosure.getAcceptanceStates().contains(bs.getNode("5").orElseThrow()));
         assertTrue(silentClosure.getAcceptanceStates().contains(bs.getNode("0").orElseThrow()));
+        assertFalse(silentClosure.getStates().contains(bs.getNode("1").orElseThrow()));
+        assertFalse(silentClosure.getStates().contains(bs.getNode("8").orElseThrow()));
     }
 
     @Test

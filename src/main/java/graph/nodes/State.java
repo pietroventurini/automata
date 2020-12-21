@@ -5,9 +5,10 @@ package graph.nodes;
  *
  * @author Pietro Venturini
  */
-public interface Node {
+public interface State {
 
     void setName(String name);
 
     String getName();
+
 }

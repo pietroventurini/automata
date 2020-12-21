@@ -1,6 +1,7 @@
 package graph.bfa;
 
-import graph.fa.State;
+import graph.fa.FAState;
+import graph.nodes.State;
 
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -22,7 +23,6 @@ public class BFAValidator {
     public static boolean validate(BFA bfa) {
         if (hasOnlyOneInitialState(bfa)
                 && thereAreNotIsolatedStates(bfa)
-                && doesNotHaveFinalStates(bfa)
                 && doesNotHaveStatesWithDuplicateNames(bfa)
                 && doesNotHaveTransitionsWithDuplicateNames(bfa)
             ) {
@@ -72,10 +72,7 @@ public class BFAValidator {
      * @return true if fa has exactly one initial state, false otherwise
      */
     public static boolean hasOnlyOneInitialState(BFA bfa) {
-        return bfa.getStates()
-                .stream()
-                .filter(State::isInitial)
-                .count() == 1;
+        return bfa.getInitialState() != null;
     }
 
     /**
@@ -88,15 +85,6 @@ public class BFAValidator {
         return true;
     }
 
-    /**
-     * Check whether there aren't final states
-     * @return true if no state is final, false otherwise
-     */
-    public static boolean doesNotHaveFinalStates(BFA bfa) {
-        return bfa.getStates()
-                .stream()
-                .noneMatch(State::isFinal);
-    }
 
     /**
      * Get the isolated states of the BFA, i.e. the states with inDegree = outDegree = 0

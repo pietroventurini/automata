@@ -4,6 +4,7 @@ import com.google.common.collect.MoreCollectors;
 import com.google.common.graph.MutableNetwork;
 import com.google.common.graph.NetworkBuilder;
 import graph.fa.*;
+import graph.nodes.State;
 
 import java.util.NoSuchElementException;
 
@@ -16,6 +17,7 @@ import java.util.NoSuchElementException;
 public class BFABuilder {
 
     private MutableNetwork<State, EventTransition> network;
+    private State initialState;
     private String name;
 
     /**
@@ -40,6 +42,12 @@ public class BFABuilder {
         return this;
     }
 
+    public BFABuilder putInitialState(State nodeU) {
+        network.addNode(nodeU);
+        initialState = nodeU;
+        return this;
+    }
+
     /**
      * Add a transition to the underlying network of the BFA
      * @param nodeU the source State
@@ -52,25 +60,11 @@ public class BFABuilder {
     }
 
     public BFA build() {
-        State initialState = retrieveInitialState();
         BFA bfa = new BFA(name, network, initialState, initialState);
-
         BFAValidator.validate(bfa);
-
         return bfa;
     }
 
-    /**
-     * @return the initial state of the FA
-     * @throws NoSuchElementException if the iterable is empty
-     * @throws IllegalArgumentException if the iterable contains multiple elements
-     */
-    private State retrieveInitialState() {
-        return network.nodes()
-                .stream()
-                .filter(State::isInitial)
-                .collect(MoreCollectors.onlyElement());
-    }
 
 
 }

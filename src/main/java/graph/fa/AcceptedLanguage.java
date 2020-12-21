@@ -1,14 +1,13 @@
 package graph.fa;
 
 import com.google.common.collect.MoreCollectors;
+import com.google.common.collect.Sets;
 import com.google.common.graph.EndpointPair;
 import com.google.common.graph.Graphs;
 import com.google.common.graph.MutableNetwork;
+import graph.nodes.State;
 
-import java.util.Collections;
-import java.util.NoSuchElementException;
-import java.util.Optional;
-import java.util.Set;
+import java.util.*;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
@@ -25,36 +24,35 @@ import static java.util.function.Predicate.not;
  */
 public final class AcceptedLanguage {
     private static final String EMPTY_STRING = "";
-    private static MutableNetwork<State, Transition> network;
+    //private static MutableNetwork<State, Transition> network;
 
     private AcceptedLanguage() {
     }
 
     /**
-     * Reduce the FA to an equivalent regular expression describing the language
+     * Reduce the FA {@code finiteAutomata} to an equivalent regular expression describing the language
      * accepted from the FA by applying the algorithm RegularExpression(Nin)
      * described at page 11 of the project description.
      * 
-     * @param fa the finite automata
      * @return the accepted language
      */
-    public static final String reduceFAtoRegex(FA fa) {
+    public static final <S extends State, T extends Transition> String reduceFAtoRegex(FA<S,T> finiteAutomata) {
 
-        network = Graphs.copyOf(fa.getNetwork());
+        FA<S,T> fa = FA.copyOf(finiteAutomata);
 
         // retrieve the surrogate initial state and the surrogate acceptance state
-        State n0 = createSurrogateInitialState();
-        State nq = createSurrogateAcceptanceState();
-        while (network.edges().size() > 1) {
-            if (thereIsASequenceOfTransitions()) {
-                concatenateSequenceOfTransitions();
-            } else if (thereAreParallelTransitions()) {
-                reduceSetOfParallelTransitions();
+        S n0 = createSurrogateInitialState(fa);
+        S nq = createSurrogateAcceptanceState(fa);
+        while (fa.getNetwork().edges().size() > 1) {
+            if (thereIsASequenceOfTransitions(fa)) {
+                concatenateSequenceOfTransitions(fa);
+            } else if (thereAreParallelTransitions(fa)) {
+                reduceSetOfParallelTransitions(fa);
             } else {
-                reduceRemainingNodes();
+                reduceRemainingNodes(fa);
             }
         }
-        Optional<Transition> onlyTransition = network.edgeConnecting(n0, nq);
+        Optional<T> onlyTransition = fa.getNetwork().edgeConnecting(n0, nq);
         if (onlyTransition.isEmpty())
             return EMPTY_STRING;
         return onlyTransition.get().getSymbol();
@@ -66,15 +64,14 @@ public final class AcceptedLanguage {
      * 
      * @return the surrogate initial FA.State n0
      */
-    private static final State createSurrogateInitialState() {
+    private static final <S extends State, T extends Transition> S createSurrogateInitialState(FA<S,T> fa) {
         // retrieve the initial state
-        State n0 = network.nodes().stream().filter(State::isInitial).collect(MoreCollectors.onlyElement());
-
-        if (network.inDegree(n0) > 0) {
-            n0.isInitial(false);
-            State beta0 = n0;
-            n0 = new StateBuilder("n0").isInitial(true).build();
-            network.addEdge(n0, beta0, new Transition(EMPTY_STRING));
+        S n0 = fa.getInitialState();
+        if (fa.getNetwork().inDegree(n0) > 0) {
+            S beta0 = n0;
+            n0 = (S) new StateBuilder("n0").build();
+            fa.getNetwork().addEdge(n0, beta0, (T) new Transition(EMPTY_STRING));
+            fa.setInitialState(n0);
         }
         return n0;
     }
@@ -86,17 +83,17 @@ public final class AcceptedLanguage {
      * 
      * @return the surrogate acceptance FA.State nq
      */
-    private static final State createSurrogateAcceptanceState() {
-        Set<State> acceptanceStates = network.nodes().stream().filter(State::isAcceptance).collect(Collectors.toSet());
+    private static final <S extends State, T extends Transition> S createSurrogateAcceptanceState(FA<S,T> fa) {
+        Set<S> acceptanceStates = fa.getAcceptanceStates();
 
-        State nq = new StateBuilder("nq").isAcceptance(true).build();
+        S nq = (S) new StateBuilder("nq").build();
 
         // if there is a single acceptance state, check if there are outgoing
         // edges from it
         boolean outgoing = false;
         if (acceptanceStates.size() == 1) {
-            State onlyAcceptanceState = acceptanceStates.stream().collect(MoreCollectors.onlyElement());
-            if (network.outDegree(onlyAcceptanceState) > 0)
+            S onlyAcceptanceState = acceptanceStates.stream().collect(MoreCollectors.onlyElement());
+            if (fa.getNetwork().outDegree(onlyAcceptanceState) > 0)
                 outgoing = true;
             else
                 nq = onlyAcceptanceState;
@@ -105,11 +102,11 @@ public final class AcceptedLanguage {
         // if there are multiple acceptance states or a single one having outgoing
         // edges, create surrogate acceptance state nq
         if (acceptanceStates.size() > 1 || outgoing) {
-            for (State beta_q : acceptanceStates) {
-                beta_q.isAcceptance(false);
-                network.addEdge(beta_q, nq, new Transition(EMPTY_STRING)); // add eps-transition
+            for (S beta_q : acceptanceStates) {
+                fa.getNetwork().addEdge(beta_q, nq, (T) new Transition(EMPTY_STRING)); // add eps-transition
             }
         }
+        fa.setAcceptanceStates(Sets.newHashSet(nq));
 
         return nq;
     }
@@ -121,7 +118,8 @@ public final class AcceptedLanguage {
      * 
      * @return true if such state exists, false otherwise
      */
-    private static final boolean thereIsASequenceOfTransitions() {
+    private static final <S extends State, T extends Transition> boolean thereIsASequenceOfTransitions(FA<S,T> fa) {
+        MutableNetwork<S,T> network = fa.getNetwork();
         return network.nodes().stream().anyMatch(n -> network.inDegree(n) == 1 && network.outDegree(n) == 1);
     }
 
@@ -131,26 +129,29 @@ public final class AcceptedLanguage {
      * the original sequence. Note: differently from the algorithm from page 11,
      * here we do not enclose the new equivalent transition between brackets
      */
-    private static final void concatenateSequenceOfTransitions() {
+    private static final <S extends State, T extends Transition> void concatenateSequenceOfTransitions(FA<S,T> fa) {
+
+        MutableNetwork<S,T> network = fa.getNetwork();
 
         // retrieve, if it exists, a node with a single incident edge and a single
         // outgoing edge
-        State intermediate = network.nodes().stream().filter(n -> network.inDegree(n) == 1 && network.outDegree(n) == 1)
+        S intermediate = network.nodes().stream()
+                .filter(n -> network.inDegree(n) == 1 && network.outDegree(n) == 1)
                 .findAny().get();
         if (intermediate == null)
             throw new NoSuchElementException();
 
         // retrieve the predecessor node of the intermediate one
-        State predecessor = network.predecessors(intermediate).stream().collect(MoreCollectors.onlyElement());
+        S predecessor = network.predecessors(intermediate).stream().collect(MoreCollectors.onlyElement());
 
         // retrieve the successor node of the intermediate one
-        State successor = network.successors(intermediate).stream().collect(MoreCollectors.onlyElement());
+        S successor = network.successors(intermediate).stream().collect(MoreCollectors.onlyElement());
 
         // build the new transition by concatenating two adjacent transitions
         String newSymbol = new StringBuilder()
                 .append(network.edgeConnectingOrNull(predecessor, intermediate).getSymbol())
                 .append(network.edgeConnectingOrNull(intermediate, successor).getSymbol()).toString();
-        Transition newTransition = new Transition(newSymbol);
+        T newTransition = (T) new Transition(newSymbol);
 
         // remove the intermediate node and insert the new transition
         network.removeNode(intermediate);
@@ -164,16 +165,17 @@ public final class AcceptedLanguage {
      * 
      * @return
      */
-    private static final Set<Transition> getParallelTransitions() {
-        Set<Transition> transitions;
-        for (State n1 : network.nodes()) {
-            for (State n2 : network.nodes()) {
+    private static final <S extends State, T extends Transition> Set<T> getParallelTransitions(FA<S,T> fa) {
+        MutableNetwork<S,T> network = fa.getNetwork();
+        Set<T> transitions;
+        for (S n1 : network.nodes()) {
+            for (S n2 : network.nodes()) {
                 transitions = Set.copyOf(network.edgesConnecting(n1, n2));
                 if (transitions.size() > 1)
                     return transitions;
             }
         }
-        return Collections.<Transition>emptySet();
+        return Collections.<T>emptySet();
     }
 
     /**
@@ -182,57 +184,61 @@ public final class AcceptedLanguage {
      * 
      * @return true such states exist, false otherwise
      */
-    private static final boolean thereAreParallelTransitions() {
-        return getParallelTransitions().isEmpty() ? false : true;
+    private static final <S extends State, T extends Transition> boolean thereAreParallelTransitions(FA<S,T> fa) {
+        return getParallelTransitions(fa).isEmpty() ? false : true;
     }
 
     /**
      * (row 19 of page 11) Reduce a set of parallel transitions to a single
      * transition which symbol is the alternation between each transition's symbol.
      */
-    private static final void reduceSetOfParallelTransitions() {
+    private static final <S extends State, T extends Transition> void reduceSetOfParallelTransitions(FA<S,T> fa) {
+        MutableNetwork<S,T> network = fa.getNetwork();
 
         // retrieve a set of parallel transitions
-        Set<Transition> transitions = getParallelTransitions();
+        Set<T> transitions = getParallelTransitions(fa);
 
         // build the new symbol which is the alternation between the symbols of each
         // transition
         String newSymbol = transitions.stream().map(Transition::getSymbol).collect(Collectors.joining("|", "(", ")"));
 
         // Retrieve the two endpoints (states) of the considered parallel transitions
-        EndpointPair<State> stateEndpointPair = network.incidentNodes(transitions.stream().findAny().get());
+        EndpointPair<S> stateEndpointPair = network.incidentNodes(transitions.stream().findAny().get());
 
         // remove old parallel transitions
         transitions.forEach(t -> network.removeEdge(t));
 
         // Create and add the new transition
-        network.addEdge(stateEndpointPair, new Transition(newSymbol));
+        network.addEdge(stateEndpointPair, (T) new Transition(newSymbol));
     }
 
     /**
      * (row 20-32 of page 11)
      */
-    private static final void reduceRemainingNodes() {
-        State n = network.nodes().stream()
-                .filter(not((Predicate<State>) State::isInitial).and(not(State::isAcceptance))).findAny().get();
+    private static final <S extends State, T extends Transition> void reduceRemainingNodes(FA<S,T> fa) {
+        MutableNetwork<S,T> network = fa.getNetwork();
 
-        Set<Transition> ingoingTransitions = network.inEdges(n); // transitions of the form ( n' -> n )
-        Set<Transition> outgoingTransitions = network.outEdges(n); // transitions of the form ( n -> n" )
-        Optional<Transition> selfLoopTransition = network.edgeConnecting(n, n);
+        //S n = network.nodes().stream().filter(not((Predicate<FAState>) FAState::isInitial).and(not(FAState::isAcceptance))).findAny().get();
+        S n = Sets.difference(fa.getStates(), Sets.union(fa.getAcceptanceStates(), Set.of(fa.getInitialState())))
+                .stream().findAny().get();
 
-        for (Transition t1 : ingoingTransitions) {
-            for (Transition t2 : outgoingTransitions) {
+        Set<T> ingoingTransitions = network.inEdges(n); // transitions of the form ( n' -> n )
+        Set<T> outgoingTransitions = network.outEdges(n); // transitions of the form ( n -> n" )
+        Optional<T> selfLoopTransition = network.edgeConnecting(n, n);
+
+        for (T t1 : ingoingTransitions) {
+            for (T t2 : outgoingTransitions) {
                 // if none between t1 and t2 is the self-loop transition
                 if (!t1.equals(selfLoopTransition.get()) && !t2.equals(selfLoopTransition.get())) {
-                    State n1 = network.incidentNodes(t1).nodeU();
-                    State n2 = network.incidentNodes(t2).nodeV();
+                    S n1 = network.incidentNodes(t1).nodeU();
+                    S n2 = network.incidentNodes(t2).nodeV();
                     if (selfLoopTransition.isPresent()) {
                         String newSymbol = new StringBuilder().append(t1.getSymbol())
                                 .append("(" + selfLoopTransition.get().getSymbol() + ")*").append(t2.getSymbol())
                                 .toString();
-                        network.addEdge(n1, n2, new Transition(betweenBrackets(newSymbol)));
+                        network.addEdge(n1, n2, (T) new Transition(betweenBrackets(newSymbol)));
                     } else {
-                        network.addEdge(n1, n2, new Transition(t1.getSymbol().concat(t2.getSymbol())));
+                        network.addEdge(n1, n2, (T) new Transition(t1.getSymbol().concat(t2.getSymbol())));
                     }
                 }
             }

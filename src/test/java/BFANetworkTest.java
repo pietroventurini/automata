@@ -1,4 +1,4 @@
-import com.google.common.collect.MoreCollectors;
+import com.google.common.collect.ImmutableMap;
 import graph.BFAnetwork.*;
 import graph.bfa.BFA;
 import graph.bfa.BFABuilder;
@@ -11,7 +11,6 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
-import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -19,16 +18,16 @@ import static org.junit.jupiter.api.Assertions.*;
 public class BFANetworkTest {
 
     // nodes and transitions of BFA C2 from page 24
-    private static final State s20 = new StateBuilder("20").isInitial(true).build();
-    private static final State s21 = new StateBuilder("21").build();
+    private static final FAState s20 = new StateBuilder("20").build();
+    private static final FAState s21 = new StateBuilder("21").build();
     private static final EventTransition t2a = new EventTransition.Builder("t2a").inEvent("e2(L2)")
             .addOutEvent("e3(L3)").observabilityLabel("o2").build();
     private static final EventTransition t2b = new EventTransition.Builder("t2b").addOutEvent("e3(L3)")
             .relevanceLabel("r").build();
 
     // nodes and transitions of BFA C3 from page 24
-    private static final State s30 = new StateBuilder("30").isInitial(true).build();
-    private static final State s31 = new StateBuilder("31").build();
+    private static final FAState s30 = new StateBuilder("30").build();
+    private static final FAState s31 = new StateBuilder("31").build();
     private static final EventTransition t3a = new EventTransition.Builder("t3a").addOutEvent("e2(L2)")
             .observabilityLabel("o3").build();
     private static final EventTransition t3b = new EventTransition.Builder("t3b").inEvent("e3(L3)").build();
@@ -50,14 +49,17 @@ public class BFANetworkTest {
      * @return the behavioral FA C2 from page 24
      */
     private final static BFA BFAc2FromPage24() {
-        return new BFABuilder("C2").putTransition(s20, s21, t2a).putTransition(s21, s20, t2b).build();
+        return new BFABuilder("C2").putInitialState(s20)
+        .putTransition(s20, s21, t2a).putTransition(s21, s20, t2b)
+                .build();
     }
 
     /**
      * @return the behavioral FA C3 from page 24
      */
     private final static BFA BFAc3FromPage24() {
-        return new BFABuilder("C3").putTransition(s30, s31, t3a).putTransition(s31, s30, t3b)
+        return new BFABuilder("C3").putInitialState(s30)
+                .putTransition(s30, s31, t3a).putTransition(s31, s30, t3b)
                 .putTransition(s31, s31, t3c).build();
     }
 
@@ -110,7 +112,7 @@ public class BFANetworkTest {
     @Test
     public void itShouldGetTheBFANetworkState() {
         BSState state = BFANetworkSupervisor.getBFANetworkState(bfaNetwork);
-        Map<BFA, State> bfas = new HashMap<>();
+        Map<BFA, FAState> bfas = new HashMap<>();
         Map<Link, String> links = new HashMap<>();
         bfas.put(c2, s20);
         bfas.put(c3, s30);
@@ -167,7 +169,7 @@ public class BFANetworkTest {
         assertEquals(9, space.getStates().size());
 
         // there should be 4 final states
-        assertEquals(4, space.getStates().stream().filter(s -> s.isFinal()).collect(Collectors.toSet()).size());
+        assertEquals(4, space.getFinalStates().size());
 
         // there should be 8 transitions
         assertEquals(8, space.getTransitions().size());
@@ -178,10 +180,10 @@ public class BFANetworkTest {
         // there should be 8 states
         assertEquals(8, space.getStates().size());
 
-        Set<LOBSState> finalStates = space.getAcceptanceStates();
+        /*Set<LOBSState> finalStates = space.getAcceptanceStates();
         for (LOBSState state : finalStates) {
             state.isAcceptance(true);
-        }
+        }*/
 
         Set<String> acceptedLanguages = AcceptedLanguages.reduceFAtoMultipleRegex(space);
 
@@ -206,7 +208,7 @@ public class BFANetworkTest {
      * Check that a FA containing a loop of non-final states gets pruned correctly
      * by removing that loop. The FA under test is the following:
      *
-     * s0 --> s1 s1 --> s2 s2 --> s1
+     * s0 --> s1, s1 --> s2, s2 --> s1
      *
      * where: initial state: s0 final states: {s0}
      *
@@ -214,11 +216,14 @@ public class BFANetworkTest {
      */
     @Test
     public void itShouldPruneFAWithLoopOfNonFinalStates() {
-        State s0 = new StateBuilder("s0").isInitial(true).isFinal(true).build();
-        State s1 = new State("s1");
-        State s2 = new State("s2");
-        FA<State, Transition> space = new FABuilder<>().putState(s0).putTransition(s0, s1, new Transition(""))
-                .putTransition(s1, s2, new Transition("")).putTransition(s2, s1, new Transition("")).build();
+        FAState s0 = new StateBuilder("s0").build();
+        FAState s1 = new StateBuilder("s1").build();
+        FAState s2 = new StateBuilder("s2").build();
+        FA<FAState, Transition> space = new FABuilder<FAState,Transition>()
+                .putInitialState(s0).putAcceptanceState(s0).putFinalState(s0)
+                .putTransition(s0, s1, new Transition(""))
+                .putTransition(s1, s2, new Transition(""))
+                .putTransition(s2, s1, new Transition("")).build();
 
         BFANetworkSupervisor.pruneFA(space);
         assertTrue(space.getStates().contains(s0), "The BS after pruning should contain s0");
@@ -263,7 +268,7 @@ public class BFANetworkTest {
         // get a non-initial state which hasn't any observable ingoing transitions.
         BSState nonObservableState = null;
         for (BSState s : bs.getStates()) {
-            if (!s.isInitial() && bs.getNetwork().inEdges(s).stream().noneMatch(BSTransition::hasObservabilityLabel)) {
+            if (!bs.isInitial(s) && bs.getNetwork().inEdges(s).stream().noneMatch(BSTransition::hasObservabilityLabel)) {
                 nonObservableState = s;
                 break;
             }
@@ -293,14 +298,37 @@ public class BFANetworkTest {
     }
 
     @Test
-    public void itShouldComputeDiagnosisOfSilentClosure() {
+    public void itShouldComputeDecorationOfSilentClosure() {
         FA<BSState, BSTransition> bs = behavioralSpaceFromPage38();
 
         // get state 2
         BSState s2 = bs.getNode("2").orElseThrow();
         FA<BSState, BSTransition> silentClosure = BFANetworkSupervisor.silentClosure(bs, s2);
+        FA<DecoratedBSState, BSTransition> decoratedSilentClosure = BFANetworkSupervisor.decoratedSilentClosure(silentClosure);
 
-        assertEquals(Set.of("f", "fr", "frf", ""), BFANetworkSupervisor.diagnosis(silentClosure));
+        assertEquals("f", decoratedSilentClosure.getNode("3").orElseThrow().getDecoration());
+        assertEquals("fr", decoratedSilentClosure.getNode("0").orElseThrow().getDecoration());
+        assertEquals("r", decoratedSilentClosure.getNode("7").orElseThrow().getDecoration());
+        assertEquals("frf", decoratedSilentClosure.getNode("5").orElseThrow().getDecoration());
+        assertEquals("", decoratedSilentClosure.getNode("6").orElseThrow().getDecoration());
+    }
+
+    @Test
+    public void itShouldComputeDiagnosisOfSilentClosure() {
+        FA<BSState, BSTransition> bs = behavioralSpaceFromPage38();
+        // get state 2
+        BSState s2 = bs.getNode("2").orElseThrow();
+        FA<BSState, BSTransition> silentClosure = BFANetworkSupervisor.silentClosure(bs, s2);
+        // compute decoration of page 61
+        FA<DecoratedBSState, BSTransition> decoratedSilentClosure = BFANetworkSupervisor.decoratedSilentClosure(silentClosure);
+        Map<DecoratedBSState, String> expectedDiag = ImmutableMap.of(
+                decoratedSilentClosure.getNode("3").orElseThrow(), "f",
+                decoratedSilentClosure.getNode("0").orElseThrow(), "fr",
+                decoratedSilentClosure.getNode("5").orElseThrow(), "frf",
+                decoratedSilentClosure.getNode("6").orElseThrow(), ""
+        );
+
+        assertEquals(expectedDiag, BFANetworkSupervisor.diagnosis(decoratedSilentClosure));
     }
 
 }

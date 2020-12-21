@@ -1,13 +1,10 @@
 package graph.BFAnetwork;
 
 import graph.bfa.BFA;
-import graph.fa.State;
-import graph.fa.StateType;
+import graph.nodes.State;
 
-import java.util.EnumSet;
 import java.util.Map;
 import java.util.Objects;
-import java.util.stream.Collectors;
 
 /**
  * BSState is the State of a Behavioral Space, which has a more complex
@@ -18,36 +15,32 @@ import java.util.stream.Collectors;
  * @author Pietro Venturini
  * @author Giacomo Bontempi
  */
-public class BSState extends State {
+public class BSState implements IBSState {
 
+    private String name;
     private Map<BFA, State> bfas; // this map stores for each BFA (in a BFANetwork) a copy of its current state
     private Map<Link, String> links; // this map stores for each Link (in a BFANetwork) a copy of the event inside
                                      // its buffer
 
     public BSState(String name, Map<BFA, State> bfas, Map<Link, String> links) {
-        super(name);
+        this.name = name;
         this.bfas = bfas;
         this.links = links;
     }
 
-    public BSState(String name, EnumSet<StateType> type, Map<BFA, State> bfas, Map<Link, String> links) {
-        super(name, type);
-        this.bfas = bfas;
-        this.links = links;
-    }
-
+    @Override
     public Map<BFA, State> getBfas() {
         return bfas;
     }
-
+    @Override
     public void setBfas(Map<BFA, State> bfas) {
         this.bfas = bfas;
     }
-
+    @Override
     public Map<Link, String> getLinks() {
         return links;
     }
-
+    @Override
     public void setLinks(Map<Link, String> links) {
         this.links = links;
     }
@@ -56,9 +49,12 @@ public class BSState extends State {
      * Check if the BSState is final (i.e. if it represents a configuration of the
      * BFANetwork in which all the Links are empty)
      */
-    public void checkFinal() {
+    /*public void checkFinal() {
         if (this.links.values().stream().allMatch(Objects::isNull))
-            this.isFinal(true);
+            this.isFinal(true); //FIXME: change to return true
+    }*/
+    public boolean isFinal() {
+        return this.links.values().stream().allMatch(Objects::isNull);
     }
 
     /**
@@ -86,5 +82,15 @@ public class BSState extends State {
     @Override
     public int hashCode() {
         return Objects.hash(bfas, links);
+    }
+
+    @Override
+    public void setName(String name) {
+        this.name = name;
+    }
+
+    @Override
+    public String getName() {
+        return name;
     }
 }

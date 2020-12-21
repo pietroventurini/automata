@@ -2,7 +2,7 @@ package graph;
 
 import com.google.common.graph.MutableNetwork;
 import graph.edges.Edge;
-import graph.nodes.Node;
+import graph.nodes.State;
 
 import java.util.Optional;
 import java.util.Set;
@@ -18,7 +18,7 @@ import java.util.Set;
  *
  * @author Pietro Venturini
  */
-public abstract class Graph<N extends Node, E extends Edge> {
+public abstract class Graph<N extends State, E extends Edge> {
 
     private MutableNetwork<N, E> network;
 

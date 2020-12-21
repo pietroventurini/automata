@@ -37,4 +37,11 @@ public class Link implements EdgeWithName {
     public void removeEvent() {
         this.event = null;
     }
+
+    /**
+     * Check if the link is empty, i.e. if it doesn't contain any event
+     */
+    public boolean isEmpty() {
+        return getEvent().isEmpty();
+    }
 }

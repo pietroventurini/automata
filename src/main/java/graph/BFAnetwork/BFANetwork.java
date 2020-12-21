@@ -1,5 +1,6 @@
 package graph.BFAnetwork;
 
+import com.google.common.graph.Graphs;
 import com.google.common.graph.MutableNetwork;
 import graph.Graph;
 import graph.bfa.BFA;
@@ -35,4 +36,28 @@ public class BFANetwork extends Graph<BFA, Link> {
         return super.getNodes();
     }
 
+    /**
+     * Check if the BFANetwork is in its initial state
+     * @return
+     */
+    public boolean isInitial() {
+        return getNodes().stream().allMatch(BFA::isInitial) && getLinks().stream().allMatch(Link::isEmpty);
+    }
+
+    /**
+     * Check if the BFANetwork is in a final state
+     * @return
+     */
+    public boolean isFinal() {
+        return getLinks().stream().allMatch(Link::isEmpty);
+    }
+
+    @Override
+    public String toString() {
+        return super.toString();
+    }
+
+    public static BFANetwork copyOf(BFANetwork bfaNetwork) {
+        return new BFANetwork(Graphs.copyOf(bfaNetwork.getNetwork()));
+    }
 }

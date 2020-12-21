@@ -1,8 +1,10 @@
 package graph.bfa;
 
+import com.google.common.graph.Graphs;
 import com.google.common.graph.MutableNetwork;
 import graph.AbstractFA;
-import graph.fa.State;
+import graph.fa.FAState;
+import graph.nodes.State;
 
 
 /**
@@ -35,6 +37,19 @@ public class BFA extends AbstractFA<State, EventTransition> {
 
     public void setCurrentState(State currentState) {
         this.currentState = currentState;
+    }
+
+    /**
+     * Check if BFA is in its initial state
+     * @return
+     */
+    public boolean isInitial() {
+        return currentState == super.getInitialState();
+    }
+
+    public BFA copyOf(BFA bfa) {
+        return new BFA(bfa.getName(), Graphs.copyOf(super.getNetwork()),
+                super.getInitialState(), currentState);
     }
 
 }

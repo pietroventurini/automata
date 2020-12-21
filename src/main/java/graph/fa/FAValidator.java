@@ -1,5 +1,7 @@
 package graph.fa;
 
+import graph.nodes.State;
+
 import java.util.Set;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
@@ -32,34 +34,24 @@ public class FAValidator {
      * @return true if fa has exactly one initial state, false otherwise
      */
     public static <S extends State, T extends Transition> boolean hasOnlyOneInitialState(FA<S,T> fa) {
-        return fa.getNodes()
-                .stream()
-                .filter(S::isInitial)
-                .count() == 1;
+        return fa.getInitialState() != null;
     }
 
     /**
      * Check that, unless the set of states contains only one state, then there are no isolated states
      */
     public static <S extends State, T extends Transition> boolean thereAreNotIsolatedStates(FA<S,T> fa) {
-        if (getIsolatedStates(fa).stream().anyMatch(Predicate.not(S::isInitial)))
-            throw new IllegalStateException();
-        return true;
+        Set<S> isolatedStates = getIsolatedStates(fa);
+        if (isolatedStates.isEmpty() || fa.getStates().size() == 1) {
+            return true;
+        }
+        throw new IllegalStateException();
     }
 
     public static <S extends State, T extends Transition> boolean hasAtLeastOneAcceptanceState(FA<S,T> fa) {
         return fa.getAcceptanceStates().size() > 0;
     }
 
-    /**
-     * @return the set of final states of the FA
-     */
-    private static <S extends State, T extends Transition> Set<S> retrieveFinalStates(FA<S,T> fa) {
-        return fa.getNodes()
-                .stream()
-                .filter(S::isFinal)
-                .collect(Collectors.toSet());
-    }
 
     private static <S extends State, T extends Transition> Set<S> getIsolatedStates(FA<S,T> fa) {
         return fa.getNodes()

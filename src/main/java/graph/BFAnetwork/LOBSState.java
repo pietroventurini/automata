@@ -4,7 +4,8 @@ import java.util.Map;
 import java.util.Objects;
 
 import graph.bfa.BFA;
-import graph.fa.State;
+import graph.fa.FAState;
+import graph.nodes.State;
 
 /**
  * LOBSState is the State of a Behavioral Space related to a linear observation.

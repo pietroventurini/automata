@@ -2,11 +2,11 @@ package graph;
 
 import com.google.common.graph.MutableNetwork;
 import graph.edges.Edge;
-import graph.fa.State;
-import graph.nodes.Node;
+import graph.nodes.State;
 
-import java.util.Objects;
 import java.util.Set;
+
+import static com.google.common.base.Preconditions.checkNotNull;
 
 /**
  * This class represents the common structure to all types of FAs. FAs, BFAs and Behavioral spaces
@@ -16,7 +16,7 @@ import java.util.Set;
  * @param <S> The type of states
  * @param <T> The type of transitions
  */
-public abstract class AbstractFA<S extends State, T extends Edge> extends Graph<S, T> implements Node {
+public abstract class AbstractFA<S extends State, T extends Edge> extends Graph<S, T> implements State {
 
     private String name;
     private S initialState;
@@ -48,6 +48,7 @@ public abstract class AbstractFA<S extends State, T extends Edge> extends Graph<
     }
 
     public void setInitialState(S initialState) {
+        checkNotNull(initialState);
         this.initialState = initialState;
     }
 
@@ -66,6 +67,14 @@ public abstract class AbstractFA<S extends State, T extends Edge> extends Graph<
     public Set<S> getStates() {
         return super.getNodes();
     }
+
+    /**
+     * Check if {@code state} is an initial state
+     */
+    public boolean isInitial(S state) {
+        return initialState == state;
+    }
+
 
     @Override
     public String toString() {

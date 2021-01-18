@@ -6,13 +6,13 @@ import graph.nodes.State;
 import java.util.Map;
 
 /**
- * Use decorator pattern
+ * It represents a decorated state of a behavioral space.
  */
-public class DecoratedBSState implements IBSState {
+public class DBSState implements IBSState {
     private BSState state;
     private String decoration;
 
-    public DecoratedBSState(BSState state, String decoration) {
+    public DBSState(BSState state, String decoration) {
         this.state = state;
         this.decoration = decoration;
     }

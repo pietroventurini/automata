@@ -30,7 +30,7 @@ public final class BFANetworkSupervisor {
 
     /**
      * Return all the links having the specified event inside their buffer.
-     * 
+     *
      * @param links The set of links to be filtered
      * @param event the event to look for
      */
@@ -157,7 +157,7 @@ public final class BFANetworkSupervisor {
 
     /**
      * Compute the behavioral space of the provided network of behavioral FAs.
-     * 
+     *
      * @param bfaNetwork the network of behavioral FAs of which to compute the
      *                   behavioral space
      * @return a FA representing the behavioral space that has been computed
@@ -167,7 +167,7 @@ public final class BFANetworkSupervisor {
 
         // create the initial state
         BSState networkState = getBFANetworkState(bfaNetwork); // FIXME: getBFANetworkState restituisce un LOBSState al
-                                                               // posto di un BSState
+        // posto di un BSState
         //networkState.checkFinal();
         if (networkState.isFinal()) {
             faBuilder.putFinalState(networkState).putAcceptanceState(networkState);
@@ -206,7 +206,7 @@ public final class BFANetworkSupervisor {
                         BSState existent = closed.contains(newState)
                                 ? closed.stream().filter(s -> s.equals(newState)).collect(MoreCollectors.onlyElement())
                                 : toExplore.stream().filter(s -> s.equals(newState))
-                                        .collect(MoreCollectors.onlyElement());
+                                .collect(MoreCollectors.onlyElement());
                         faBuilder.putTransition(state, existent, new BSTransition(transition.getName(),
                                 transition.getRelevanceLabel(), transition.getObservabilityLabel()));
                     }
@@ -232,7 +232,7 @@ public final class BFANetworkSupervisor {
      * Create the behavioral space related to a linear observation
      */
     public static final FA<LOBSState, BSTransition> getBehavioralSpaceForLinearObservation(BFANetwork bfaNetwork,
-            ArrayList<String> linearObservation) {
+                                                                                           ArrayList<String> linearObservation) {
         FABuilder<LOBSState, BSTransition> faBuilder = new FABuilder<>();
 
         // Construct the initial state of the behavioral space relative to
@@ -252,7 +252,7 @@ public final class BFANetworkSupervisor {
                 for (EventTransition transition : getTransitionsEnabledInBfa(bfaNetwork, bfa)) {
                     if (transition.getObservabilityLabel().equals("")
                             || (state.getObservationIndex() < linearObservation.size() && linearObservation
-                                    .get(state.getObservationIndex()).equals(transition.getObservabilityLabel()))) {
+                            .get(state.getObservationIndex()).equals(transition.getObservabilityLabel()))) {
 
                         executeTransition(bfaNetwork, bfa, transition);
                         LOBSState newState = getBFANetworkLOBSState(bfaNetwork);
@@ -289,7 +289,7 @@ public final class BFANetworkSupervisor {
     /**
      * Removes the states of the provided FA from which it can't be reached a final
      * state.
-     * 
+     *
      * @param fa  the Finite automata to be pruned
      * @param <S> the type of states (nodes) of the FA
      * @return true if at least one state has been removed, false otherwise
@@ -349,8 +349,8 @@ public final class BFANetworkSupervisor {
                 state, behavioralSpace);
         // check that state has at least one incoming observable transition
         checkArgument(
-                behavioralSpace.getNetwork().inEdges(state).stream().anyMatch(BSTransition::hasObservabilityLabel),
-                "The provided state has no incoming observable transition");
+                behavioralSpace.getNetwork().inEdges(state).stream().anyMatch(BSTransition::hasObservabilityLabel) || behavioralSpace.isInitial(state),
+                "The provided state is neither initial, nor has any incoming observable transition");
 
         MutableNetwork<S, BSTransition> network = Graphs.copyOf(behavioralSpace.getNetwork());
 
@@ -382,23 +382,23 @@ public final class BFANetworkSupervisor {
     }
 
 
-
     /**
      * Compute the diagnosis associated to a silent closure, i.e. the alternative of the decorations
      * related to each final state of the closure.
+     *
      * @return a map where keys are the final states of the closure and values are the corresponding decorations
      * FIXME: correggere, c'è un problema con eventuali loop
      */
-    public static FA<DecoratedBSState, BSTransition> decoratedSilentClosure(FA<BSState, BSTransition> silentClosure) {
-        Map<BSState,String> acceptedLanguages = AcceptedLanguages.reduceFAtoMapOfRegex(silentClosure);
+    public static FA<DBSState, BSTransition> decoratedSilentClosure(FA<BSState, BSTransition> silentClosure) {
+        Map<BSState, String> acceptedLanguages = AcceptedLanguages.reduceFAtoMapOfRegex(silentClosure);
         MutableNetwork<BSState, BSTransition> network = silentClosure.getNetwork();
 
-        FABuilder<DecoratedBSState, BSTransition> faBuilder = new FABuilder<>();
+        FABuilder<DBSState, BSTransition> faBuilder = new FABuilder<>();
         // temporary map needed for conversion from FA<BSState,...> to FA<DecoratedBSState,...>
-        Map<BSState, DecoratedBSState> states = new HashMap<>();
+        Map<BSState, DBSState> states = new HashMap<>();
 
         for (BSState s : silentClosure.getStates()) {
-            DecoratedBSState decState = new DecoratedBSState(s, acceptedLanguages.get(s));
+            DBSState decState = new DBSState(s, acceptedLanguages.get(s));
             states.put(s, decState);
             if (silentClosure.isInitial(s))
                 faBuilder.putInitialState(decState);
@@ -408,25 +408,116 @@ public final class BFANetworkSupervisor {
                 faBuilder.putFinalState(decState);
         }
 
+
         for (BSTransition t : silentClosure.getTransitions()) {
             BSState stateU = network.incidentNodes(t).nodeU();
             BSState stateV = network.incidentNodes(t).nodeV();
             faBuilder.putTransition(states.get(stateU), states.get(stateV), t);
         }
-        FA<DecoratedBSState, BSTransition> decoratedSilentClosure = faBuilder.build();
+        FA<DBSState, BSTransition> decoratedSilentClosure = faBuilder.build();
         return decoratedSilentClosure;
     }
 
     /**
      * Compute the diagnosis associated to a silent closure, i.e. the alternative of the decorations
      * related to each final state of the closure.
+     *
      * @return a map where keys are the final states of the closure and values are the corresponding decorations
      */
-    public static Map<DecoratedBSState, String> diagnosis(FA<DecoratedBSState, BSTransition> decoratedSilentClosure) {
-        Map<DecoratedBSState, String> diagnosis = new HashMap<>();
-        for (DecoratedBSState s : decoratedSilentClosure.getFinalStates()) {
+    public static Map<DBSState, String> diagnosis(FA<DBSState, BSTransition> decoratedSilentClosure) {
+        Map<DBSState, String> diagnosis = new HashMap<>();
+        for (DBSState s : decoratedSilentClosure.getFinalStates()) {
             diagnosis.put(s, s.getDecoration());
         }
         return diagnosis;
+    }
+
+    /**
+     * Compute the decorated space of closures from a behavioral space
+     *
+     * @return a finite automata, whose nodes are silent closures
+     */
+    public static FA<FA<DBSState, BSTransition>, DSCTransition> decoratedSpaceOfClosures(FA<BSState, BSTransition> behavioralSpace) {
+        // collect states that are valid entry states for a silent closure.
+        Set<BSState> entryPoints = behavioralSpace.getStates().stream().filter(
+                s -> behavioralSpace.getNetwork().inEdges(s).stream().anyMatch(BSTransition::hasObservabilityLabel)
+        ).collect(Collectors.toSet());
+        entryPoints.add(behavioralSpace.getInitialState());
+
+        // build a Map <EntryState, SilentClosure>
+        Map<BSState, FA<DBSState, BSTransition>> decoratedSilentClosures = new HashMap<>();
+        for (BSState s : entryPoints) {
+            FA<BSState, BSTransition> silentClosure = BFANetworkSupervisor.silentClosure(behavioralSpace, s);
+            decoratedSilentClosures.put(s, BFANetworkSupervisor.decoratedSilentClosure(silentClosure));
+        }
+
+        // build the decorated space of closures
+        FABuilder<FA<DBSState, BSTransition>, DSCTransition> faBuilder = new FABuilder();
+        for (FA<DBSState, BSTransition> sc1 : decoratedSilentClosures.values()) {
+            // check if it is the initial silent closure
+            if (behavioralSpace.isInitial(sc1.getInitialState().getBSState())) {
+                faBuilder.putInitialState(sc1);
+            }
+            // check if it is an acceptance state (i.e. if the silent closure contains final states)
+            if (!sc1.getFinalStates().isEmpty()) {
+                faBuilder.putAcceptanceState(sc1);
+            }
+
+            // find states of sc1 with observable outgoing transitions
+            Set<DBSState> exitStates = sc1.getAcceptanceStates().stream()
+                    .filter(s -> behavioralSpace.getNetwork()
+                            .outEdges(s.getBSState()).stream()
+                            .anyMatch(BSTransition::hasObservabilityLabel))
+                    .collect(Collectors.toSet());
+
+            // find observable transitions from each exit state of sc1 and build the space
+            for (DBSState source : exitStates) {
+                for (BSTransition t : behavioralSpace.getNetwork().outEdges(source.getBSState())) {
+                    if (t.hasObservabilityLabel()) {
+                        BSState target = behavioralSpace.getNetwork().incidentNodes(t).target();
+                        FA<DBSState, BSTransition> sc2 = decoratedSilentClosures.get(target);
+                        faBuilder.putTransition(sc1, sc2, new DSCTransition(t.getName(), source.getDecoration(), t.getObservabilityLabel()));
+                    }
+                }
+            }
+        }
+        return faBuilder.build();
+    }
+
+    /**
+     * Build the diagnostician given the decorated space of closures of a certain behavioral space.
+     * The references to the silent closures (i.e. the nodes of the space) are not kept, but they are instead
+     * replaced by simpler data structures (states with just a name and a map representing the diagnosis).
+     */
+    public static Diagnostician diagnostician(FA<FA<DBSState, BSTransition>, DSCTransition> decoratedSpaceOfClosures) {
+        FABuilder<FAState, DSCTransition> faBuilder = new FABuilder<>();
+        Map<FAState, Map<DBSState, String>> diagnosis = new HashMap<>(); // map each state of the diagnostician to the diagnosis (which is a map itself)
+
+        Map<FA<DBSState, BSTransition>, FAState> states = new HashMap<>(); // temporary map needed for conversion from silent closures to FAState
+        for (FA<DBSState, BSTransition> silentClosure : decoratedSpaceOfClosures.getStates()) {
+            // compute the diagnosis of the silent closure
+            Map<DBSState, String> diagnosisOfS = diagnosis(silentClosure);
+            FAState s = new FAState(silentClosure.getName());
+            diagnosis.put(s, diagnosisOfS);
+            states.put(silentClosure, s);
+
+            // add the state to the builder
+            if (decoratedSpaceOfClosures.isInitial(silentClosure)) {
+                faBuilder.putInitialState(s);
+            }
+            if (decoratedSpaceOfClosures.isAcceptance(silentClosure)) {
+                faBuilder.putAcceptanceState(s);
+            }
+        }
+
+        // add the transitions
+        for (DSCTransition t : decoratedSpaceOfClosures.getTransitions()) {
+            FA<DBSState, BSTransition> dsc1 = decoratedSpaceOfClosures.getNetwork().incidentNodes(t).source();
+            FA<DBSState, BSTransition> dsc2 = decoratedSpaceOfClosures.getNetwork().incidentNodes(t).target();
+            faBuilder.putTransition(states.get(dsc1), states.get(dsc2), new DSCTransition(t.getName(), t.getSymbol(), t.getObservabilityLabel()));
+        }
+
+        FA<FAState, DSCTransition> fa = faBuilder.build();
+        return new Diagnostician(fa, diagnosis);
     }
 }

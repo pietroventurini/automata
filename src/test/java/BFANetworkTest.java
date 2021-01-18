@@ -304,7 +304,7 @@ public class BFANetworkTest {
         // get state 2
         BSState s2 = bs.getNode("2").orElseThrow();
         FA<BSState, BSTransition> silentClosure = BFANetworkSupervisor.silentClosure(bs, s2);
-        FA<DecoratedBSState, BSTransition> decoratedSilentClosure = BFANetworkSupervisor.decoratedSilentClosure(silentClosure);
+        FA<DBSState, BSTransition> decoratedSilentClosure = BFANetworkSupervisor.decoratedSilentClosure(silentClosure);
 
         assertEquals("f", decoratedSilentClosure.getNode("3").orElseThrow().getDecoration());
         assertEquals("fr", decoratedSilentClosure.getNode("0").orElseThrow().getDecoration());
@@ -320,15 +320,32 @@ public class BFANetworkTest {
         BSState s2 = bs.getNode("2").orElseThrow();
         FA<BSState, BSTransition> silentClosure = BFANetworkSupervisor.silentClosure(bs, s2);
         // compute decoration of page 61
-        FA<DecoratedBSState, BSTransition> decoratedSilentClosure = BFANetworkSupervisor.decoratedSilentClosure(silentClosure);
-        Map<DecoratedBSState, String> expectedDiag = ImmutableMap.of(
+        FA<DBSState, BSTransition> decoratedSilentClosure = BFANetworkSupervisor.decoratedSilentClosure(silentClosure);
+        Map<DBSState, String> expectedDiagnosis = ImmutableMap.of(
                 decoratedSilentClosure.getNode("3").orElseThrow(), "f",
                 decoratedSilentClosure.getNode("0").orElseThrow(), "fr",
                 decoratedSilentClosure.getNode("5").orElseThrow(), "frf",
                 decoratedSilentClosure.getNode("6").orElseThrow(), ""
         );
 
-        assertEquals(expectedDiag, BFANetworkSupervisor.diagnosis(decoratedSilentClosure));
+        assertEquals(expectedDiagnosis, BFANetworkSupervisor.diagnosis(decoratedSilentClosure));
+    }
+
+    @Test
+    public void itShouldComputeDecoratedSpaceOfClosures() {
+        FA<FA<DBSState, BSTransition>, DSCTransition> space = BFANetworkSupervisor.decoratedSpaceOfClosures(behavioralSpaceFromPage38());
+        assertEquals(7, space.getStates().size());
+        assertEquals("0", space.getInitialState().getInitialState().getName());
+        Set<String> acceptanceStatesOfSpace = space.getAcceptanceStates().stream().map(s -> s.getInitialState().getName()).collect(Collectors.toSet());
+        assertEquals(Set.of("0","2"), acceptanceStatesOfSpace);
+    }
+
+    @Test
+    public void itShouldComputeDiagnostician() {
+        FA<FA<DBSState, BSTransition>, DSCTransition> space = BFANetworkSupervisor.decoratedSpaceOfClosures(behavioralSpaceFromPage38());
+        Diagnostician d = BFANetworkSupervisor.diagnostician(space);
+        assertEquals(7, d.getFa().getStates().size());
+        // TODO: Check that the diagnosis of the node x2 is correct (Problem: idk how to assign names to the nodes)
     }
 
 }

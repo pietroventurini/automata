@@ -3,15 +3,16 @@ package graph.fa;
 import com.google.common.collect.MoreCollectors;
 import com.google.common.collect.Sets;
 import com.google.common.graph.EndpointPair;
-import com.google.common.graph.Graphs;
 import com.google.common.graph.MutableNetwork;
 import graph.nodes.State;
 
-import java.util.*;
-import java.util.function.Predicate;
+import java.util.Collections;
+import java.util.NoSuchElementException;
+import java.util.Optional;
+import java.util.Set;
 import java.util.stream.Collectors;
 
-import static java.util.function.Predicate.not;
+import static graph.fa.Constants.EPS;
 
 /**
  * This class implements the functionality described by algorithms
@@ -23,8 +24,6 @@ import static java.util.function.Predicate.not;
  * @author Pietro Venturini
  */
 public final class AcceptedLanguage {
-    private static final String EMPTY_STRING = "";
-    //private static MutableNetwork<State, Transition> network;
 
     private AcceptedLanguage() {
     }
@@ -54,7 +53,7 @@ public final class AcceptedLanguage {
         }
         Optional<T> onlyTransition = fa.getNetwork().edgeConnecting(n0, nq);
         if (onlyTransition.isEmpty())
-            return EMPTY_STRING;
+            return EPS;
         return onlyTransition.get().getSymbol();
     }
 
@@ -70,7 +69,7 @@ public final class AcceptedLanguage {
         if (fa.getNetwork().inDegree(n0) > 0) {
             S beta0 = n0;
             n0 = (S) new StateBuilder("n0").build();
-            fa.getNetwork().addEdge(n0, beta0, (T) new Transition(EMPTY_STRING));
+            fa.getNetwork().addEdge(n0, beta0, (T) new Transition(EPS));
             fa.setInitialState(n0);
         }
         return n0;
@@ -103,7 +102,7 @@ public final class AcceptedLanguage {
         // edges, create surrogate acceptance state nq
         if (acceptanceStates.size() > 1 || outgoing) {
             for (S beta_q : acceptanceStates) {
-                fa.getNetwork().addEdge(beta_q, nq, (T) new Transition(EMPTY_STRING)); // add eps-transition
+                fa.getNetwork().addEdge(beta_q, nq, (T) new Transition(EPS)); // add eps-transition
             }
         }
         fa.setAcceptanceStates(Sets.newHashSet(nq));

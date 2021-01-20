@@ -7,10 +7,7 @@ import graph.fa.*;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 import java.util.stream.Collectors;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -314,7 +311,7 @@ public class BFANetworkTest {
     }
 
     @Test
-    public void itShouldComputeDiagnosisOfSilentClosure() {
+    public void itShouldComputeDiagnosisOfSilentClosureX2() {
         FA<BSState, BSTransition> bs = behavioralSpaceFromPage38();
         // get state 2
         BSState s2 = bs.getNode("2").orElseThrow();
@@ -332,6 +329,17 @@ public class BFANetworkTest {
     }
 
     @Test
+    public void itShouldComputeDiagnosisOfSilentClosureX0() {
+        FA<BSState, BSTransition> bs = behavioralSpaceFromPage38();
+        // get state 0
+        BSState s0 = bs.getNode("0").orElseThrow();
+        FA<BSState, BSTransition> silentClosure = BFANetworkSupervisor.silentClosure(bs, s0);
+        // compute decoration like at page 67
+        FA<DBSState, BSTransition> decoratedSilentClosure = BFANetworkSupervisor.decoratedSilentClosure(silentClosure);
+        assertEquals("", BFANetworkSupervisor.diagnosis(decoratedSilentClosure).get(s0));
+    }
+
+    @Test
     public void itShouldComputeDecoratedSpaceOfClosures() {
         FA<FA<DBSState, BSTransition>, DSCTransition> space = BFANetworkSupervisor.decoratedSpaceOfClosures(behavioralSpaceFromPage38());
         assertEquals(7, space.getStates().size());
@@ -346,6 +354,15 @@ public class BFANetworkTest {
         Diagnostician d = BFANetworkSupervisor.diagnostician(space);
         assertEquals(7, d.getFa().getStates().size());
         // TODO: Check that the diagnosis of the node x2 is correct (Problem: idk how to assign names to the nodes)
+    }
+
+    @Test
+    public void itShouldComputeLinearDiagnosis() {
+        FA<FA<DBSState, BSTransition>, DSCTransition> space = BFANetworkSupervisor.decoratedSpaceOfClosures(behavioralSpaceFromPage38());
+        Diagnostician d = BFANetworkSupervisor.diagnostician(space);
+        List<String> linObs = List.of("o3","o2","o3","o2");
+        String diagnosis = BFANetworkSupervisor.linearDiagnosis(d, linObs);
+        assertEquals("(fr|rf)(f|fr|frf| )", diagnosis);
     }
 
 }

@@ -13,6 +13,7 @@ import graph.bfa.EventTransition;
 import graph.nodes.State;
 
 import static com.google.common.base.Preconditions.checkArgument;
+import static graph.fa.Constants.EPS;
 
 /**
  * This class monitors and operates on the network of BFA; in particular, it is
@@ -387,9 +388,10 @@ public final class BFANetworkSupervisor {
      * related to each final state of the closure.
      *
      * @return a map where keys are the final states of the closure and values are the corresponding decorations
-     * FIXME: correggere, c'è un problema con eventuali loop
      */
     public static FA<DBSState, BSTransition> decoratedSilentClosure(FA<BSState, BSTransition> silentClosure) {
+        //FIXME: Se silentClosure ha un solo stato (es. chiusura x0 di pag. 67) AcceptedLanguages restituisce una
+        //    mappa vuota {} invece che una mappa {(0 -> "")} dove con "" si intende epsilon.
         Map<BSState, String> acceptedLanguages = AcceptedLanguages.reduceFAtoMapOfRegex(silentClosure);
         MutableNetwork<BSState, BSTransition> network = silentClosure.getNetwork();
 
@@ -498,7 +500,9 @@ public final class BFANetworkSupervisor {
             // compute the diagnosis of the silent closure
             Map<DBSState, String> diagnosisOfS = diagnosis(silentClosure);
             FAState s = new FAState(silentClosure.getName());
-            diagnosis.put(s, diagnosisOfS);
+            if (diagnosisOfS.size() > 0) {
+                diagnosis.put(s, diagnosisOfS);
+            }
             states.put(silentClosure, s);
 
             // add the state to the builder
@@ -519,5 +523,51 @@ public final class BFANetworkSupervisor {
 
         FA<FAState, DSCTransition> fa = faBuilder.build();
         return new Diagnostician(fa, diagnosis);
+    }
+
+    /**
+     * Computes the linear diagnosis relating to the linear observation @code linObs} of a behavioral network, given
+     * its diagnostician {@code diagnostician}, using algorithm of page 85 of the project description.
+     * @return A string representing the diagnosis of the provided linear observation
+     */
+    public static String linearDiagnosis(Diagnostician diagnostician, List<String> linObs) {
+        FA<FAState, DSCTransition> fa = diagnostician.getFa();
+        FAState x0 = fa.getInitialState();
+        Map<FAState, String> X = new HashMap<>();
+        X.put(x0, EPS);
+        for (String o : linObs) {
+            Map<FAState, String> Xnew = new HashMap<>();
+            for(FAState x1 : X.keySet()) {
+                String r1 = X.get(x1);
+                // get observable transitions from x1
+                Set<DSCTransition> outTransitions = fa.getNetwork().outEdges(x1).stream()
+                        .filter(t -> t.getObservabilityLabel().equals(o))
+                        .collect(Collectors.toSet());
+                for (DSCTransition t : outTransitions) {
+                    FAState x2 = fa.getNetwork().incidentNodes(t).target();
+                    String r2 = r1 + t.getSymbol(); // line 6 of algorithm of page 85
+                    if (Xnew.containsKey(x2) && !r2.equals(Xnew.get(x2))) {
+                        r2 = X.get(x2) + "|" + r2;
+                        Xnew.replace(x2, r2);
+                    } else {
+                        Xnew.put(x2, r2);
+                    }
+                }
+            }
+            X = Xnew;
+        }
+        Set<FAState> nonAcceptanceStates = X.keySet().stream().filter(x -> !fa.isAcceptance(x)).collect(Collectors.toSet());
+        X.keySet().removeAll(nonAcceptanceStates);
+
+        StringBuilder sb = new StringBuilder();
+        for (FAState x : X.keySet()) {
+            sb.append("(" + X.get(x))
+                    .append("(" + diagnostician.getDiagnosisOf(x) + ")")
+                    .append(")|");
+        }
+        // remove last char ("|")
+        sb.setLength(sb.length() - 1);
+
+        return sb.toString();
     }
 }

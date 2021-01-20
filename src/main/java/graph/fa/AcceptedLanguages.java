@@ -8,6 +8,8 @@ import graph.nodes.State;
 import java.util.*;
 import java.util.stream.Collectors;
 
+import static graph.fa.Constants.EPS;
+
 /**
  * This class implements the functionality described by algorithm
  * EspressioniRegolari (page 17), allowing to retrieve the languages accepted by
@@ -16,10 +18,6 @@ import java.util.stream.Collectors;
  * @author Giacomo Bontempi
  */
 public final class AcceptedLanguages {
-    private static final String EMPTY_STRING = "";
-    //private static MutableNetwork<? extends State, ? extends Transition> network;
-    //private static List<? extends State> acceptedStates;
-    //private static Map<? extends Transition, ? extends State> markedTransitions;
 
     private AcceptedLanguages() {}
 
@@ -49,23 +47,23 @@ public final class AcceptedLanguages {
         FA<S,T> fa = FA.copyOf(finiteAutomata);
         MutableNetwork<S,T> network = fa.getNetwork();
 
-        // retrieve the accepted states in the original FA
-        List<S> acceptedStates = new ArrayList<>(fa.getAcceptanceStates());
+        // retrieve the acceptance states in the original FA
+        List<S> acceptanceStates = new ArrayList<>(fa.getAcceptanceStates());
 
-        // initialize the list of set of transitions marked
+        // initialize the map of transitions marked
         Map<T,S> markedTransitions = new HashMap<>();
 
         // retrieve the surrogate initial state and the surrogate acceptance state
         S n0 = createSurrogateInitialState(fa);
         S nq = createSurrogateAcceptanceState(fa);
 
-        while (network.nodes().size() > 2 || areThereMultipleTransitionsWithSamePedix(acceptedStates, markedTransitions)) {
+        while (network.nodes().size() > 2 || areThereMultipleTransitionsWithSamePedix(acceptanceStates, markedTransitions)) {
             if (thereIsASequenceOfTransitions(fa, markedTransitions)) {
-                concatenateSequenceOfTransitions(fa, markedTransitions, acceptedStates);
-            } else if (thereAreParallelTransitions(fa, markedTransitions, acceptedStates)) {
-                reduceSetOfParallelTransitions(fa, markedTransitions, acceptedStates);
+                concatenateSequenceOfTransitions(fa, markedTransitions, acceptanceStates);
+            } else if (thereAreParallelTransitions(fa, markedTransitions, acceptanceStates)) {
+                reduceSetOfParallelTransitions(fa, markedTransitions, acceptanceStates);
             } else {
-                reduceRemainingNodes(fa, markedTransitions, acceptedStates);
+                reduceRemainingNodes(fa, markedTransitions, acceptanceStates);
             }
         }
 
@@ -98,7 +96,7 @@ public final class AcceptedLanguages {
             //initialState.isInitial(false);
             S beta0 = initialState;
             initialState = (S) new StateBuilder("n0").build();
-            fa.getNetwork().addEdge(initialState, beta0, (T) new Transition(EMPTY_STRING));
+            fa.getNetwork().addEdge(initialState, beta0, (T) new Transition(EPS));
             fa.setInitialState(initialState);
         }
         return initialState;
@@ -120,7 +118,7 @@ public final class AcceptedLanguages {
         // edges, create surrogate acceptance state nq
         for (S beta_q : fa.getAcceptanceStates()) {
             //beta_q.isAcceptance(false);
-            fa.getNetwork().addEdge(beta_q, nq, (T) new Transition(EMPTY_STRING)); // add eps-transition
+            fa.getNetwork().addEdge(beta_q, nq, (T) new Transition(EPS)); // add eps-transition
         }
 
         fa.setAcceptanceStates(new HashSet<S>(Arrays.asList(nq)));

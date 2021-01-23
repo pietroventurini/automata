@@ -47,12 +47,21 @@ public class EventTransition implements EdgeWithName, EdgeWithEvents {
         }
 
         /**
+         * Add a set of output events to the transition
+         * @param outEvents the set of output events to add
+         */
+        public Builder outEvents(Set<String> outEvents) {
+            this.outEvents.addAll(outEvents);
+            return this;
+        }
+
+        /**
          * Add an output event to the transition
          * 
          * @param outEvent the output event to add
          */
         public Builder addOutEvent(String outEvent) {
-            outEvents.add(outEvent);
+            this.outEvents.add(outEvent);
             return this;
         }
 

@@ -1,9 +1,11 @@
+import files.FileUtils;
 import graph.fa.*;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 
-import java.util.NoSuchElementException;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -46,7 +48,7 @@ public class FATest {
      * Build the FA from the example of page 9 of the project description
      */
     private FA<FAState, Transition> FAofPage9() {
-        return faBuilder.putInitialState(s0).putAcceptanceStates(acceptanceStates)
+        return faBuilder.name("FAOfPage9").putInitialState(s0).putAcceptanceStates(acceptanceStates)
                 .putTransition(s0, s1, t01).putTransition(s0, s2, t02).putTransition(s1, s3, t13)
                 .putTransition(s3, s3, t33).putTransition(s3, s4, t34).putTransition(s2, s2, t22)
                 .putTransition(s2, s3, t23).build();
@@ -181,6 +183,28 @@ public class FATest {
         Set<String> acceptedLanguages = AcceptedLanguages.reduceFAtoMultipleRegex(fa);
         Set<String> realAcceptedLanguages = Set.of("(a(b)*)", "((b(a)*b)|(a(b)*))", "(b(a)*)");
         assertEquals(acceptedLanguages, realAcceptedLanguages);
+    }
+
+    /**
+     * Check that the FA can be converted to Json, written to a file, loaded back from the file, and
+     * converted again into a FA.
+     */
+    @Disabled
+    @Test
+    public void itShouldConvertFAtoJson() {
+        FA<FAState, Transition> fa = FAofPage9();
+        FileUtils fileUtils = new FileUtils("test");
+
+        // save
+        fileUtils.storeFA(fa);
+        // load
+        FA<FAState, Transition> faNew = fileUtils.loadFA(fa.getName());
+
+        // old FA's states names
+        Set<String> oldNames = fa.getStates().stream().map(FAState::getName).collect(Collectors.toSet());
+        // new FA's states names
+        Set<String> newNames = faNew.getStates().stream().map(FAState::getName).collect(Collectors.toSet());
+        assertEquals(oldNames, newNames);
     }
 
 }

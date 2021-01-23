@@ -41,6 +41,13 @@ public class FABuilder<S extends State, T extends Transition> {
         return this;
     }
 
+    public FABuilder<S,T> putStates(Set<S> states) {
+        for (S s : states) {
+            network.addNode(s);
+        }
+        return this;
+    }
+
     public FABuilder<S,T> putInitialState(S state) {
         network.addNode(state);
         initialState = state;

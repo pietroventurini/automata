@@ -1,11 +1,14 @@
 import com.google.common.collect.ImmutableMap;
+import files.FileUtils;
 import graph.BFAnetwork.*;
 import graph.bfa.BFA;
 import graph.bfa.BFABuilder;
 import graph.bfa.EventTransition;
 import graph.fa.*;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
+
 
 import java.util.*;
 import java.util.stream.Collectors;
@@ -363,6 +366,29 @@ public class BFANetworkTest {
         List<String> linObs = List.of("o3","o2","o3","o2");
         String diagnosis = BFANetworkSupervisor.linearDiagnosis(d, linObs);
         assertEquals("(fr|rf)(f|fr|frf| )", diagnosis);
+    }
+
+    /**
+     * Check that the BFANetwork can be converted to Json, written to a file, loaded back from the file, and
+     * converted again into an equivalent BFANetwork.
+     */
+    @Disabled
+    @Test
+    public void itShouldConvertFAtoJson() {
+        FileUtils fileUtils = new FileUtils("test");
+
+        //save
+        fileUtils.storeBFANetwork(bfaNetwork);
+
+        // load
+        BFANetwork netNew = fileUtils.loadBFANetwork();
+
+        // old BFA's states names
+        Set<String> oldNames = bfaNetwork.getBFAs().stream().map(BFA::getName).collect(Collectors.toSet());
+
+        // new FA's states names
+        Set<String> newNames = netNew.getBFAs().stream().map(BFA::getName).collect(Collectors.toSet());
+        assertEquals(oldNames, newNames);
     }
 
 }

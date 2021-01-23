@@ -4,7 +4,6 @@ import com.google.common.graph.Graphs;
 import com.google.common.graph.MutableNetwork;
 import graph.AbstractFA;
 import graph.nodes.State;
-
 import java.util.Set;
 
 /**
@@ -77,5 +76,4 @@ public class FA<S extends State, T extends Transition> extends AbstractFA<S, T> 
         return new FA(fa.getName(), Graphs.copyOf(fa.getNetwork()),
                 fa.getInitialState(), fa.getAcceptanceStates(), fa.getFinalStates());
     }
-
 }

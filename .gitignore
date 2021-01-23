@@ -159,3 +159,6 @@ gradle-app.setting
 ### Gradle Patch ###
 **/build/
 
+# files folder content except for test sub-folder
+files/*
+!files/test/

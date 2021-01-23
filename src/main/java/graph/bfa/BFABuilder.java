@@ -7,6 +7,7 @@ import graph.fa.*;
 import graph.nodes.State;
 
 import java.util.NoSuchElementException;
+import java.util.Set;
 
 /**
  * This class is used to instantiate Behavioral FAs (BFAs), simplifying the construction process
@@ -39,6 +40,13 @@ public class BFABuilder {
 
     public BFABuilder putState(State nodeU) {
         network.addNode(nodeU);
+        return this;
+    }
+
+    public BFABuilder putStates(Set<State> states) {
+        for (State s : states) {
+            network.addNode(s);
+        }
         return this;
     }
 

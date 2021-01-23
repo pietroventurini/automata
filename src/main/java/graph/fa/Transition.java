@@ -55,4 +55,5 @@ public class Transition implements EdgeWithSymbol {
         return "symbol='" + symbol + '\'';
     }
 
+
 }

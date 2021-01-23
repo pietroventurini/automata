@@ -1,12 +1,18 @@
+import files.FileUtils;
 import graph.bfa.BFA;
 import graph.bfa.BFABuilder;
 import graph.bfa.EventTransition;
 import graph.fa.FAState;
 import graph.fa.StateBuilder;
+import graph.nodes.State;
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 
-import java.util.NoSuchElementException;
+import java.io.File;
+import java.util.Set;
+import java.util.stream.Collectors;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
 public class BFATest {
@@ -84,4 +90,30 @@ public class BFATest {
                 .putTransition(s21, s20, t2)
                 .build());
     }
+
+
+    /**
+     * Check that the BFA can be converted to Json, written to a file, loaded back from the file, and
+     * converted again into an equivalent BFA.
+     */
+    @Disabled
+    @Test
+    public void itShouldConvertFAtoJson() {
+        BFA bfa = BFAc2FromPage24();
+        FileUtils fileUtils = new FileUtils("test");
+
+        //save
+        fileUtils.storeBFA(bfa);
+
+        // load
+        BFA bfaNew = fileUtils.loadBFA(bfa.getName());
+
+        // old BFA's states names
+        Set<String> oldNames = bfa.getStates().stream().map(State::getName).collect(Collectors.toSet());
+
+        // new FA's states names
+        Set<String> newNames = bfaNew.getStates().stream().map(State::getName).collect(Collectors.toSet());
+        assertEquals(oldNames, newNames);
+    }
+
 }

@@ -33,12 +33,7 @@ class BFAJson {
     }
 
     /**
-     * Given fa, returns an array of JsonTransitions of the form:
-     *  [
-     *      {"source":"source.name", "target":"target.name", ...FIXME},
-     *      ...
-     *      {"source":"source.name", "target":"target.name", ...FIXME}
-     *  ]
+     * Given fa, returns an array of EventTransitionJson
      */
     static final EventTransitionJson[] transitionsToArray(BFA fa) {
         Set<EventTransition> transitions = fa.getTransitions();

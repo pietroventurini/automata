@@ -1,12 +1,9 @@
 package graph.bfa;
 
-import com.google.common.collect.MoreCollectors;
 import com.google.common.graph.MutableNetwork;
 import com.google.common.graph.NetworkBuilder;
-import graph.fa.*;
 import graph.nodes.State;
 
-import java.util.NoSuchElementException;
 import java.util.Set;
 
 /**

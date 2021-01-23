@@ -1,11 +1,10 @@
 package graph.BFAnetwork;
 
+import graph.bfa.BFA;
+import graph.nodes.State;
+
 import java.util.Map;
 import java.util.Objects;
-
-import graph.bfa.BFA;
-import graph.fa.FAState;
-import graph.nodes.State;
 
 /**
  * LOBSState is the State of a Behavioral Space related to a linear observation.

@@ -13,9 +13,18 @@ import java.io.*;
 /**
  * This is a support class needed for storing different types of objects to files and for loading them back.
  * When you initialize a FileUtils object, you need to specify the name of the project which will be used
- * as the directory's name that will contain the files (fa.json, bfa.json, bfa_network.json, ...)
+ * as the directory's name that will contain the sub-folders and the files. All projects are stored inside "files/".
  *
-
+ * For example, the structure of a project could be:
+ *
+ * project_name/
+ *      FAs/
+ *          fa1.json
+ *          fa2.json
+ *      BFAs/
+ *          bfa1.json
+ *          bfa2.json
+ *      bfa_network.json
  */
 public class FileUtils {
 
@@ -23,8 +32,8 @@ public class FileUtils {
     private static final String BFA_DIR = "BFAs/";
     private static final String BFANETWORK_JSON = "bfa_network.json";
     private static final String CURRENT_DIR = "";
-
     private static final String FILES_ROOT = "files/";
+
     private String path;
     private Gson gson = new Gson();
 
@@ -70,9 +79,8 @@ public class FileUtils {
 
 
     /**
-     * Store {@code fa} in a file in json format. The file will be called "{FA_JSON}"
-     * where {FA_JSON} is a predefined constant (e.g. "fa.json"), and placed in the projectFolder, which has been specified
-     * when instantiating the FileUtils object;
+     * Store {@code fa} in a file in json format. The file will be put in the project directory inside {FA_JSON}
+     * where {FA_JSON} is a predefined constant (e.g. "FAs/").
      */
     public void storeFA(FA<FAState, Transition> fa) {
         String json = faToJson(fa);
@@ -80,9 +88,8 @@ public class FileUtils {
     }
 
     /**
-     * Store {@code bfa} in a file in json format. The file will be called "{BFA_JSON}"
-     * where {BFA_JSON} is a predefined constant (e.g. "bfa.json"), and placed in the projectFolder,
-     * which has been specified when instantiating the FileUtils object;
+     * Store {@code bfa} in a file in json format. The file will be put in the project directory inside {BFA_JSON}
+     * where {BFA_JSON} is a predefined constant (e.g. "BFAs/").
      */
     public void storeBFA(BFA bfa) {
         String json = bfaToJson(bfa);
@@ -101,7 +108,7 @@ public class FileUtils {
 
 
     /**
-     * load the FA which is encoded as a json file in the projectFolder
+     * load the FA which is encoded as a json file in the project directory under the {FA_DIR} directory.
      * @param name The name of the FA to be loaded (e.g. "x0").
      *             Note: the extension ".json" must NOT be included in the name
      */
@@ -117,7 +124,7 @@ public class FileUtils {
     }
 
     /**
-     * load the BFA which is encoded as a json file in the projectFolder
+     * load the BFA which is encoded as a json file in the project directory under the {BFA_DIR} directory.
      */
     public BFA loadBFA(String name) {
         File file = getFile(BFA_DIR, name.concat(".json"));
@@ -131,7 +138,7 @@ public class FileUtils {
     }
 
     /**
-     * load the BFANetwork which is encoded as a json file in the projectFolder
+     * load the BFANetwork which is encoded as a json file in the project directory
      */
     public BFANetwork loadBFANetwork() {
         File file = getFile(CURRENT_DIR, BFANETWORK_JSON);
@@ -145,8 +152,8 @@ public class FileUtils {
     }
 
     /**
-     * save the {@code json} object into file {directory/fileName}.
-     * fileName must include the extension (e.g. myFile.json)
+     * Save the {@code json} object into file "{directory}/{fileName}"
+     * Note: fileName must include the extension (e.g. "myFile.json")
      */
     private void jsonToFile(String json, String directory, String fileName) {
         File file = getFile(directory, fileName);
@@ -158,7 +165,7 @@ public class FileUtils {
     }
 
     /**
-     * Returns a File given {@code directory } (which is its position) and its {@code fileName}.
+     * Returns a File given {@code directory} (which is its position) and its {@code fileName}.
      * If any of the folder in the path does not exists, then it creates them.
      */
     private File getFile(String directory, String fileName) {

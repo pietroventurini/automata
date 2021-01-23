@@ -1,6 +1,5 @@
 package graph.bfa;
 
-import graph.fa.FAState;
 import graph.nodes.State;
 
 import java.util.Set;

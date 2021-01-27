@@ -1,5 +1,6 @@
 package files;
 
+import com.google.common.io.Files;
 import com.google.gson.Gson;
 import graph.BFAnetwork.BFANetwork;
 import graph.bfa.BFA;
@@ -9,6 +10,9 @@ import graph.fa.Transition;
 import graph.nodes.State;
 
 import java.io.*;
+import java.util.List;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 /**
  * This is a support class needed for storing different types of objects to files and for loading them back.
@@ -51,6 +55,32 @@ public class FileUtils {
 
     public void setProjectName(String projectName) {
         this.path = FILES_ROOT + projectName + '/';
+    }
+
+    /**
+     * Returns a list containing the names of the existing projects
+     */
+    public static List<String> getProjectsList() {
+        File dir = new File(FILES_ROOT);
+        if (!dir.exists()) {
+            dir.mkdir();
+        }
+
+        FilenameFilter dirFilter = (dir1, name) -> dir1.isDirectory() && !name.equals(".DS_Store");
+        return Stream.of(dir.list(dirFilter)).collect(Collectors.toList());
+    }
+
+    /**
+     * Returns a list containing the names of the BFAs that are currently stored in a file for the current project.
+     */
+    public List<String> getBFAsList() {
+        File dir = new File(path + BFA_DIR);
+
+        FilenameFilter nameFilter = (dir1, name) -> name.toLowerCase().endsWith(".json");
+        return Stream.of(dir.listFiles(nameFilter))
+                .filter(file -> !file.isDirectory())
+                .map(f -> Files.getNameWithoutExtension(f.getName()))
+                .collect(Collectors.toList());
     }
 
     /**

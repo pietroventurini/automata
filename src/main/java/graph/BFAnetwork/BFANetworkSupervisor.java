@@ -378,7 +378,7 @@ public final class BFANetworkSupervisor {
         // mark acceptance states as such
         //acceptanceStates.forEach(s -> s.isAcceptance(true));
 
-        FA<S, BSTransition> silentClosure = new FA<>("", inducedSubgraph, state, acceptanceStates, finalStates);
+        FA<S, BSTransition> silentClosure = new FA<>(state.getName(), inducedSubgraph, state, acceptanceStates, finalStates);
         return silentClosure;
     }
 
@@ -396,6 +396,7 @@ public final class BFANetworkSupervisor {
         MutableNetwork<BSState, BSTransition> network = silentClosure.getNetwork();
 
         FABuilder<DBSState, BSTransition> faBuilder = new FABuilder<>();
+        faBuilder.name(silentClosure.getName());
         // temporary map needed for conversion from FA<BSState,...> to FA<DecoratedBSState,...>
         Map<BSState, DBSState> states = new HashMap<>();
 

@@ -392,11 +392,4 @@ public class BFANetworkTest {
         assertEquals(oldNames, newNames);
     }
 
-    @Test
-    public void itShouldReadBenchmarks() {
-        FileUtils fu = new FileUtils("test");
-        List<Benchmark> benchmarks = fu.loadBenchmarks();
-        benchmarks.forEach(b -> System.out.println(b));
-    }
-
 }

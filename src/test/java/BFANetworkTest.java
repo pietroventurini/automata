@@ -1,4 +1,5 @@
 import com.google.common.collect.ImmutableMap;
+import files.Benchmark;
 import files.FileUtils;
 import graph.BFAnetwork.*;
 import graph.bfa.BFA;
@@ -239,7 +240,6 @@ public class BFANetworkTest {
 
         // compute behavioral space of network of page 26
         FA<BSState, BSTransition> bs = BFANetworkSupervisor.getBehavioralSpace(BFANetworkFromPage26());
-
         // prune it
         BFANetworkSupervisor.pruneFA(bs);
 
@@ -306,6 +306,7 @@ public class BFANetworkTest {
         FA<BSState, BSTransition> silentClosure = BFANetworkSupervisor.silentClosure(bs, s2);
         FA<DBSState, BSTransition> decoratedSilentClosure = BFANetworkSupervisor.decoratedSilentClosure(silentClosure);
 
+
         assertEquals("f", decoratedSilentClosure.getNode("3").orElseThrow().getDecoration());
         assertEquals("fr", decoratedSilentClosure.getNode("0").orElseThrow().getDecoration());
         assertEquals("r", decoratedSilentClosure.getNode("7").orElseThrow().getDecoration());
@@ -356,7 +357,7 @@ public class BFANetworkTest {
         FA<FA<DBSState, BSTransition>, DSCTransition> space = BFANetworkSupervisor.decoratedSpaceOfClosures(behavioralSpaceFromPage38());
         Diagnostician d = BFANetworkSupervisor.diagnostician(space);
         assertEquals(7, d.getFa().getStates().size());
-        // TODO: Check that the diagnosis of the node x2 is correct (Problem: idk how to assign names to the nodes)
+        // TODO: Check that the diagnosis of the node 2 is correct
     }
 
     @Test
@@ -389,6 +390,13 @@ public class BFANetworkTest {
         // new FA's states names
         Set<String> newNames = netNew.getBFAs().stream().map(BFA::getName).collect(Collectors.toSet());
         assertEquals(oldNames, newNames);
+    }
+
+    @Test
+    public void itShouldReadBenchmarks() {
+        FileUtils fu = new FileUtils("test");
+        List<Benchmark> benchmarks = fu.loadBenchmarks();
+        benchmarks.forEach(b -> System.out.println(b));
     }
 
 }

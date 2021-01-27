@@ -10,9 +10,14 @@ import graph.fa.Transition;
 import graph.nodes.State;
 
 import java.io.*;
+import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
+
+import static files.Benchmark.*;
 
 /**
  * This is a support class needed for storing different types of objects to files and for loading them back.
@@ -35,6 +40,7 @@ public class FileUtils {
     private static final String FA_DIR = "FAs/";
     private static final String BFA_DIR = "BFAs/";
     private static final String BFANETWORK_JSON = "bfa_network.json";
+    private static final String BENCHMARKS_JSON = "benchmarks.json";
     private static final String CURRENT_DIR = "";
     private static final String FILES_ROOT = "files/";
 
@@ -107,10 +113,9 @@ public class FileUtils {
         return gson.toJson(netJson);
     }
 
-
     /**
-     * Store {@code fa} in a file in json format. The file will be put in the project directory inside {FA_JSON}
-     * where {FA_JSON} is a predefined constant (e.g. "FAs/").
+     * Store {@code fa} in a file in json format. The file will be put in the project directory inside {@code FA_JSON}
+     * where {@code FA_JSON} is a predefined constant (e.g. "FAs/").
      */
     public void storeFA(FA<FAState, Transition> fa) {
         String json = faToJson(fa);
@@ -118,8 +123,8 @@ public class FileUtils {
     }
 
     /**
-     * Store {@code bfa} in a file in json format. The file will be put in the project directory inside {BFA_JSON}
-     * where {BFA_JSON} is a predefined constant (e.g. "BFAs/").
+     * Store {@code bfa} in a file in json format. The file will be put in the project directory inside {@code BFA_JSON}
+     * where {@code BFA_JSON} is a predefined constant (e.g. "BFAs/").
      */
     public void storeBFA(BFA bfa) {
         String json = bfaToJson(bfa);
@@ -127,8 +132,8 @@ public class FileUtils {
     }
 
     /**
-     * Store {@code bfaNetwork} in a file in json format. The file will be called "{BFANETWORK_JSON}"
-     * where {BFANETWORK_JSON} is a predefined constant (e.g. "bfa_network.json"), and placed in the projectFolder,
+     * Store {@code bfaNetwork} in a file in json format. The file will be called "{@code BFANETWORK_JSON}"
+     * where {@code BFANETWORK_JSON} is a predefined constant (e.g. "bfa_network.json"), and placed in the projectFolder,
      * which has been specified when instantiating the FileUtils object;
      */
     public void storeBFANetwork(BFANetwork bfaNetwork) {
@@ -136,6 +141,97 @@ public class FileUtils {
         jsonToFile(json, CURRENT_DIR, BFANETWORK_JSON);
     }
 
+    /**
+     * Store {@code benchmarks} in a file in json format. The file will be called "{@code BENCHMARKS_JSON}"
+     * where {@code BENCHMARKS_JSON} is a predefined constant (e.g. "benchmarks.json"), and placed in the projectFolder,
+     * which has been specified when instantiating the FileUtils object;
+     */
+    private void storeBenchmarks(List<Benchmark> benchmarks) {
+        String json = gson.toJson(benchmarks.toArray(Benchmark[]::new));
+        jsonToFile(json, CURRENT_DIR, BENCHMARKS_JSON);
+    }
+
+    /**
+     * store the benchmark of the computation of the behavioral space. Duration has to be in ns.
+     */
+    public void storeBSBenchmark(long duration) {
+        List<Benchmark> bms = loadBenchmarks();
+        Benchmark b = new Benchmark(LocalDateTime.now(), BS, duration);
+        bms.add(b);
+        storeBenchmarks(bms);
+    }
+
+    /**
+     * Store the benchmark of the computation of the behavioral space relating to a linear observation.
+     * Duration has to be in ns.
+     */
+    public void storeBSOfLinObsBenchmark(long duration, List<String> linObs) {
+        List<Benchmark> bms = loadBenchmarks();
+        String desc = BS + OF_LINOBS + linObs.toString();
+        Benchmark b = new Benchmark(LocalDateTime.now(), desc, duration);
+        bms.add(b);
+        storeBenchmarks(bms);
+    }
+
+    /**
+     * Store the benchmark of the computation of the diagnosis relating to a linear observation.
+     * Duration has to be in ns.
+     */
+    public void storeDiagnosisOfLinObsBenchmark(long duration, List<String> linObs, String diagnosis) {
+        List<Benchmark> bms = loadBenchmarks();
+        String desc = DIAGNOSIS_CALC + OF_LINOBS + linObs.toString() + ".\n" + DIAGNOSIS + diagnosis;
+        Benchmark b = new Benchmark(LocalDateTime.now(), desc, duration);
+        bms.add(b);
+        storeBenchmarks(bms);
+    }
+
+    /**
+     * Store the benchmark of the computation of the silent closure relating to a certain state.
+     * Duration has to be in ns.
+     */
+    public void storeSilentClosureBenchmark(long duration, String stateName) {
+        List<Benchmark> bms = loadBenchmarks();
+        String desc = SILENT_CLOSURE + OF_STATE + stateName;
+        Benchmark b = new Benchmark(LocalDateTime.now(), desc, duration);
+        bms.add(b);
+        storeBenchmarks(bms);
+    }
+
+    /**
+     * Store the benchmark of the computation of the decorated space of closures.
+     * Duration has to be in ns.
+     */
+    public void storeDSCBenchmark(long duration) {
+        List<Benchmark> bms = loadBenchmarks();
+        String desc = DSC;
+        Benchmark b = new Benchmark(LocalDateTime.now(), desc, duration);
+        bms.add(b);
+        storeBenchmarks(bms);
+    }
+
+    /**
+     * Store the benchmark of the computation of the diagnostician.
+     * Duration has to be in ns.
+     */
+    public void storeDiagnosticianBenchmark(long duration) {
+        List<Benchmark> bms = loadBenchmarks();
+        String desc = DIAGNOSTICIAN;
+        Benchmark b = new Benchmark(LocalDateTime.now(), desc, duration);
+        bms.add(b);
+        storeBenchmarks(bms);
+    }
+
+    /**
+     * Store the benchmark of the computation of the diagnosis relating to a linear observation using the diagnostician.
+     * Duration has to be in ns.
+     */
+    public void storeDiagnosisOfLinObsWithDiagnosticianBenchmark(long duration, List<String> linObs, String diagnosis) {
+        List<Benchmark> bms = loadBenchmarks();
+        String desc = DIAGNOSIS_CALC + OF_LINOBS + linObs.toString() + USING_DIAGNOSTICIAN + ".\n" + DIAGNOSIS + diagnosis;
+        Benchmark b = new Benchmark(LocalDateTime.now(), desc, duration);
+        bms.add(b);
+        storeBenchmarks(bms);
+    }
 
     /**
      * load the FA which is encoded as a json file in the project directory under the {FA_DIR} directory.
@@ -182,6 +278,23 @@ public class FileUtils {
     }
 
     /**
+     * load the Benchmarks which are encoded in a json file called {@code BENCHMARKS_JSON} in the project directory
+     */
+    public List<Benchmark> loadBenchmarks() {
+        File file = getFile(CURRENT_DIR, BENCHMARKS_JSON);
+        List<Benchmark> benchmarks = new ArrayList<>();
+        try (Reader reader = new FileReader(file)) {
+            Benchmark[] deserialized = gson.fromJson(reader, Benchmark[].class);
+            if (deserialized != null) {
+                benchmarks = new ArrayList<Benchmark>(Arrays.asList(deserialized));
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        return benchmarks;
+    }
+
+    /**
      * Save the {@code json} object into file "{directory}/{fileName}"
      * Note: fileName must include the extension (e.g. "myFile.json")
      */
@@ -203,6 +316,14 @@ public class FileUtils {
         if (!dir.exists()) {
             dir.mkdirs();
         }
-        return new File(dir.getPath() + '/' + fileName);
+        File file = new File(dir.getPath() + '/' + fileName);
+        if (!file.exists()) {
+            try {
+                file.createNewFile();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
+        return file;
     }
 }

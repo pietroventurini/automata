@@ -1,10 +1,10 @@
 package graph.bfa;
 
+import com.google.common.graph.EndpointPair;
 import com.google.common.graph.Graphs;
 import com.google.common.graph.MutableNetwork;
 import graph.AbstractFA;
 import graph.nodes.State;
-
 
 /**
  * This class represents a behavioral FA (BFA). It inherits all the methods of
@@ -40,6 +40,7 @@ public class BFA extends AbstractFA<State, EventTransition> {
 
     /**
      * Check if BFA is in its initial state
+     * 
      * @return
      */
     public boolean isInitial() {
@@ -47,8 +48,22 @@ public class BFA extends AbstractFA<State, EventTransition> {
     }
 
     public BFA copyOf(BFA bfa) {
-        return new BFA(bfa.getName(), Graphs.copyOf(super.getNetwork()),
-                super.getInitialState(), currentState);
+        return new BFA(bfa.getName(), Graphs.copyOf(super.getNetwork()), super.getInitialState(), currentState);
+    }
+
+    public void printDescription() {
+        MutableNetwork<State, EventTransition> network = this.getNetwork();
+        System.out.println("\nBFA name: " + this.getName());
+        System.out.println("\nList of states:");
+        for (State s : this.getNodes()) {
+            System.out.println("- " + s.getName());
+        }
+        System.out.println("\nList of transitions:");
+        for (EventTransition e : this.getEdges()) {
+            EndpointPair<State> pair = network.incidentNodes(e);
+            System.out.println("- " + pair.nodeU().getName() + " -> " + e.getName() + " ->  " + pair.nodeV().getName());
+        }
+        System.out.println("\nInitial state: " + this.getInitialState().getName() + "\n\n");
     }
 
 }

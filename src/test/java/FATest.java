@@ -59,9 +59,7 @@ public class FATest {
      */
     private FA<FAState, Transition> FAWithOnlyOneState() {
         FAState theOnlyState = new FAState("theOnlyState");
-        return faBuilder.putInitialState(theOnlyState)
-                .putAcceptanceState(theOnlyState)
-                .build();
+        return faBuilder.putInitialState(theOnlyState).putAcceptanceState(theOnlyState).build();
     }
 
     /**
@@ -80,8 +78,7 @@ public class FATest {
         Transition t23 = new Transition("b");
         return faBuilder.putInitialState(s0).putAcceptanceState(s1).putAcceptanceState(s2).putAcceptanceState(s3)
                 .putTransition(s0, s1, t01).putTransition(s1, s1, t11).putTransition(s0, s2, t02)
-                .putTransition(s2, s2, t22).putTransition(s1, s3, t13).putTransition(s2, s3, t23)
-                .build();
+                .putTransition(s2, s2, t22).putTransition(s1, s3, t13).putTransition(s2, s3, t23).build();
     }
 
     /**
@@ -112,7 +109,6 @@ public class FATest {
         assertThrows(IllegalStateException.class, () -> faBuilder.putInitialState(s0).build());
     }
 
-
     /**
      * Try to construct a FA that contains isolated states and check that an
      * IllegalStateException is thrown
@@ -121,9 +117,7 @@ public class FATest {
     public void itShouldThrowExceptionIfContainsIsolatedStates() {
         assertThrows(IllegalStateException.class,
                 () -> faBuilder.putInitialState(new StateBuilder("initialIsolatedState").build())
-                        .putAcceptanceState(new StateBuilder("anotherIsolatedState").build())
-                        .build()
-        );
+                        .putAcceptanceState(new StateBuilder("anotherIsolatedState").build()).build());
     }
 
     /**
@@ -181,13 +175,16 @@ public class FATest {
     public void itShouldComputeAcceptedLanguagesRelativeToEachAcceptanceStateOfFaOfPage21() {
         FA<FAState, Transition> fa = FAofPage21();
         Set<String> acceptedLanguages = AcceptedLanguages.reduceFAtoMultipleRegex(fa);
-        Set<String> realAcceptedLanguages = Set.of("(a(b)*)", "((b(a)*b)|(a(b)*))", "(b(a)*)");
-        assertEquals(acceptedLanguages, realAcceptedLanguages);
+        System.out.println(acceptedLanguages);
+        Set<String> realAcceptedLanguages1 = Set.of("(a(b)*)", "((b(a)*b)|(a(b)*))", "(b(a)*)");
+        Set<String> realAcceptedLanguages2 = Set.of("(a(b)*)", "((a(b)*)|(b(a)*b))", "(b(a)*)");
+        assertTrue(
+                acceptedLanguages.equals(realAcceptedLanguages1) || acceptedLanguages.equals(realAcceptedLanguages2));
     }
 
     /**
-     * Check that the FA can be converted to Json, written to a file, loaded back from the file, and
-     * converted again into a FA.
+     * Check that the FA can be converted to Json, written to a file, loaded back
+     * from the file, and converted again into a FA.
      */
     @Disabled
     @Test

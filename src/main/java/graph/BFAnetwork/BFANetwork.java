@@ -1,5 +1,6 @@
 package graph.BFAnetwork;
 
+import com.google.common.graph.EndpointPair;
 import com.google.common.graph.Graphs;
 import com.google.common.graph.MutableNetwork;
 import graph.Graph;
@@ -38,6 +39,7 @@ public class BFANetwork extends Graph<BFA, Link> {
 
     /**
      * Check if the BFANetwork is in its initial state
+     * 
      * @return
      */
     public boolean isInitial() {
@@ -46,6 +48,7 @@ public class BFANetwork extends Graph<BFA, Link> {
 
     /**
      * Check if the BFANetwork is in a final state
+     * 
      * @return
      */
     public boolean isFinal() {
@@ -59,5 +62,19 @@ public class BFANetwork extends Graph<BFA, Link> {
 
     public static BFANetwork copyOf(BFANetwork bfaNetwork) {
         return new BFANetwork(Graphs.copyOf(bfaNetwork.getNetwork()));
+    }
+
+    public void printDescription() {
+        MutableNetwork<BFA, Link> network = this.getNetwork();
+        System.out.println("\nList of bfas:");
+        for (BFA bfa : this.getNodes()) {
+            System.out.println("- " + bfa.getName());
+        }
+        System.out.println("\nList of transitions:");
+        for (Link l : this.getEdges()) {
+            EndpointPair<BFA> pair = network.incidentNodes(l);
+            System.out.println("- " + pair.nodeU().getName() + " -> " + l.getName() + " ->  " + pair.nodeV().getName());
+        }
+        System.out.println("\n\n");
     }
 }

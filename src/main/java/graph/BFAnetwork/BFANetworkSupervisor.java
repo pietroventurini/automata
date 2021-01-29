@@ -56,12 +56,10 @@ public final class BFANetworkSupervisor {
         // keep only non-empty inLinks
         inLinks = inLinks.stream().filter(l -> l.getEvent().isPresent()).collect(Collectors.toSet());
         Set<Link> outLinks = network.outEdges(bfa);
-
         Set<EventTransition> transitionsEnabled = new HashSet<>();
+
         for (EventTransition transition : bfa.getNetwork().outEdges(bfa.getCurrentState())) {
-
             boolean saveTransition = true;
-
             // check if the triggering event (if it exists) is missing on the incoming link
             if (transition.getInEvent().isPresent()
                     && getLinksWithSpecifiedEvent(inLinks, transition.getInEvent().get()).isEmpty())
@@ -167,9 +165,9 @@ public final class BFANetworkSupervisor {
         FABuilder<BSState, BSTransition> faBuilder = new FABuilder<>();
 
         // create the initial state
-        BSState networkState = getBFANetworkState(bfaNetwork); // FIXME: getBFANetworkState restituisce un LOBSState al
-        // posto di un BSState
-        //networkState.checkFinal();
+        BSState networkState = getBFANetworkState(bfaNetwork);
+
+        // networkState.checkFinal();
         if (networkState.isFinal()) {
             faBuilder.putFinalState(networkState).putAcceptanceState(networkState);
         }
@@ -187,13 +185,12 @@ public final class BFANetworkSupervisor {
         while (!toExplore.isEmpty()) {
             BSState state = toExplore.iterator().next();
             rollbackBFANetwork(state);
-
             for (BFA bfa : bfaNetwork.getBFAs()) {
                 for (EventTransition transition : getTransitionsEnabledInBfa(bfaNetwork, bfa)) {
                     executeTransition(bfaNetwork, bfa, transition);
 
                     BSState newState = getBFANetworkState(bfaNetwork);
-                    //newState.checkFinal(); sostituito con:
+                    // newState.checkFinal(); sostituito con:
                     if (newState.isFinal()) {
                         faBuilder.putFinalState(newState).putAcceptanceState(newState);
                     }
@@ -207,7 +204,7 @@ public final class BFANetworkSupervisor {
                         BSState existent = closed.contains(newState)
                                 ? closed.stream().filter(s -> s.equals(newState)).collect(MoreCollectors.onlyElement())
                                 : toExplore.stream().filter(s -> s.equals(newState))
-                                .collect(MoreCollectors.onlyElement());
+                                        .collect(MoreCollectors.onlyElement());
                         faBuilder.putTransition(state, existent, new BSTransition(transition.getName(),
                                 transition.getRelevanceLabel(), transition.getObservabilityLabel()));
                     }
@@ -220,8 +217,8 @@ public final class BFANetworkSupervisor {
             closed.add(state);
         }
 
+        rollbackBFANetwork(networkState);
         return faBuilder.build();
-
     }
 
     private static final LOBSState getBFANetworkLOBSState(BFANetwork bfaNetwork) {
@@ -233,7 +230,7 @@ public final class BFANetworkSupervisor {
      * Create the behavioral space related to a linear observation
      */
     public static final FA<LOBSState, BSTransition> getBehavioralSpaceForLinearObservation(BFANetwork bfaNetwork,
-                                                                                           ArrayList<String> linearObservation) {
+            ArrayList<String> linearObservation) {
         FABuilder<LOBSState, BSTransition> faBuilder = new FABuilder<>();
 
         // Construct the initial state of the behavioral space relative to
@@ -253,7 +250,7 @@ public final class BFANetworkSupervisor {
                 for (EventTransition transition : getTransitionsEnabledInBfa(bfaNetwork, bfa)) {
                     if (transition.getObservabilityLabel().equals("")
                             || (state.getObservationIndex() < linearObservation.size() && linearObservation
-                            .get(state.getObservationIndex()).equals(transition.getObservabilityLabel()))) {
+                                    .get(state.getObservationIndex()).equals(transition.getObservabilityLabel()))) {
 
                         executeTransition(bfaNetwork, bfa, transition);
                         LOBSState newState = getBFANetworkLOBSState(bfaNetwork);
@@ -264,12 +261,11 @@ public final class BFANetworkSupervisor {
                             newState.setObservationIndex(state.getObservationIndex());
 
                         if (newState.getObservationIndex() == linearObservation.size()) {
-                            //newState.checkFinal();
+                            // newState.checkFinal();
                             if (newState.isFinal()) {
                                 faBuilder.putFinalState(newState).putAcceptanceState(newState);
                             }
                         }
-
 
                         toExplore.add(newState);
                         faBuilder.putState(newState);
@@ -284,6 +280,7 @@ public final class BFANetworkSupervisor {
             toExplore.remove(state);
 
         }
+        rollbackBFANetwork(networkState);
         return faBuilder.build();
     }
 
@@ -299,7 +296,7 @@ public final class BFANetworkSupervisor {
         Set<S> toRemove = new HashSet<>();
         for (S s : fa.getStates()) {
             Set<S> reachableNodes = reachableNodes(fa.getNetwork(), s); // get the set of nodes reachable from s
-            //if (reachableNodes.stream().noneMatch(S::isFinal))
+            // if (reachableNodes.stream().noneMatch(S::isFinal))
             if (Collections.disjoint(reachableNodes, fa.getFinalStates())) {
                 toRemove.add(s);
             }
@@ -307,7 +304,6 @@ public final class BFANetworkSupervisor {
         toRemove.forEach(s -> fa.getNetwork().removeNode(s));
         return toRemove.isEmpty() ? false : true;
     }
-
 
     /**
      * Returns the nodes in {@code network} that are reachable from {@code n}.
@@ -350,7 +346,8 @@ public final class BFANetworkSupervisor {
                 state, behavioralSpace);
         // check that state has at least one incoming observable transition
         checkArgument(
-                behavioralSpace.getNetwork().inEdges(state).stream().anyMatch(BSTransition::hasObservabilityLabel) || behavioralSpace.isInitial(state),
+                behavioralSpace.getNetwork().inEdges(state).stream().anyMatch(BSTransition::hasObservabilityLabel)
+                        || behavioralSpace.isInitial(state),
                 "The provided state is neither initial, nor has any incoming observable transition");
 
         MutableNetwork<S, BSTransition> network = Graphs.copyOf(behavioralSpace.getNetwork());
@@ -376,27 +373,31 @@ public final class BFANetworkSupervisor {
         Set<S> acceptanceStates = Sets.union(finalStates, exitStates);
 
         // mark acceptance states as such
-        //acceptanceStates.forEach(s -> s.isAcceptance(true));
+        // acceptanceStates.forEach(s -> s.isAcceptance(true));
 
-        FA<S, BSTransition> silentClosure = new FA<>("", inducedSubgraph, state, acceptanceStates, finalStates);
+        FA<S, BSTransition> silentClosure = new FA<>(state.getName(), inducedSubgraph, state, acceptanceStates,
+                finalStates);
         return silentClosure;
     }
 
-
     /**
-     * Compute the diagnosis associated to a silent closure, i.e. the alternative of the decorations
-     * related to each final state of the closure.
+     * Compute the diagnosis associated to a silent closure, i.e. the alternative of
+     * the decorations related to each final state of the closure.
      *
-     * @return a map where keys are the final states of the closure and values are the corresponding decorations
+     * @return a map where keys are the final states of the closure and values are
+     *         the corresponding decorations
      */
     public static FA<DBSState, BSTransition> decoratedSilentClosure(FA<BSState, BSTransition> silentClosure) {
-        //FIXME: Se silentClosure ha un solo stato (es. chiusura x0 di pag. 67) AcceptedLanguages restituisce una
-        //    mappa vuota {} invece che una mappa {(0 -> "")} dove con "" si intende epsilon.
+        // FIXME: Se silentClosure ha un solo stato (es. chiusura x0 di pag. 67)
+        // AcceptedLanguages restituisce una
+        // mappa vuota {} invece che una mappa {(0 -> "")} dove con "" si intende
+        // epsilon.
         Map<BSState, String> acceptedLanguages = AcceptedLanguages.reduceFAtoMapOfRegex(silentClosure);
         MutableNetwork<BSState, BSTransition> network = silentClosure.getNetwork();
 
         FABuilder<DBSState, BSTransition> faBuilder = new FABuilder<>();
-        // temporary map needed for conversion from FA<BSState,...> to FA<DecoratedBSState,...>
+        // temporary map needed for conversion from FA<BSState,...> to
+        // FA<DecoratedBSState,...>
         Map<BSState, DBSState> states = new HashMap<>();
 
         for (BSState s : silentClosure.getStates()) {
@@ -410,21 +411,22 @@ public final class BFANetworkSupervisor {
                 faBuilder.putFinalState(decState);
         }
 
-
         for (BSTransition t : silentClosure.getTransitions()) {
             BSState stateU = network.incidentNodes(t).nodeU();
             BSState stateV = network.incidentNodes(t).nodeV();
             faBuilder.putTransition(states.get(stateU), states.get(stateV), t);
         }
+        faBuilder.name(silentClosure.getName());
         FA<DBSState, BSTransition> decoratedSilentClosure = faBuilder.build();
         return decoratedSilentClosure;
     }
 
     /**
-     * Compute the diagnosis associated to a silent closure, i.e. the alternative of the decorations
-     * related to each final state of the closure.
+     * Compute the diagnosis associated to a silent closure, i.e. the alternative of
+     * the decorations related to each final state of the closure.
      *
-     * @return a map where keys are the final states of the closure and values are the corresponding decorations
+     * @return a map where keys are the final states of the closure and values are
+     *         the corresponding decorations
      */
     public static Map<DBSState, String> diagnosis(FA<DBSState, BSTransition> decoratedSilentClosure) {
         Map<DBSState, String> diagnosis = new HashMap<>();
@@ -439,11 +441,12 @@ public final class BFANetworkSupervisor {
      *
      * @return a finite automata, whose nodes are silent closures
      */
-    public static FA<FA<DBSState, BSTransition>, DSCTransition> decoratedSpaceOfClosures(FA<BSState, BSTransition> behavioralSpace) {
+    public static FA<FA<DBSState, BSTransition>, DSCTransition> decoratedSpaceOfClosures(
+            FA<BSState, BSTransition> behavioralSpace) {
         // collect states that are valid entry states for a silent closure.
         Set<BSState> entryPoints = behavioralSpace.getStates().stream().filter(
-                s -> behavioralSpace.getNetwork().inEdges(s).stream().anyMatch(BSTransition::hasObservabilityLabel)
-        ).collect(Collectors.toSet());
+                s -> behavioralSpace.getNetwork().inEdges(s).stream().anyMatch(BSTransition::hasObservabilityLabel))
+                .collect(Collectors.toSet());
         entryPoints.add(behavioralSpace.getInitialState());
 
         // build a Map <EntryState, SilentClosure>
@@ -460,16 +463,15 @@ public final class BFANetworkSupervisor {
             if (behavioralSpace.isInitial(sc1.getInitialState().getBSState())) {
                 faBuilder.putInitialState(sc1);
             }
-            // check if it is an acceptance state (i.e. if the silent closure contains final states)
+            // check if it is an acceptance state (i.e. if the silent closure contains final
+            // states)
             if (!sc1.getFinalStates().isEmpty()) {
                 faBuilder.putAcceptanceState(sc1);
             }
 
             // find states of sc1 with observable outgoing transitions
-            Set<DBSState> exitStates = sc1.getAcceptanceStates().stream()
-                    .filter(s -> behavioralSpace.getNetwork()
-                            .outEdges(s.getBSState()).stream()
-                            .anyMatch(BSTransition::hasObservabilityLabel))
+            Set<DBSState> exitStates = sc1.getAcceptanceStates().stream().filter(s -> behavioralSpace.getNetwork()
+                    .outEdges(s.getBSState()).stream().anyMatch(BSTransition::hasObservabilityLabel))
                     .collect(Collectors.toSet());
 
             // find observable transitions from each exit state of sc1 and build the space
@@ -478,7 +480,8 @@ public final class BFANetworkSupervisor {
                     if (t.hasObservabilityLabel()) {
                         BSState target = behavioralSpace.getNetwork().incidentNodes(t).target();
                         FA<DBSState, BSTransition> sc2 = decoratedSilentClosures.get(target);
-                        faBuilder.putTransition(sc1, sc2, new DSCTransition(t.getName(), source.getDecoration(), t.getObservabilityLabel()));
+                        faBuilder.putTransition(sc1, sc2, new DSCTransition(t.getName(),
+                                source.getDecoration() + t.getRelevanceLabel(), t.getObservabilityLabel()));
                     }
                 }
             }
@@ -487,18 +490,22 @@ public final class BFANetworkSupervisor {
     }
 
     /**
-     * Build the diagnostician given the decorated space of closures of a certain behavioral space.
-     * The references to the silent closures (i.e. the nodes of the space) are not kept, but they are instead
-     * replaced by simpler data structures (states with just a name and a map representing the diagnosis).
+     * Build the diagnostician given the decorated space of closures of a certain
+     * behavioral space. The references to the silent closures (i.e. the nodes of
+     * the space) are not kept, but they are instead replaced by simpler data
+     * structures (states with just a name and a map representing the diagnosis).
      */
     public static Diagnostician diagnostician(FA<FA<DBSState, BSTransition>, DSCTransition> decoratedSpaceOfClosures) {
         FABuilder<FAState, DSCTransition> faBuilder = new FABuilder<>();
-        Map<FAState, Map<DBSState, String>> diagnosis = new HashMap<>(); // map each state of the diagnostician to the diagnosis (which is a map itself)
+        Map<FAState, Map<DBSState, String>> diagnosis = new HashMap<>(); // map each state of the diagnostician to the
+                                                                         // diagnosis (which is a map itself)
 
-        Map<FA<DBSState, BSTransition>, FAState> states = new HashMap<>(); // temporary map needed for conversion from silent closures to FAState
+        Map<FA<DBSState, BSTransition>, FAState> states = new HashMap<>(); // temporary map needed for conversion from
+                                                                           // silent closures to FAState
         for (FA<DBSState, BSTransition> silentClosure : decoratedSpaceOfClosures.getStates()) {
             // compute the diagnosis of the silent closure
             Map<DBSState, String> diagnosisOfS = diagnosis(silentClosure);
+            // FAState s = new FAState(silentClosure.getName());
             FAState s = new FAState(silentClosure.getName());
             if (diagnosisOfS.size() > 0) {
                 diagnosis.put(s, diagnosisOfS);
@@ -518,7 +525,8 @@ public final class BFANetworkSupervisor {
         for (DSCTransition t : decoratedSpaceOfClosures.getTransitions()) {
             FA<DBSState, BSTransition> dsc1 = decoratedSpaceOfClosures.getNetwork().incidentNodes(t).source();
             FA<DBSState, BSTransition> dsc2 = decoratedSpaceOfClosures.getNetwork().incidentNodes(t).target();
-            faBuilder.putTransition(states.get(dsc1), states.get(dsc2), new DSCTransition(t.getName(), t.getSymbol(), t.getObservabilityLabel()));
+            faBuilder.putTransition(states.get(dsc1), states.get(dsc2),
+                    new DSCTransition(t.getName(), t.getSymbol(), t.getObservabilityLabel()));
         }
 
         FA<FAState, DSCTransition> fa = faBuilder.build();
@@ -526,9 +534,12 @@ public final class BFANetworkSupervisor {
     }
 
     /**
-     * Computes the linear diagnosis relating to the linear observation @code linObs} of a behavioral network, given
-     * its diagnostician {@code diagnostician}, using algorithm of page 85 of the project description.
-     * @return A string representing the diagnosis of the provided linear observation
+     * Computes the linear diagnosis relating to the linear observation @code
+     * linObs} of a behavioral network, given its diagnostician
+     * {@code diagnostician}, using algorithm of page 85 of the project description.
+     * 
+     * @return A string representing the diagnosis of the provided linear
+     *         observation
      */
     public static String linearDiagnosis(Diagnostician diagnostician, List<String> linObs) {
         FA<FAState, DSCTransition> fa = diagnostician.getFa();
@@ -537,17 +548,16 @@ public final class BFANetworkSupervisor {
         X.put(x0, EPS);
         for (String o : linObs) {
             Map<FAState, String> Xnew = new HashMap<>();
-            for(FAState x1 : X.keySet()) {
+            for (FAState x1 : X.keySet()) {
                 String r1 = X.get(x1);
                 // get observable transitions from x1
                 Set<DSCTransition> outTransitions = fa.getNetwork().outEdges(x1).stream()
-                        .filter(t -> t.getObservabilityLabel().equals(o))
-                        .collect(Collectors.toSet());
+                        .filter(t -> t.getObservabilityLabel().equals(o)).collect(Collectors.toSet());
                 for (DSCTransition t : outTransitions) {
                     FAState x2 = fa.getNetwork().incidentNodes(t).target();
                     String r2 = r1 + t.getSymbol(); // line 6 of algorithm of page 85
                     if (Xnew.containsKey(x2) && !r2.equals(Xnew.get(x2))) {
-                        r2 = X.get(x2) + "|" + r2;
+                        r2 = Xnew.get(x2) + "|" + r2;
                         Xnew.replace(x2, r2);
                     } else {
                         Xnew.put(x2, r2);
@@ -556,18 +566,19 @@ public final class BFANetworkSupervisor {
             }
             X = Xnew;
         }
-        Set<FAState> nonAcceptanceStates = X.keySet().stream().filter(x -> !fa.isAcceptance(x)).collect(Collectors.toSet());
+
+        Set<FAState> nonAcceptanceStates = X.keySet().stream().filter(x -> !fa.isAcceptance(x))
+                .collect(Collectors.toSet());
         X.keySet().removeAll(nonAcceptanceStates);
 
         StringBuilder sb = new StringBuilder();
         for (FAState x : X.keySet()) {
-            sb.append("(" + X.get(x))
-                    .append("(" + diagnostician.getDiagnosisOf(x) + ")")
-                    .append(")|");
+            sb.append("(" + X.get(x)).append("(" + diagnostician.getDiagnosisOf(x) + ")").append(")|");
         }
         // remove last char ("|")
         sb.setLength(sb.length() - 1);
 
         return sb.toString();
     }
+
 }

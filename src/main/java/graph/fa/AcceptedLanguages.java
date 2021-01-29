@@ -19,45 +19,55 @@ import static graph.fa.Constants.EPS;
  */
 public final class AcceptedLanguages {
 
-    private AcceptedLanguages() {}
+    private AcceptedLanguages() {
+    }
 
     /**
-     * Returns the set of accepted languages. This method exists for backward compatibility reasons. You
-     * should prefer the method reduceFAtoMapOfRegex in order to preserve the information about what language
-     * is accepted by each acceptance state.
-     * @param finiteAutomata the FA of which to compute the set of accepted languages
+     * Returns the set of accepted languages. This method exists for backward
+     * compatibility reasons. You should prefer the method reduceFAtoMapOfRegex in
+     * order to preserve the information about what language is accepted by each
+     * acceptance state.
+     * 
+     * @param finiteAutomata the FA of which to compute the set of accepted
+     *                       languages
      */
-    public static final <S extends State, T extends Transition> Set<String> reduceFAtoMultipleRegex(FA<S,T> finiteAutomata) {
+    public static final <S extends State, T extends Transition> Set<String> reduceFAtoMultipleRegex(
+            FA<S, T> finiteAutomata) {
         return new HashSet<String>(reduceFAtoMapOfRegex(finiteAutomata).values());
     }
 
-        /**
-         * Compute the language accepted by each acceptance state of the provided FA
-         * by applying the algorithm RegularExpressions(Nin) described at page 17 of
-         * the project description.
-         *
-         * @param finiteAutomata the finite automata of which to compute the accepted languages
-         * @return a Map associating to each acceptance state the corresponding accepted language
-         *
-         * FIXME: Se markedTransitions fosse una mappa <Stato, Transizione> invece che <Transizione, Stato>?
-         *  In quel modo potremmo direttamente restituire la mappa <stato --> markedTransition.getSymbol()>
-         */
-    public static final <S extends State, T extends Transition> Map<S,String> reduceFAtoMapOfRegex(FA<S,T> finiteAutomata) {
+    /**
+     * Compute the language accepted by each acceptance state of the provided FA by
+     * applying the algorithm RegularExpressions(Nin) described at page 17 of the
+     * project description.
+     *
+     * @param finiteAutomata the finite automata of which to compute the accepted
+     *                       languages
+     * @return a Map associating to each acceptance state the corresponding accepted
+     *         language
+     *
+     *         FIXME: Se markedTransitions fosse una mappa <Stato, Transizione>
+     *         invece che <Transizione, Stato>? In quel modo potremmo direttamente
+     *         restituire la mappa <stato --> markedTransition.getSymbol()>
+     */
+    public static final <S extends State, T extends Transition> Map<S, String> reduceFAtoMapOfRegex(
+            FA<S, T> finiteAutomata) {
         // create a copy of the provided finite automata, on which we will work
-        FA<S,T> fa = FA.copyOf(finiteAutomata);
-        MutableNetwork<S,T> network = fa.getNetwork();
+        FA<S, T> fa = FA.copyOf(finiteAutomata);
+        MutableNetwork<S, T> network = fa.getNetwork();
 
         // retrieve the acceptance states in the original FA
         List<S> acceptanceStates = new ArrayList<>(fa.getAcceptanceStates());
 
         // initialize the map of transitions marked
-        Map<T,S> markedTransitions = new HashMap<>();
+        Map<T, S> markedTransitions = new HashMap<>();
 
         // retrieve the surrogate initial state and the surrogate acceptance state
         S n0 = createSurrogateInitialState(fa);
         S nq = createSurrogateAcceptanceState(fa);
 
-        while (network.nodes().size() > 2 || areThereMultipleTransitionsWithSamePedix(acceptanceStates, markedTransitions)) {
+        while (network.nodes().size() > 2
+                || areThereMultipleTransitionsWithSamePedix(acceptanceStates, markedTransitions)) {
             if (thereIsASequenceOfTransitions(fa, markedTransitions)) {
                 concatenateSequenceOfTransitions(fa, markedTransitions, acceptanceStates);
             } else if (thereAreParallelTransitions(fa, markedTransitions, acceptanceStates)) {
@@ -68,16 +78,27 @@ public final class AcceptedLanguages {
         }
 
         // construct and return a map <state --> languageAcceptedByState>
-        Map<S,String> acceptedLang = new HashMap<>();
-        for (T t : markedTransitions.keySet()) {
+        Map<S, String> acceptedLang = new HashMap<>();
+
+        // if the network is trivial, then return eps
+        if (acceptanceStates.size() == 1
+                && finiteAutomata.getNetwork().outDegree(finiteAutomata.getInitialState()) == 0) {
+            acceptedLang.put(finiteAutomata.getInitialState(), EPS);
+            return acceptedLang;
+        }
+
+        for (T t : network.outEdges(n0)) {
             acceptedLang.put(markedTransitions.get(t), t.getSymbol());
         }
         return acceptedLang;
     }
 
-    private static final <S extends State, T extends Transition> boolean areThereMultipleTransitionsWithSamePedix(List<S> acceptedStates, Map<T,S> markedTransitions) {
+    private static final <S extends State, T extends Transition> boolean areThereMultipleTransitionsWithSamePedix(
+            List<S> acceptedStates, Map<T, S> markedTransitions) {
         for (S s : acceptedStates) {
-            if (markedTransitions.keySet().stream().filter(t -> markedTransitions.get(t) == s).count() > 1) { //FIXME: '==' o 'equals'?
+            if (markedTransitions.keySet().stream().filter(t -> markedTransitions.get(t) == s).count() > 1) { // FIXME:
+                                                                                                              // '==' o
+                                                                                                              // 'equals'?
                 return true;
             }
         }
@@ -85,15 +106,15 @@ public final class AcceptedLanguages {
     }
 
     /**
-     * If there are ingoing edges into the initial state, create a
-     * surrogate initial state n0 and an epsilon-transition from n0 to initialState.
+     * If there are ingoing edges into the initial state, create a surrogate initial
+     * state n0 and an epsilon-transition from n0 to initialState.
      * 
      * @return the surrogate initial State n0
      */
-    private static final <S extends State, T extends Transition> S createSurrogateInitialState(FA<S,T> fa) {
+    private static final <S extends State, T extends Transition> S createSurrogateInitialState(FA<S, T> fa) {
         S initialState = fa.getInitialState();
         if (fa.getNetwork().inDegree(initialState) > 0) {
-            //initialState.isInitial(false);
+            // initialState.isInitial(false);
             S beta0 = initialState;
             initialState = (S) new StateBuilder("n0").build();
             fa.getNetwork().addEdge(initialState, beta0, (T) new Transition(EPS));
@@ -109,7 +130,7 @@ public final class AcceptedLanguages {
      * 
      * @return the surrogate acceptance State nq
      */
-    private static final <S extends State, T extends Transition> S createSurrogateAcceptanceState(FA<S,T> fa) {
+    private static final <S extends State, T extends Transition> S createSurrogateAcceptanceState(FA<S, T> fa) {
 
         Set<S> acceptanceStates = fa.getAcceptanceStates();
         S nq = (S) new StateBuilder("nq").build();
@@ -117,7 +138,7 @@ public final class AcceptedLanguages {
         // if there are multiple acceptance states or a single one having outgoing
         // edges, create surrogate acceptance state nq
         for (S beta_q : fa.getAcceptanceStates()) {
-            //beta_q.isAcceptance(false);
+            // beta_q.isAcceptance(false);
             fa.getNetwork().addEdge(beta_q, nq, (T) new Transition(EPS)); // add eps-transition
         }
 
@@ -133,30 +154,31 @@ public final class AcceptedLanguages {
      * 
      * @return true if such state exists, false otherwise
      */
-    private static final <S extends State, T extends Transition> boolean thereIsASequenceOfTransitions(FA<S,T> fa, Map<T,S> markedTransitions) {
+    private static final <S extends State, T extends Transition> boolean thereIsASequenceOfTransitions(FA<S, T> fa,
+            Map<T, S> markedTransitions) {
         return getSequenceOfTransitions(fa, markedTransitions).isEmpty() ? false : true;
     }
 
-    private static final <S extends State, T extends Transition> Set<S> getSequenceOfTransitions(FA<S,T> fa, Map<T,S> markedTransitions) {
-        MutableNetwork<S,T> network = fa.getNetwork();
-        Set<S> sequences = network.nodes().stream()
-                .filter(n -> network.inDegree(n) == 1 && network.outDegree(n) == 1
-                        && !markedTransitions
-                                .containsKey(network.inEdges(n).stream().collect(MoreCollectors.onlyElement())))
+    private static final <S extends State, T extends Transition> Set<S> getSequenceOfTransitions(FA<S, T> fa,
+            Map<T, S> markedTransitions) {
+        MutableNetwork<S, T> network = fa.getNetwork();
+        Set<S> sequences = network.nodes().stream().filter(n -> network.inDegree(n) == 1 && network.outDegree(n) == 1
+                && !markedTransitions.containsKey(network.inEdges(n).stream().collect(MoreCollectors.onlyElement())))
                 .collect(Collectors.toSet());
 
-        Set<S> nonMarkedSequences = sequences.stream()
-                .filter(n -> !markedTransitions.containsKey(network.outEdges(n).stream().collect(MoreCollectors.onlyElement())))
+        Set<S> nonMarkedSequences = sequences.stream().filter(
+                n -> !markedTransitions.containsKey(network.outEdges(n).stream().collect(MoreCollectors.onlyElement())))
                 .collect(Collectors.toSet());
 
         if (!nonMarkedSequences.isEmpty())
             return nonMarkedSequences;
 
         Set<S> markedSequences = sequences.stream().filter(
-                n -> markedTransitions.containsKey(network.outEdges(n).stream().collect(MoreCollectors.onlyElement()))
-        ).collect(Collectors.toSet());
+                n -> markedTransitions.containsKey(network.outEdges(n).stream().collect(MoreCollectors.onlyElement())))
+                .collect(Collectors.toSet());
 
-        // FIXME: non potremmo sostituire tutto quello che segue con "return markedSequences;" ??
+        // FIXME: non potremmo sostituire tutto quello che segue con "return
+        // markedSequences;" ??
         if (!markedSequences.isEmpty())
             return markedSequences;
 
@@ -170,8 +192,9 @@ public final class AcceptedLanguages {
      * 
      * @return a set of homogeneous parallel transitions
      */
-    private static final <S extends State, T extends Transition> Set<T> getParallelTransitions(FA<S,T> fa, Map<T,S> markedTransitions, List<S> acceptedStates) {
-        MutableNetwork<S,T> network = fa.getNetwork();
+    private static final <S extends State, T extends Transition> Set<T> getParallelTransitions(FA<S, T> fa,
+            Map<T, S> markedTransitions, List<S> acceptedStates) {
+        MutableNetwork<S, T> network = fa.getNetwork();
         Set<T> transitions;
         for (S n1 : network.nodes()) {
             for (S n2 : network.nodes()) {
@@ -190,7 +213,8 @@ public final class AcceptedLanguages {
      * @param transitions a set of parallel transitions
      * @return a set of homogeneus parallel transitions
      */
-    public static final <S extends State, T extends Transition> Set<T> filterHomogeneusTransitions(Set<T> transitions, Map<T,S> markedTransitions, List<S> acceptedStates) {
+    public static final <S extends State, T extends Transition> Set<T> filterHomogeneusTransitions(Set<T> transitions,
+            Map<T, S> markedTransitions, List<S> acceptedStates) {
         Set<T> nonMarked = transitions.stream().filter(t -> !markedTransitions.containsKey(t))
                 .collect(Collectors.toSet());
         if (!nonMarked.isEmpty())
@@ -212,7 +236,8 @@ public final class AcceptedLanguages {
      * 
      * @return true such states exist, false otherwise
      */
-    private static final <S extends State, T extends Transition> boolean thereAreParallelTransitions(FA<S,T> fa, Map<T,S> markedTransitions, List<S> acceptedStates) {
+    private static final <S extends State, T extends Transition> boolean thereAreParallelTransitions(FA<S, T> fa,
+            Map<T, S> markedTransitions, List<S> acceptedStates) {
         return getParallelTransitions(fa, markedTransitions, acceptedStates).isEmpty() ? false : true;
     }
 
@@ -223,8 +248,9 @@ public final class AcceptedLanguages {
      * Note: differently from the algorithm from page 11, here we do not enclose the
      * new equivalent transition between brackets
      */
-    private static final <S extends State, T extends Transition> void concatenateSequenceOfTransitions(FA<S,T> fa, Map<T,S> markedTransitions, List<S> acceptedStates) {
-        MutableNetwork<S,T> network = fa.getNetwork();
+    private static final <S extends State, T extends Transition> void concatenateSequenceOfTransitions(FA<S, T> fa,
+            Map<T, S> markedTransitions, List<S> acceptedStates) {
+        MutableNetwork<S, T> network = fa.getNetwork();
         S intermediate = getSequenceOfTransitions(fa, markedTransitions).iterator().next();
 
         // retrieve the predecessor node of the intermediate one
@@ -244,6 +270,8 @@ public final class AcceptedLanguages {
 
         if (!markedTransitions.containsKey(transitionFromIntermediateToSuccessor)) {
             if (fa.isAcceptance(successor) || acceptedStates.contains(intermediate)) {
+                newSymbol = new StringBuilder().append(transitionFromPredecessorToIntermediate.getSymbol()).toString();
+                newTransition = (T) new Transition(newSymbol);
                 markedTransitions.put(newTransition, intermediate);
             }
         } else {
@@ -262,9 +290,10 @@ public final class AcceptedLanguages {
      * transition which symbol is the alternation between each transition's symbol,
      * adding the subscripts to the new transition when needed.
      */
-    private static final <S extends State, T extends Transition> void reduceSetOfParallelTransitions(FA<S,T> fa, Map<T,S> markedTransitions, List<S> acceptedStates) {
+    private static final <S extends State, T extends Transition> void reduceSetOfParallelTransitions(FA<S, T> fa,
+            Map<T, S> markedTransitions, List<S> acceptedStates) {
 
-        MutableNetwork<S,T> network = fa.getNetwork();
+        MutableNetwork<S, T> network = fa.getNetwork();
 
         // retrieve a set of parallel transitions
         Set<T> transitions = getParallelTransitions(fa, markedTransitions, acceptedStates);
@@ -302,9 +331,10 @@ public final class AcceptedLanguages {
     /**
      * this method is used in reduceRemainingNodes() to create the new transition
      */
-    private static final <S extends State, T extends Transition> void createNewTransition(FA<S,T> fa, Map<T,S> markedTransitions, List<S> acceptedStates, T t1, T t2, S n1, S n2, S n,
-                                                                                            Optional<T> selfLoopTransition) {
-        MutableNetwork<S,T> network = fa.getNetwork();
+    private static final <S extends State, T extends Transition> void createNewTransition(FA<S, T> fa,
+            Map<T, S> markedTransitions, List<S> acceptedStates, T t1, T t2, S n1, S n2, S n,
+            Optional<T> selfLoopTransition) {
+        MutableNetwork<S, T> network = fa.getNetwork();
         String newSymbol;
         if (selfLoopTransition.isPresent()) {
             newSymbol = new StringBuilder().append(t1.getSymbol())
@@ -314,9 +344,18 @@ public final class AcceptedLanguages {
             newSymbol = t1.getSymbol().concat(t2.getSymbol());
         }
         T newTransition = (T) new Transition(newSymbol);
+
         if (markedTransitions.containsKey(t2)) {
             markedTransitions.put(newTransition, markedTransitions.get(t2));
         } else if (fa.isAcceptance(n2) && acceptedStates.contains(n)) {
+            if (selfLoopTransition.isPresent()) {
+                newSymbol = new StringBuilder().append(t1.getSymbol())
+                        .append("(" + selfLoopTransition.get().getSymbol() + ")*").toString();
+                newSymbol = betweenBrackets(newSymbol);
+            } else {
+                newSymbol = t1.getSymbol();
+            }
+            newTransition = (T) new Transition(newSymbol);
             markedTransitions.put(newTransition, n);
         }
         network.addEdge(n1, n2, newTransition);
@@ -326,14 +365,18 @@ public final class AcceptedLanguages {
     /**
      * (row 25-50 of page 19-20)
      */
-    private static final <S extends State, T extends Transition> void reduceRemainingNodes(FA<S,T> fa, Map<T,S> markedTransitions, List<S> acceptedStates) {
-        MutableNetwork<S,T> network = fa.getNetwork();
-        //S n = network.nodes().stream().filter(not((Predicate<S>) S::isInitial).and(not(S::isAcceptance))).findAny().get();
-        S n = network.nodes().stream().filter(s -> !s.equals(fa.getInitialState()) && !fa.getAcceptanceStates().contains(s)).findAny().get();
+    private static final <S extends State, T extends Transition> void reduceRemainingNodes(FA<S, T> fa,
+            Map<T, S> markedTransitions, List<S> acceptedStates) {
+        MutableNetwork<S, T> network = fa.getNetwork();
+        // S n = network.nodes().stream().filter(not((Predicate<S>)
+        // S::isInitial).and(not(S::isAcceptance))).findAny().get();
+        S n = network.nodes().stream()
+                .filter(s -> !s.equals(fa.getInitialState()) && !fa.getAcceptanceStates().contains(s)).findAny().get();
 
         // transitions of the form ( n'-> n )
         Set<T> ingoingTransitions = network.inEdges(n).stream()
-                .filter(t -> !network.incidentNodes(t).nodeU().equals(n)).collect(Collectors.toSet());
+                .filter(t -> !network.incidentNodes(t).nodeU().equals(n) && !markedTransitions.containsKey(t))
+                .collect(Collectors.toSet());
 
         // transitions of the form ( n -> n'' ) with subscript
         Set<T> outTransitionsWithSubscript = network.outEdges(n).stream()
@@ -371,13 +414,14 @@ public final class AcceptedLanguages {
 
             }
         }
-        // remove node n and all its adjacent transitions
-        network.removeNode(n);
-
         // remove old transitions from markedTransitions
         ingoingTransitions.forEach(t -> markedTransitions.remove(t));
         outTransitionsWithSubscript.forEach(t -> markedTransitions.remove(t));
         outTransitionsWithoutSubscript.forEach(t -> markedTransitions.remove(t));
+
+        // remove node n and all its adjacent transitions
+        network.removeNode(n);
+
     }
 
     /**

@@ -9,7 +9,6 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 
-
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -49,8 +48,7 @@ public class BFANetworkTest {
      * @return the behavioral FA C2 from page 24
      */
     private final static BFA BFAc2FromPage24() {
-        return new BFABuilder("C2").putInitialState(s20)
-        .putTransition(s20, s21, t2a).putTransition(s21, s20, t2b)
+        return new BFABuilder("C2").putInitialState(s20).putTransition(s20, s21, t2a).putTransition(s21, s20, t2b)
                 .build();
     }
 
@@ -58,8 +56,7 @@ public class BFANetworkTest {
      * @return the behavioral FA C3 from page 24
      */
     private final static BFA BFAc3FromPage24() {
-        return new BFABuilder("C3").putInitialState(s30)
-                .putTransition(s30, s31, t3a).putTransition(s31, s30, t3b)
+        return new BFABuilder("C3").putInitialState(s30).putTransition(s30, s31, t3a).putTransition(s31, s30, t3b)
                 .putTransition(s31, s31, t3c).build();
     }
 
@@ -141,7 +138,7 @@ public class BFANetworkTest {
         assertEquals(15, space.getStates().size());
 
         // there should be 4 final states
-        assertEquals(4, space.getStates().stream().filter(s -> s.isFinal()).collect(Collectors.toSet()).size());
+        assertEquals(4, space.getFinalStates().size());
 
         // there should be 18 transitions
         assertEquals(18, space.getTransitions().size());
@@ -180,10 +177,10 @@ public class BFANetworkTest {
         // there should be 8 states
         assertEquals(8, space.getStates().size());
 
-        /*Set<LOBSState> finalStates = space.getAcceptanceStates();
-        for (LOBSState state : finalStates) {
-            state.isAcceptance(true);
-        }*/
+        /*
+         * Set<LOBSState> finalStates = space.getAcceptanceStates(); for (LOBSState
+         * state : finalStates) { state.isAcceptance(true); }
+         */
 
         Set<String> acceptedLanguages = AcceptedLanguages.reduceFAtoMultipleRegex(space);
 
@@ -219,10 +216,8 @@ public class BFANetworkTest {
         FAState s0 = new StateBuilder("s0").build();
         FAState s1 = new StateBuilder("s1").build();
         FAState s2 = new StateBuilder("s2").build();
-        FA<FAState, Transition> space = new FABuilder<FAState,Transition>()
-                .putInitialState(s0).putAcceptanceState(s0).putFinalState(s0)
-                .putTransition(s0, s1, new Transition(""))
-                .putTransition(s1, s2, new Transition(""))
+        FA<FAState, Transition> space = new FABuilder<FAState, Transition>().putInitialState(s0).putAcceptanceState(s0)
+                .putFinalState(s0).putTransition(s0, s1, new Transition("")).putTransition(s1, s2, new Transition(""))
                 .putTransition(s2, s1, new Transition("")).build();
 
         BFANetworkSupervisor.pruneFA(space);
@@ -268,7 +263,8 @@ public class BFANetworkTest {
         // get a non-initial state which hasn't any observable ingoing transitions.
         BSState nonObservableState = null;
         for (BSState s : bs.getStates()) {
-            if (!bs.isInitial(s) && bs.getNetwork().inEdges(s).stream().noneMatch(BSTransition::hasObservabilityLabel)) {
+            if (!bs.isInitial(s)
+                    && bs.getNetwork().inEdges(s).stream().noneMatch(BSTransition::hasObservabilityLabel)) {
                 nonObservableState = s;
                 break;
             }
@@ -321,12 +317,10 @@ public class BFANetworkTest {
         FA<BSState, BSTransition> silentClosure = BFANetworkSupervisor.silentClosure(bs, s2);
         // compute decoration of page 61
         FA<DBSState, BSTransition> decoratedSilentClosure = BFANetworkSupervisor.decoratedSilentClosure(silentClosure);
-        Map<DBSState, String> expectedDiagnosis = ImmutableMap.of(
-                decoratedSilentClosure.getNode("3").orElseThrow(), "f",
-                decoratedSilentClosure.getNode("0").orElseThrow(), "fr",
+        Map<DBSState, String> expectedDiagnosis = ImmutableMap.of(decoratedSilentClosure.getNode("3").orElseThrow(),
+                "f", decoratedSilentClosure.getNode("0").orElseThrow(), "fr",
                 decoratedSilentClosure.getNode("5").orElseThrow(), "frf",
-                decoratedSilentClosure.getNode("6").orElseThrow(), ""
-        );
+                decoratedSilentClosure.getNode("6").orElseThrow(), "");
 
         assertEquals(expectedDiagnosis, BFANetworkSupervisor.diagnosis(decoratedSilentClosure));
     }
@@ -339,50 +333,75 @@ public class BFANetworkTest {
         FA<BSState, BSTransition> silentClosure = BFANetworkSupervisor.silentClosure(bs, s0);
         // compute decoration like at page 67
         FA<DBSState, BSTransition> decoratedSilentClosure = BFANetworkSupervisor.decoratedSilentClosure(silentClosure);
-        assertEquals("", BFANetworkSupervisor.diagnosis(decoratedSilentClosure).get(s0));
+        assertEquals("",
+                BFANetworkSupervisor.diagnosis(decoratedSilentClosure).get(decoratedSilentClosure.getInitialState()));
     }
 
     @Test
     public void itShouldComputeDecoratedSpaceOfClosures() {
-        FA<FA<DBSState, BSTransition>, DSCTransition> space = BFANetworkSupervisor.decoratedSpaceOfClosures(behavioralSpaceFromPage38());
+        FA<FA<DBSState, BSTransition>, DSCTransition> space = BFANetworkSupervisor
+                .decoratedSpaceOfClosures(behavioralSpaceFromPage38());
         assertEquals(7, space.getStates().size());
         assertEquals("0", space.getInitialState().getInitialState().getName());
-        Set<String> acceptanceStatesOfSpace = space.getAcceptanceStates().stream().map(s -> s.getInitialState().getName()).collect(Collectors.toSet());
-        assertEquals(Set.of("0","2"), acceptanceStatesOfSpace);
+        Set<String> acceptanceStatesOfSpace = space.getAcceptanceStates().stream()
+                .map(s -> s.getInitialState().getName()).collect(Collectors.toSet());
+        assertEquals(Set.of("0", "2"), acceptanceStatesOfSpace);
+        assertEquals(12, space.getTransitions().size());
+        Set<FA<DBSState, BSTransition>> decoratedClosuresContainingBSState1 = space.getNodes().stream()
+                .filter(s -> s.getNodes().stream().anyMatch(d -> d.getBSState().getName().equals("1")))
+                .collect(Collectors.toSet());
+        assertEquals(4, decoratedClosuresContainingBSState1.size());
+
     }
 
     @Test
     public void itShouldComputeDiagnostician() {
-        FA<FA<DBSState, BSTransition>, DSCTransition> space = BFANetworkSupervisor.decoratedSpaceOfClosures(behavioralSpaceFromPage38());
+        FA<FA<DBSState, BSTransition>, DSCTransition> space = BFANetworkSupervisor
+                .decoratedSpaceOfClosures(behavioralSpaceFromPage38());
         Diagnostician d = BFANetworkSupervisor.diagnostician(space);
         assertEquals(7, d.getFa().getStates().size());
-        // TODO: Check that the diagnosis of the node x2 is correct (Problem: idk how to assign names to the nodes)
+        FAState x2 = d.getFa().getNode("2").get();
+        FAState x0 = d.getFa().getNode("0").get();
+        assertEquals("|frf|fr|f", d.getDiagnosisOf(x2));
+        assertEquals("", d.getDiagnosisOf(x0));
     }
 
     @Test
     public void itShouldComputeLinearDiagnosis() {
-        FA<FA<DBSState, BSTransition>, DSCTransition> space = BFANetworkSupervisor.decoratedSpaceOfClosures(behavioralSpaceFromPage38());
+        FA<FA<DBSState, BSTransition>, DSCTransition> space = BFANetworkSupervisor
+                .decoratedSpaceOfClosures(behavioralSpaceFromPage38());
         Diagnostician d = BFANetworkSupervisor.diagnostician(space);
-        List<String> linObs = List.of("o3","o2","o3","o2");
+        List<String> linObs = List.of("o3", "o2", "o3", "o2");
         String diagnosis = BFANetworkSupervisor.linearDiagnosis(d, linObs);
-        assertEquals("(fr|rf)(f|fr|frf| )", diagnosis);
+        assertEquals("(rf|fr(|frf|fr|f))", diagnosis);
     }
 
     /**
-     * Check that the BFANetwork can be converted to Json, written to a file, loaded back from the file, and
-     * converted again into an equivalent BFANetwork.
+     * Check that the BFANetwork can be converted to Json, written to a file, loaded
+     * back from the file, and converted again into an equivalent BFANetwork.
      */
     @Disabled
     @Test
     public void itShouldConvertFAtoJson() {
         FileUtils fileUtils = new FileUtils("test");
 
-        //save
+        // save
         fileUtils.storeBFANetwork(bfaNetwork);
 
         // load
         BFANetwork netNew = fileUtils.loadBFANetwork();
-
+        /*
+         * String diagnosis = BFANetworkSupervisor.linearDiagnosis(
+         * BFANetworkSupervisor.diagnostician(
+         * BFANetworkSupervisor.decoratedSpaceOfClosures(BFANetworkSupervisor.
+         * getBehavioralSpace(netNew))), List.of("o3", "o2", "o3", "o2"));
+         */
+        FA<BSState, BSTransition> bs = BFANetworkSupervisor.getBehavioralSpace(netNew);
+        FA<FA<DBSState, BSTransition>, DSCTransition> space = BFANetworkSupervisor.decoratedSpaceOfClosures(bs);
+        Diagnostician d = BFANetworkSupervisor.diagnostician(space);
+        List<String> linObs = List.of("o3", "o2", "o3", "o2");
+        String diagnosis = BFANetworkSupervisor.linearDiagnosis(d, linObs);
+        System.out.println(diagnosis);
         // old BFA's states names
         Set<String> oldNames = bfaNetwork.getBFAs().stream().map(BFA::getName).collect(Collectors.toSet());
 

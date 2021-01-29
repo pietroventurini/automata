@@ -10,7 +10,6 @@ import static org.junit.jupiter.api.Assertions.*;
  */
 public class StateBuilderTest {
 
-
     @Test
     public void itShouldBuildState() {
         assertEquals("test", new StateBuilder("test").build().getName());

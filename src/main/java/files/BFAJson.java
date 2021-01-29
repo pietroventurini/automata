@@ -26,10 +26,8 @@ class BFAJson {
      * Alias of the other constructor but it does the unpacking
      */
     BFAJson(BFA bfa) {
-        this(bfa.getName(),
-                bfa.getStates().stream().map(State::getName).toArray(String[]::new),
-                bfa.getInitialState().getName(),
-                transitionsToArray(bfa));
+        this(bfa.getName(), bfa.getStates().stream().map(State::getName).toArray(String[]::new),
+                bfa.getInitialState().getName(), transitionsToArray(bfa));
     }
 
     /**
@@ -43,7 +41,8 @@ class BFAJson {
             String source = incidentNodes.source().getName();
             String target = incidentNodes.target().getName();
             String[] outEvents = t.getOutEvents().toArray(String[]::new);
-            EventTransitionJson jsonTransition = new EventTransitionJson(t.getName(), source, target, t.getInEvent().orElse(""), outEvents, t.getObservabilityLabel(), t.getRelevanceLabel());
+            EventTransitionJson jsonTransition = new EventTransitionJson(t.getName(), source, target,
+                    t.getInEvent().orElse(null), outEvents, t.getObservabilityLabel(), t.getRelevanceLabel());
             list.add(jsonTransition);
         }
         return list.toArray(EventTransitionJson[]::new);
@@ -52,7 +51,7 @@ class BFAJson {
     /**
      * Converts the JsonBFA into a BFA by invoking its builder.
      */
-     BFA toBFA() {
+    BFA toBFA() {
         BFABuilder builder = new BFABuilder(name);
 
         // map stateName to FAState

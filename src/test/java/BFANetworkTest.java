@@ -10,6 +10,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 
+import java.security.InvalidAlgorithmParameterException;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -143,15 +144,6 @@ public class BFANetworkTest {
 
         // there should be 18 transitions
         assertEquals(18, space.getTransitions().size());
-        /*
-         * for (BSState state : space.getStates()) {
-         * System.out.println(state.description()); }
-         * 
-         * for (BSTransition transition : space.getTransitions()) {
-         * EndpointPair<BSState> pair = space.getNetwork().incidentNodes(transition);
-         * System.out.println( pair.nodeU().description() + "-> " +
-         * transition.getSymbol() + "-> " + pair.nodeV().description()); }
-         */
     }
 
     @Test
@@ -159,8 +151,13 @@ public class BFANetworkTest {
         ArrayList<String> linearObservation = new ArrayList<>();
         linearObservation.add("o3");
         linearObservation.add("o2");
-        FA<LOBSState, BSTransition> space = BFANetworkSupervisor.getBehavioralSpaceForLinearObservation(bfaNetwork,
-                linearObservation);
+
+        FA<LOBSState, BSTransition> space = null;
+        try {
+            space = BFANetworkSupervisor.getBehavioralSpaceForLinearObservation(bfaNetwork, linearObservation);
+        } catch (InvalidAlgorithmParameterException e) {
+            e.printStackTrace();
+        }
 
         // Before pruning
         // there should be 9 states
@@ -372,7 +369,12 @@ public class BFANetworkTest {
                 .decoratedSpaceOfClosures(behavioralSpaceFromPage38());
         Diagnostician d = BFANetworkSupervisor.diagnostician(space);
         List<String> linObs = List.of("o3", "o2", "o3", "o2");
-        String diagnosis = BFANetworkSupervisor.linearDiagnosis(d, linObs);
+        String diagnosis = null;
+        try {
+            diagnosis = BFANetworkSupervisor.linearDiagnosis(d, linObs);
+        } catch (InvalidAlgorithmParameterException e) {
+            e.printStackTrace();
+        }
         assertEquals("(rf|fr(|frf|fr|f))", diagnosis);
     }
 
@@ -400,7 +402,12 @@ public class BFANetworkTest {
         FA<FA<DBSState, BSTransition>, DSCTransition> space = BFANetworkSupervisor.decoratedSpaceOfClosures(bs);
         Diagnostician d = BFANetworkSupervisor.diagnostician(space);
         List<String> linObs = List.of("o3", "o2", "o3", "o2");
-        String diagnosis = BFANetworkSupervisor.linearDiagnosis(d, linObs);
+        String diagnosis = null;
+        try {
+            diagnosis = BFANetworkSupervisor.linearDiagnosis(d, linObs);
+        } catch (InvalidAlgorithmParameterException e) {
+            e.printStackTrace();
+        }
         System.out.println(diagnosis);
         // old BFA's states names
         Set<String> oldNames = bfaNetwork.getBFAs().stream().map(BFA::getName).collect(Collectors.toSet());

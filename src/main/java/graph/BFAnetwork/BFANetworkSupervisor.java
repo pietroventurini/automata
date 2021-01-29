@@ -4,6 +4,7 @@ import com.google.common.collect.MoreCollectors;
 import com.google.common.collect.Sets;
 import com.google.common.graph.*;
 
+import java.security.InvalidAlgorithmParameterException;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -190,7 +191,6 @@ public final class BFANetworkSupervisor {
                     executeTransition(bfaNetwork, bfa, transition);
 
                     BSState newState = getBFANetworkState(bfaNetwork);
-                    // newState.checkFinal(); sostituito con:
                     if (newState.isFinal()) {
                         faBuilder.putFinalState(newState).putAcceptanceState(newState);
                     }
@@ -228,9 +228,11 @@ public final class BFANetworkSupervisor {
 
     /**
      * Create the behavioral space related to a linear observation
+     * 
+     * @throws InvalidAlgorithmParameterException
      */
     public static final FA<LOBSState, BSTransition> getBehavioralSpaceForLinearObservation(BFANetwork bfaNetwork,
-            ArrayList<String> linearObservation) {
+            ArrayList<String> linearObservation) throws InvalidAlgorithmParameterException {
         FABuilder<LOBSState, BSTransition> faBuilder = new FABuilder<>();
 
         // Construct the initial state of the behavioral space relative to
@@ -242,6 +244,8 @@ public final class BFANetworkSupervisor {
         // the set containing the BSStates still to be explored
         Set<LOBSState> toExplore = new HashSet<>();
         toExplore.add(networkState);
+
+        Set<LOBSState> closed = new HashSet<>();
 
         while (!toExplore.isEmpty()) {
             LOBSState state = toExplore.iterator().next();
@@ -260,28 +264,41 @@ public final class BFANetworkSupervisor {
                         else
                             newState.setObservationIndex(state.getObservationIndex());
 
-                        if (newState.getObservationIndex() == linearObservation.size()) {
-                            // newState.checkFinal();
-                            if (newState.isFinal()) {
+                        if (closed.contains(newState) || toExplore.contains(newState)) {
+                            LOBSState existent = closed.contains(newState)
+                                    ? closed.stream().filter(s -> s.equals(newState))
+                                            .collect(MoreCollectors.onlyElement())
+                                    : toExplore.stream().filter(s -> s.equals(newState))
+                                            .collect(MoreCollectors.onlyElement());
+                            faBuilder.putTransition(state, existent, new BSTransition(transition.getName(),
+                                    transition.getRelevanceLabel(), transition.getObservabilityLabel()));
+                        } else {
+                            if (newState.getObservationIndex() == linearObservation.size() && newState.isFinal())
                                 faBuilder.putFinalState(newState).putAcceptanceState(newState);
-                            }
+
+                            toExplore.add(newState);
+                            faBuilder.putState(newState);
+                            faBuilder.putTransition(state, newState, new BSTransition(transition.getName(),
+                                    transition.getRelevanceLabel(), transition.getObservabilityLabel()));
                         }
-
-                        toExplore.add(newState);
-                        faBuilder.putState(newState);
-
-                        faBuilder.putTransition(state, newState, new BSTransition(transition.getName(),
-                                transition.getRelevanceLabel(), transition.getObservabilityLabel()));
                         rollbackBFANetwork(state);
                     }
-
                 }
+
             }
             toExplore.remove(state);
+            closed.add(state);
 
         }
         rollbackBFANetwork(networkState);
-        return faBuilder.build();
+
+        FA<LOBSState, BSTransition> fa;
+        try {
+            fa = faBuilder.build();
+        } catch (Exception e) {
+            throw new InvalidAlgorithmParameterException();
+        }
+        return fa;
     }
 
     /**
@@ -541,8 +558,10 @@ public final class BFANetworkSupervisor {
      * 
      * @return A string representing the diagnosis of the provided linear
      *         observation
+     * @throws InvalidAlgorithmParameterException
      */
-    public static String linearDiagnosis(Diagnostician diagnostician, List<String> linObs) {
+    public static String linearDiagnosis(Diagnostician diagnostician, List<String> linObs)
+            throws InvalidAlgorithmParameterException {
         FA<FAState, DSCTransition> fa = diagnostician.getFa();
         FAState x0 = fa.getInitialState();
         Map<FAState, String> X = new HashMap<>();
@@ -571,6 +590,9 @@ public final class BFANetworkSupervisor {
         Set<FAState> nonAcceptanceStates = X.keySet().stream().filter(x -> !fa.isAcceptance(x))
                 .collect(Collectors.toSet());
         X.keySet().removeAll(nonAcceptanceStates);
+        if (X.isEmpty()) {
+            throw new InvalidAlgorithmParameterException();
+        }
 
         StringBuilder sb = new StringBuilder();
         for (FAState x : X.keySet()) {

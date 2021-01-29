@@ -1,5 +1,6 @@
 package menu;
 
+import java.security.InvalidAlgorithmParameterException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashSet;
@@ -93,21 +94,31 @@ public class Supervisor {
                 break;
             case 8:
                 if (linearObservations.isEmpty()) {
-                    Utility.showMessageln("\n You didn't create any linear observation!");
+                    Utility.showMessageln("\nYou didn't create any linear observation!");
                     break;
                 }
                 ArrayList<String> linObs1 = selectLinearObservation();
-                linearObservationBehavioralSpaces = BFANetworkSupervisor
-                        .getBehavioralSpaceForLinearObservation(bfaNetwork, linObs1);
+                try {
+                    linearObservationBehavioralSpaces = BFANetworkSupervisor
+                            .getBehavioralSpaceForLinearObservation(bfaNetwork, linObs1);
+                    BFANetworkSupervisor.pruneFA(linearObservationBehavioralSpaces);
+                } catch (InvalidAlgorithmParameterException e) {
+                    Utility.showMessageln("\nThis linear observation is not inherent to the network!");
+                }
                 break;
             case 9:
                 if (linearObservations.isEmpty()) {
-                    Utility.showMessageln("\n You didn't create any linear observation!");
+                    Utility.showMessageln("\nYou didn't create any linear observation!");
                     break;
                 }
                 ArrayList<String> linObs2 = selectLinearObservation();
-                String linearDiagnosis = BFANetworkSupervisor.linearDiagnosis(diagnostician, linObs2);
-                Utility.showMessageln("\nLinear diagnosis: " + linearDiagnosis);
+                String linearDiagnosis;
+                try {
+                    linearDiagnosis = BFANetworkSupervisor.linearDiagnosis(diagnostician, linObs2);
+                    Utility.showMessageln("\nLinear diagnosis: " + linearDiagnosis);
+                } catch (InvalidAlgorithmParameterException e) {
+                    Utility.showMessageln("\nThis linear observation is not inherent to the diagnostician!");
+                }
                 break;
             default:
                 Utility.showMessageln("Unknown error has occured.");

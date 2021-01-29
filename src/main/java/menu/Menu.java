@@ -28,7 +28,6 @@ public class Menu {
     public Menu(String project) {
         fileUtils = new FileUtils(project);
         bfas = new ArrayList<>();
-
     }
 
     public void runMenu() {

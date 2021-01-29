@@ -1,5 +1,6 @@
 package menu;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -32,8 +33,13 @@ public class Menu {
 
     public void runMenu() {
         List<String> bfaNames = fileUtils.getBFAsList();
-        for (String bfaName : bfaNames)
-            bfas.add(fileUtils.loadBFA(bfaName));
+        for (String bfaName : bfaNames) {
+            try {
+                bfas.add(fileUtils.loadBFA(bfaName));
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
         printHeader();
         while (!exit) {
             Utility.printMenu(OPTIONS);
@@ -55,7 +61,11 @@ public class Menu {
                 exit = true;
                 break;
             case 1:
-                bfaNetwork = fileUtils.loadBFANetwork();
+                try {
+                    bfaNetwork = fileUtils.loadBFANetwork();
+                } catch (IOException e) {
+                    System.err.println("Unable to load the BFA network, check that file exists and it is not corrupted, otherwise, create a new BFA network");
+                }
                 break;
             case 2:
                 if (bfaNetwork != null) {

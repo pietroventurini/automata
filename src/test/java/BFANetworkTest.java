@@ -10,6 +10,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 
+import java.io.IOException;
 import java.security.InvalidAlgorithmParameterException;
 import java.util.*;
 import java.util.stream.Collectors;
@@ -384,7 +385,7 @@ public class BFANetworkTest {
      */
     @Disabled
     @Test
-    public void itShouldConvertFAtoJson() {
+    public void itShouldConvertFAtoJson() throws IOException {
         FileUtils fileUtils = new FileUtils("test");
 
         // save
@@ -416,5 +417,4 @@ public class BFANetworkTest {
         Set<String> newNames = netNew.getBFAs().stream().map(BFA::getName).collect(Collectors.toSet());
         assertEquals(oldNames, newNames);
     }
-
 }

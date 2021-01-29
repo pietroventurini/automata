@@ -4,6 +4,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 
+import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -203,5 +204,4 @@ public class FATest {
         Set<String> newNames = faNew.getStates().stream().map(FAState::getName).collect(Collectors.toSet());
         assertEquals(oldNames, newNames);
     }
-
 }

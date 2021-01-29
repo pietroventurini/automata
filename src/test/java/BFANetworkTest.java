@@ -1,4 +1,5 @@
 import com.google.common.collect.ImmutableMap;
+import files.Benchmark;
 import files.FileUtils;
 import graph.BFAnetwork.*;
 import graph.bfa.BFA;
@@ -234,7 +235,6 @@ public class BFANetworkTest {
 
         // compute behavioral space of network of page 26
         FA<BSState, BSTransition> bs = BFANetworkSupervisor.getBehavioralSpace(BFANetworkFromPage26());
-
         // prune it
         BFANetworkSupervisor.pruneFA(bs);
 

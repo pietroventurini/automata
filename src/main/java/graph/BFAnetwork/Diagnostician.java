@@ -35,16 +35,11 @@ public class Diagnostician {
     }
 
     private String diagnosisToString(Map<DBSState, String> diagnosis) {
-        StringBuilder sb = new StringBuilder();
         String res = "";
         for (String s : diagnosis.values()) {
             res = res + s + "|";
         }
-        // diagnosis.values().stream().distinct().map(s -> sb.append(s + "|"));
-
         res = res.substring(0, res.length() - 1);
-        // remove last char ("|")
-        // sb.setLength(sb.length() - 1);
         return res;
     }
 }

@@ -246,44 +246,49 @@ public class FileUtils {
      * @param name The name of the FA to be loaded (e.g. "x0"). Note: the extension
      *             ".json" must NOT be included in the name
      */
-    public FA<FAState, Transition> loadFA(String name) {
+    public FA<FAState, Transition> loadFA(String name) throws IOException {
         File file = getFile(FA_DIR, name.concat(".json"));
         try (Reader reader = new FileReader(file)) {
             FAJson faJson = gson.fromJson(reader, FAJson.class);
-            return faJson.toFA();
+            if (faJson != null) {
+                return faJson.toFA();
+            }
         } catch (IOException e) {
             e.printStackTrace();
         }
-        return null;
+        throw new IOException();
     }
 
     /**
      * load the BFA which is encoded as a json file in the project directory under
      * the {BFA_DIR} directory.
      */
-    public BFA loadBFA(String name) {
+    public BFA loadBFA(String name) throws IOException {
         File file = getFile(BFA_DIR, name.concat(".json"));
         try (Reader reader = new FileReader(file)) {
-            BFAJson faJson = gson.fromJson(reader, BFAJson.class);
-            return faJson.toBFA();
+            BFAJson bfaJson = gson.fromJson(reader, BFAJson.class);
+            if (bfaJson != null) {
+                return bfaJson.toBFA();
+            }
         } catch (IOException e) {
             e.printStackTrace();
         }
-        return null;
+        throw new IOException();
     }
 
     /**
      * load the BFANetwork which is encoded as a json file in the project directory
      */
-    public BFANetwork loadBFANetwork() {
+    public BFANetwork loadBFANetwork() throws IOException {
         File file = getFile(CURRENT_DIR, BFANETWORK_JSON);
         try (Reader reader = new FileReader(file)) {
-            BFANetworkJson faJson = gson.fromJson(reader, BFANetworkJson.class);
-            return faJson.toBFANetwork();
-        } catch (IOException e) {
+            BFANetworkJson netJson = gson.fromJson(reader, BFANetworkJson.class);
+            if (netJson != null) {
+                return netJson.toBFANetwork();
+            }        } catch (IOException e) {
             e.printStackTrace();
         }
-        return null;
+        throw new IOException();
     }
 
     /**

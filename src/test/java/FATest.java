@@ -4,6 +4,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 
+import java.io.IOException;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -189,7 +190,7 @@ public class FATest {
      */
     @Disabled
     @Test
-    public void itShouldConvertFAtoJson() {
+    public void itShouldConvertFAtoJson() throws IOException {
         FA<FAState, Transition> fa = FAofPage9();
         FileUtils fileUtils = new FileUtils("test");
 

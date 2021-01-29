@@ -574,7 +574,9 @@ public final class BFANetworkSupervisor {
 
         StringBuilder sb = new StringBuilder();
         for (FAState x : X.keySet()) {
-            sb.append("(" + X.get(x)).append("(" + diagnostician.getDiagnosisOf(x) + ")").append(")|");
+            sb.append("(" + X.get(x))
+                    .append("(" + diagnostician.getDiagnosisOf(x) + ")")
+                    .append(")|");
         }
         // remove last char ("|")
         sb.setLength(sb.length() - 1);

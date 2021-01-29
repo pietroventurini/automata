@@ -8,6 +8,7 @@ import graph.nodes.State;
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 
+import java.io.IOException;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -97,7 +98,7 @@ public class BFATest {
      */
     @Disabled
     @Test
-    public void itShouldConvertFAtoJson() {
+    public void itShouldConvertFAtoJson() throws IOException {
         BFA bfa = BFAc2FromPage24();
         FileUtils fileUtils = new FileUtils("test");
 

@@ -232,8 +232,8 @@ public class FileUtils {
      */
     public void storeDiagnosisOfLinObsWithDiagnosticianBenchmark(long duration, List<String> linObs, String diagnosis) {
         List<Benchmark> bms = loadBenchmarks();
-        String desc = DIAGNOSIS_CALC + OF_LINOBS + linObs.toString() + USING_DIAGNOSTICIAN + ".\n" + DIAGNOSIS
-                + diagnosis;
+        String desc = DIAGNOSIS_CALC + OF_LINOBS + linObs.toString() + USING_DIAGNOSTICIAN + ".\n" +
+                DIAGNOSIS + diagnosis;
         Benchmark b = new Benchmark(LocalDateTime.now(), desc, duration);
         bms.add(b);
         storeBenchmarks(bms);
@@ -265,13 +265,10 @@ public class FileUtils {
      */
     public BFA loadBFA(String name) throws IOException {
         File file = getFile(BFA_DIR, name.concat(".json"));
-        try (Reader reader = new FileReader(file)) {
-            BFAJson bfaJson = gson.fromJson(reader, BFAJson.class);
-            if (bfaJson != null) {
-                return bfaJson.toBFA();
-            }
-        } catch (IOException e) {
-            e.printStackTrace();
+        Reader reader = new FileReader(file);
+        BFAJson bfaJson = gson.fromJson(reader, BFAJson.class);
+        if (bfaJson != null) {
+            return bfaJson.toBFA();
         }
         throw new IOException();
     }
@@ -281,12 +278,10 @@ public class FileUtils {
      */
     public BFANetwork loadBFANetwork() throws IOException {
         File file = getFile(CURRENT_DIR, BFANETWORK_JSON);
-        try (Reader reader = new FileReader(file)) {
-            BFANetworkJson netJson = gson.fromJson(reader, BFANetworkJson.class);
-            if (netJson != null) {
-                return netJson.toBFANetwork();
-            }        } catch (IOException e) {
-            e.printStackTrace();
+        Reader reader = new FileReader(file);
+        BFANetworkJson netJson = gson.fromJson(reader, BFANetworkJson.class);
+        if (netJson != null) {
+            return netJson.toBFANetwork();
         }
         throw new IOException();
     }
@@ -308,6 +303,7 @@ public class FileUtils {
         }
         return benchmarks;
     }
+
 
     /**
      * Save the {@code json} object into file "{directory}/{fileName}" Note:

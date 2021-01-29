@@ -49,10 +49,6 @@ public class BSState implements IBSState {
      * Check if the BSState is final (i.e. if it represents a configuration of the
      * BFANetwork in which all the Links are empty)
      */
-    /*public void checkFinal() {
-        if (this.links.values().stream().allMatch(Objects::isNull))
-            this.isFinal(true); //FIXME: change to return true
-    }*/
     public boolean isFinal() {
         return this.links.values().stream().allMatch(Objects::isNull);
     }
@@ -76,7 +72,6 @@ public class BSState implements IBSState {
         BSState state = (BSState) o;
         return (bfas.equals(state.getBfas()) && links.equals(state.getLinks())
                 && this.getName().equals(state.getName()));
-
     }
 
     @Override
@@ -92,5 +87,20 @@ public class BSState implements IBSState {
     @Override
     public String getName() {
         return name;
+    }
+
+    @Override
+    public String toString() {
+        StringBuilder sb = new StringBuilder();
+        sb.append("name: " + name + '\n' +
+                "STATES" + '\n');
+        for (BFA bfa : bfas.keySet()) {
+            sb.append("\tBFA: " + bfa.getName() + ", state: " + bfas.get(bfa).getName() + '\n');
+        }
+        sb.append("LINKS" + '\n');
+        for (Link l : links.keySet()) {
+            sb.append("\tLink: " + l.getName() + ", event: " + l.getEvent().orElse("ε") + '\n');
+        }
+        return sb.toString();
     }
 }

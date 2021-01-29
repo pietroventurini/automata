@@ -35,7 +35,8 @@ public class Benchmark {
 
     @Override
     public String toString() {
-        return "Date: " + date.format(DateTimeFormatter.ofPattern("dd-MM-yy HH:mm:ss")) + "\n" + "Operation: "
-                + description + "\n" + "Duration: " + duration / 1000000 + " ms\n";
+        return "Date: " + date.format(DateTimeFormatter.ofPattern("dd-MM-yy HH:mm:ss")) + "\n" +
+                "Operation: " + description + "\n" +
+                "Duration: " + duration / 1000000 + " ms\n";
     }
 }

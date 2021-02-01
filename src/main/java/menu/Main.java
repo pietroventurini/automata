@@ -51,7 +51,7 @@ public class Main {
         for (int i = 0; i < projects.size(); i++) {
             Utility.showMessageln(i + ") " + projects.get(i));
         }
-        int choice = Utility.getMenuChoice(projects.size());
+        int choice = Utility.getMenuChoice(projects.size() - 1);
         Menu menu = new Menu(projects.get(choice));
         menu.runMenu();
     }
@@ -65,14 +65,15 @@ public class Main {
             out = false;
             Utility.showMessage("\nInsert the name of the project: ");
             name = keyboard.nextLine();
-            if (projects.contains(name)) {
-                out = true;
-                Utility.showMessageln("There is already a project with this name! ");
-            } else if (name.equals("")) {
+            if (name.equals("")) {
                 out = true;
                 Utility.showMessageln("Please write something! ");
             }
         } while (out);
+        if (projects.contains(name)) {
+            Utility.showMessageln("There is already a project with this name! ");
+            return;
+        }
         Menu menu = new Menu(name);
         menu.runMenu();
     }

@@ -21,7 +21,7 @@ public class Benchmark {
     public static final String DSC = "Computation of the decorated space of closures";
     public static final String OF_STATE = "of state ";
     public static final String DIAGNOSTICIAN = "Computation of the diagnostician";
-    public static final String USING_DIAGNOSTICIAN = "using the diagnostician";
+    public static final String USING_DIAGNOSTICIAN = " using the diagnostician";
 
     LocalDateTime date;
     String description;
@@ -35,8 +35,7 @@ public class Benchmark {
 
     @Override
     public String toString() {
-        return "Date: " + date.format(DateTimeFormatter.ofPattern("dd-MM-yy HH:mm:ss")) + "\n" +
-                "Operation: " + description + "\n" +
-                "Duration: " + duration / 1000000 + " ms\n";
+        return "Date: " + date.format(DateTimeFormatter.ofPattern("dd-MM-yy HH:mm:ss")) + "\n" + "Operation: "
+                + description + "\n" + "Duration: " + duration / 1000000 + " ms\n";
     }
 }

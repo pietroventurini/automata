@@ -12,6 +12,7 @@ import java.util.stream.Collectors;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.MoreCollectors;
 
+import files.FileUtils;
 import graph.BFAnetwork.BFANetwork;
 import graph.BFAnetwork.BFANetworkSupervisor;
 import graph.BFAnetwork.BSState;
@@ -21,6 +22,7 @@ import graph.BFAnetwork.DSCTransition;
 import graph.BFAnetwork.Diagnostician;
 import graph.BFAnetwork.LOBSState;
 import graph.bfa.BFA;
+import graph.fa.AcceptedLanguages;
 import graph.fa.FA;
 
 public class Supervisor {
@@ -30,6 +32,8 @@ public class Supervisor {
     private Diagnostician diagnostician;
     private List<ArrayList<String>> linearObservations;
     private FA<LOBSState, BSTransition> linearObservationBehavioralSpaces;
+
+    private FileUtils fileUtils;
 
     private boolean exit;
 
@@ -47,8 +51,9 @@ public class Supervisor {
     public static final ImmutableList<String> OPTIONS = ImmutableList.of(OPTION1, OPTION2, OPTION3, OPTION4, OPTION5,
             OPTION6, OPTION7, OPTION8, OPTION9, OPTION0);
 
-    public Supervisor(BFANetwork bfaNetwork) {
+    public Supervisor(BFANetwork bfaNetwork, FileUtils fileUtils) {
         this.bfaNetwork = bfaNetwork;
+        this.fileUtils = fileUtils;
     }
 
     public void runMenu() {
@@ -66,21 +71,49 @@ public class Supervisor {
     }
 
     private void performAction(int choice) {
+        long start, end, duration;
         switch (choice) {
             case 0:
                 exit = true;
                 break;
             case 1:
                 Utility.printBehavioralSpaceDescription(behavioralSpace);
+                start = System.nanoTime();
+                BFANetworkSupervisor.getBehavioralSpace(bfaNetwork);
+                BFANetworkSupervisor.pruneFA(behavioralSpace);
+                end = System.nanoTime();
+                duration = end - start;
+                Utility.showMessageln("Duration: " + duration / 1000000 + " ms");
+                fileUtils.storeBSBenchmark(duration);
                 break;
             case 2:
-                Utility.printDecoratedSilentClosure(selectDecoratedSilentClosureFromState());
+                start = System.nanoTime();
+                // FA<DBSState, BSTransition> dc = selectDecoratedSilentClosureFromState();
+                FA<DBSState, BSTransition> dc = BFANetworkSupervisor.decoratedSilentClosure(
+                        BFANetworkSupervisor.silentClosure(behavioralSpace, selectEntryInBehavioralSpace()));
+                end = System.nanoTime();
+                duration = end - start;
+                Utility.printDecoratedSilentClosure(dc);
+                Utility.showMessageln("Duration: " + duration / 1000000 + " ms");
+                fileUtils.storeSilentClosureBenchmark(duration, dc.getName());
                 break;
             case 3:
+                start = System.nanoTime();
+                BFANetworkSupervisor.decoratedSpaceOfClosures(behavioralSpace);
+                end = System.nanoTime();
+                duration = end - start;
                 Utility.printDecoratedSpaceDescription(decoratedSpaceOfClosures);
+                Utility.showMessageln("Duration: " + duration / 1000000 + " ms");
+                fileUtils.storeDSCBenchmark(duration);
                 break;
             case 4:
+                start = System.nanoTime();
+                BFANetworkSupervisor.diagnostician(decoratedSpaceOfClosures);
+                end = System.nanoTime();
+                duration = end - start;
                 Utility.printDiagnosticianDescription(diagnostician);
+                Utility.showMessageln("Duration: " + duration / 1000000 + " ms");
+                fileUtils.storeDiagnosticianBenchmark(duration);
                 break;
             case 5:
                 changeBehavioralSpaceStateName();
@@ -99,11 +132,18 @@ public class Supervisor {
                 }
                 ArrayList<String> linObs1 = selectLinearObservation();
                 try {
+                    start = System.nanoTime();
                     linearObservationBehavioralSpaces = BFANetworkSupervisor
                             .getBehavioralSpaceForLinearObservation(bfaNetwork, linObs1);
                     BFANetworkSupervisor.pruneFA(linearObservationBehavioralSpaces);
+                    Utility.printBehavioralSpaceOfLinObsDescription(linearObservationBehavioralSpaces);
+                    String diag = showDiagnosis(linearObservationBehavioralSpaces);
+                    end = System.nanoTime();
+                    duration = end - start;
+                    Utility.showMessageln("\nDuration: " + duration / 1000000 + " ms");
+                    fileUtils.storeDiagnosisOfLinObsBenchmark(duration, linObs1, diag);
                 } catch (InvalidAlgorithmParameterException e) {
-                    Utility.showMessageln("\nThis linear observation is not inherent to the network!");
+                    Utility.showMessageln("This linear observation is not inherent to the network!");
                 }
                 break;
             case 9:
@@ -114,15 +154,32 @@ public class Supervisor {
                 ArrayList<String> linObs2 = selectLinearObservation();
                 String linearDiagnosis;
                 try {
+                    start = System.nanoTime();
                     linearDiagnosis = BFANetworkSupervisor.linearDiagnosis(diagnostician, linObs2);
+                    end = System.nanoTime();
+                    duration = end - start;
                     Utility.showMessageln("\nLinear diagnosis: " + linearDiagnosis);
+                    Utility.showMessageln("\nDuration: " + duration / 1000000 + " ms");
+                    fileUtils.storeDiagnosisOfLinObsWithDiagnosticianBenchmark(duration, linObs2, linearDiagnosis);
                 } catch (InvalidAlgorithmParameterException e) {
-                    Utility.showMessageln("\nThis linear observation is not inherent to the diagnostician!");
+                    Utility.showMessageln("This linear observation is not inherent to the diagnostician!");
                 }
                 break;
             default:
                 Utility.showMessageln("Unknown error has occured.");
         }
+    }
+
+    private String showDiagnosis(FA<LOBSState, BSTransition> space) {
+        Set<String> diagnosis = AcceptedLanguages.reduceFAtoMultipleRegex(space);
+        String res = "";
+        for (String s : diagnosis) {
+            res = res + s + "|";
+        }
+        res = res.equals("") ? "" : res.substring(0, res.length() - 1);
+        Utility.showMessageln("Linear Diagnosis: " + res);
+        return res;
+        // Utility.showMessageln(AcceptedLanguage.reduceFAtoRegex(space));
     }
 
     private BSState selectStateInBehavioralSpace() {
@@ -132,7 +189,7 @@ public class Supervisor {
         for (int i = 0; i < states.size(); i++) {
             Utility.showMessageln(i + ") " + states.get(i).getName());
         }
-        int choice = Utility.getMenuChoice(states.size());
+        int choice = Utility.getMenuChoice(states.size() - 1);
         return states.get(choice);
     }
 
@@ -172,11 +229,12 @@ public class Supervisor {
         states.addAll(behavioralSpace.getStates().stream().filter(
                 s -> behavioralSpace.getNetwork().inEdges(s).stream().anyMatch(BSTransition::hasObservabilityLabel))
                 .collect(Collectors.toSet()));
-        states.add(behavioralSpace.getInitialState());
+        if (!states.contains(behavioralSpace.getInitialState()))
+            states.add(behavioralSpace.getInitialState());
         for (int i = 0; i < states.size(); i++) {
             Utility.showMessageln(i + ") " + states.get(i).getName());
         }
-        int choice = Utility.getMenuChoice(states.size());
+        int choice = Utility.getMenuChoice(states.size() - 1);
         return states.get(choice);
     }
 
@@ -193,7 +251,7 @@ public class Supervisor {
         for (int i = 0; i < closures.size(); i++) {
             Utility.showMessageln(i + ") " + closures.get(i).getName());
         }
-        int choice = Utility.getMenuChoice(closures.size());
+        int choice = Utility.getMenuChoice(closures.size() - 1);
         return closures.get(choice);
     }
 
@@ -254,8 +312,13 @@ public class Supervisor {
             if (choice != 0)
                 linearObservation.add(observabilityLabels.get(choice - 1));
         } while (choice != 0);
-
-        linearObservations.add(linearObservation);
+        if (linearObservation.isEmpty()) {
+            Utility.showMessageln("You can't create empty linear observations!");
+        } else if (linearObservations.contains(linearObservation)) {
+            Utility.showMessageln("You have already created this linear observation!");
+        } else {
+            linearObservations.add(linearObservation);
+        }
     }
 
     private ArrayList<String> selectLinearObservation() {

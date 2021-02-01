@@ -5,7 +5,6 @@ import graph.fa.FAState;
 
 import java.util.Map;
 
-
 public class Diagnostician {
     private FA<FAState, DSCTransition> fa;
     private Map<FAState, Map<DBSState, String>> diagnosis;
@@ -32,7 +31,7 @@ public class Diagnostician {
         for (String s : diagnosis.values()) {
             res = res + s + "|";
         }
-        res = res.substring(0, res.length() - 1);
+        res = res.equals("") ? "" : res.substring(0, res.length() - 1);
         return res;
     }
 }

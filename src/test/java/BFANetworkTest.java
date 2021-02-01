@@ -376,7 +376,7 @@ public class BFANetworkTest {
         } catch (InvalidAlgorithmParameterException e) {
             e.printStackTrace();
         }
-        assertEquals("(rf|fr(|frf|fr|f))", diagnosis);
+        assertEquals("(rf|fr)(|frf|fr|f)", diagnosis);
     }
 
     /**

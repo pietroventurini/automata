@@ -11,6 +11,7 @@ import graph.BFAnetwork.BSTransition;
 import graph.BFAnetwork.DBSState;
 import graph.BFAnetwork.DSCTransition;
 import graph.BFAnetwork.Diagnostician;
+import graph.BFAnetwork.LOBSState;
 import graph.fa.FA;
 import graph.fa.FAState;
 
@@ -56,23 +57,48 @@ public class Utility {
 
     public static void printBehavioralSpaceDescription(FA<BSState, BSTransition> behavioralSpace) {
         MutableNetwork<BSState, BSTransition> network = behavioralSpace.getNetwork();
-        Utility.showMessageln("\nList of states:");
+        Utility.showMessageln("\nList of states in the behavioral space:");
         for (BSState s : behavioralSpace.getNodes()) {
-            Utility.showMessageln("- " + s.getName());
+            Utility.showMessageln(s.toString());
         }
-        Utility.showMessageln("\nList of transitions:");
+        Utility.showMessageln("\nList of transitions in the behavioral space:");
         for (BSTransition e : behavioralSpace.getEdges()) {
             EndpointPair<BSState> pair = network.incidentNodes(e);
             Utility.showMessageln(
                     "- " + pair.nodeU().getName() + " -> " + e.getName() + " ->  " + pair.nodeV().getName());
         }
-        Utility.showMessageln("\nInitial state: " + behavioralSpace.getInitialState().getName());
+        Utility.showMessageln(
+                "\nInitial state of the behavioral space: " + behavioralSpace.getInitialState().getName());
 
-        Utility.showMessageln("\nList of  final states:");
+        Utility.showMessageln("\nList of final states of the behavioral space:");
         for (BSState s : behavioralSpace.getFinalStates()) {
             Utility.showMessageln("- " + s.getName());
         }
         Utility.showMessage("\n");
+    }
+
+    public static void printBehavioralSpaceOfLinObsDescription(FA<LOBSState, BSTransition> behavioralSpace) {
+        MutableNetwork<LOBSState, BSTransition> network = behavioralSpace.getNetwork();
+        Utility.showMessageln("\nList of states in the behavioral space:");
+        for (LOBSState s : behavioralSpace.getNodes()) {
+            Utility.showMessageln("- " + s.getName());
+            Utility.showMessageln("  Observation Index:" + s.getObservationIndex() + "\n");
+        }
+        Utility.showMessageln("\nList of transitions in the behavioral space:");
+        for (BSTransition e : behavioralSpace.getEdges()) {
+            EndpointPair<LOBSState> pair = network.incidentNodes(e);
+            Utility.showMessageln("- " + pair.nodeU().getName() + " (" + pair.nodeU().getObservationIndex() + ") -> "
+                    + e.getName() + " -> " + pair.nodeV().getName() + " (" + pair.nodeV().getObservationIndex() + ")");
+        }
+        Utility.showMessageln(
+                "\nInitial state of the behavioral space: " + behavioralSpace.getInitialState().getName());
+        Utility.showMessageln("Observation Index:" + behavioralSpace.getInitialState().getObservationIndex() + "\n");
+
+        Utility.showMessageln("List of final states of the behavioral space:");
+        for (LOBSState s : behavioralSpace.getFinalStates()) {
+            Utility.showMessageln("- " + s.getName());
+            Utility.showMessageln("  Observation Index:" + s.getObservationIndex() + "\n");
+        }
     }
 
     public static void printDecoratedSilentClosure(FA<DBSState, BSTransition> decoratedSilentClosure) {

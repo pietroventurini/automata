@@ -208,7 +208,6 @@ public final class BFANetworkSupervisor {
                         faBuilder.putTransition(state, existent, new BSTransition(transition.getName(),
                                 transition.getRelevanceLabel(), transition.getObservabilityLabel()));
                     }
-
                     rollbackBFANetwork(state);
                 }
             }
@@ -234,7 +233,6 @@ public final class BFANetworkSupervisor {
     public static final FA<LOBSState, BSTransition> getBehavioralSpaceForLinearObservation(BFANetwork bfaNetwork,
             ArrayList<String> linearObservation) throws InvalidAlgorithmParameterException {
         FABuilder<LOBSState, BSTransition> faBuilder = new FABuilder<>();
-
         // Construct the initial state of the behavioral space relative to
         // linearObservation
         LOBSState networkState = getBFANetworkLOBSState(bfaNetwork);
@@ -551,6 +549,42 @@ public final class BFANetworkSupervisor {
         return new Diagnostician(fa, diagnosis);
     }
 
+    private static String concatenateRegEx(String r1, String r2) {
+        if (r1.equals(""))
+            return r2;
+        else if (r2.equals(""))
+            return r1;
+        if (r1.contains("|"))
+            r1 = "(" + r1 + ")";
+        if (r2.contains("|"))
+            r2 = "(" + r2 + ")";
+        return r1 + r2;
+        /*
+         * else if (r1.length() == 1 && r2.length() == 1) return r1 + r2; else if
+         * (r1.length() == 1) return r1 + "(" + r2 + ")"; else if (r2.length() == 1)
+         * return "(" + r1 + ")" + r2; return r1 + "(" + r2 + ")";
+         */
+    }
+
+    private static String disjointRegEx(String r1, String r2) {
+        if (r1.equals(r2))
+            return r1;
+        if (r1.contains("|"))
+            r1 = "(" + r1 + ")";
+        if (r2.contains("|"))
+            r2 = "(" + r2 + ")";
+        return r1 + "|" + r2;
+        /*
+         * else if (r1.length() == 1 && r2.length() == 1) return r1 + "|" + r2; else if
+         * (r1.length() == 1 && r2.length() > 1) return r1 + "|(" + r2 + ")"; else if
+         * (r2.length() == 1 && r1.length() > 1) return "(" + r1 + ")|" + r2; else if
+         * (r1.equals("")) return "|(" + r2 + ")"; else if (r2.equals("")) return "(" +
+         * r1 + ")|";
+         * 
+         * return "(" + r1 + ")|(" + r2 + ")";
+         */
+    }
+
     /**
      * Computes the linear diagnosis relating to the linear observation @code
      * linObs} of a behavioral network, given its diagnostician
@@ -575,11 +609,15 @@ public final class BFANetworkSupervisor {
                         .filter(t -> t.getObservabilityLabel().equals(o)).collect(Collectors.toSet());
                 for (DSCTransition t : outTransitions) {
                     FAState x2 = fa.getNetwork().incidentNodes(t).target();
-                    String r2 = r1 + t.getSymbol(); // line 6 of algorithm of page 85
-                    if (Xnew.containsKey(x2) && !r2.equals(Xnew.get(x2))) {
-                        r2 = Xnew.get(x2) + "|" + r2;
+                    String r2 = concatenateRegEx(r1, t.getSymbol());
+                    // String r2 = "(" + r1 + ")(" + t.getSymbol() + ")"; // line 6 of algorithm of
+                    // page 85
+                    if (Xnew.containsKey(x2)) {
+                        r2 = disjointRegEx(Xnew.get(x2), r2);
+                        // r2 = "(" + Xnew.get(x2) + ")|(" + r2 + ")";
                         Xnew.replace(x2, r2);
                     } else {
+
                         Xnew.put(x2, r2);
                     }
                 }
@@ -595,15 +633,14 @@ public final class BFANetworkSupervisor {
         }
 
         StringBuilder sb = new StringBuilder();
-        for (FAState x : X.keySet()) {
-            sb.append("(" + X.get(x))
-                    .append("(" + diagnostician.getDiagnosisOf(x) + ")")
-                    .append(")|");
-        }
-        // remove last char ("|")
-        sb.setLength(sb.length() - 1);
 
-        return sb.toString();
+        for (FAState x : X.keySet()) {
+            sb.append("(" + X.get(x) + ")(" + diagnostician.getDiagnosisOf(x) + ")|");
+        }
+        sb.setLength(sb.length() - 1);
+        String res = sb.toString().replaceAll("null", "");
+        return res;
+
     }
 
 }

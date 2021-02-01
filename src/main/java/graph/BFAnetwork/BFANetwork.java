@@ -70,7 +70,7 @@ public class BFANetwork extends Graph<BFA, Link> {
         for (BFA bfa : this.getNodes()) {
             System.out.println("- " + bfa.getName());
         }
-        System.out.println("\nList of transitions:");
+        System.out.println("\nList of links:");
         for (Link l : this.getEdges()) {
             EndpointPair<BFA> pair = network.incidentNodes(l);
             System.out.println("- " + pair.nodeU().getName() + " -> " + l.getName() + " ->  " + pair.nodeV().getName());

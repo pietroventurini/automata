@@ -32,14 +32,17 @@ public class BSState implements IBSState {
     public Map<BFA, State> getBfas() {
         return bfas;
     }
+
     @Override
     public void setBfas(Map<BFA, State> bfas) {
         this.bfas = bfas;
     }
+
     @Override
     public Map<Link, String> getLinks() {
         return links;
     }
+
     @Override
     public void setLinks(Map<Link, String> links) {
         this.links = links;
@@ -92,14 +95,17 @@ public class BSState implements IBSState {
     @Override
     public String toString() {
         StringBuilder sb = new StringBuilder();
-        sb.append("name: " + name + '\n' +
-                "STATES" + '\n');
+        sb.append("Name: " + name + '\n' + "STATES" + '\n');
         for (BFA bfa : bfas.keySet()) {
             sb.append("\tBFA: " + bfa.getName() + ", state: " + bfas.get(bfa).getName() + '\n');
         }
         sb.append("LINKS" + '\n');
         for (Link l : links.keySet()) {
-            sb.append("\tLink: " + l.getName() + ", event: " + l.getEvent().orElse("ε") + '\n');
+            // l.getEvent().orElse("ε")
+            if (links.get(l) == null)
+                sb.append("\tLink: " + l.getName() + ", event: " + "ε" + '\n');
+            else
+                sb.append("\tLink: " + l.getName() + ", event: " + links.get(l) + '\n');
         }
         return sb.toString();
     }

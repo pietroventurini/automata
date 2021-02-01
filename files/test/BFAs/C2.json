@@ -1,1 +1,0 @@
-{"name":"C2","states":["20","21"],"initialState":"20","transitions":[{"name":"t2a","source":"20","target":"21","inEvent":"e2(L2)","outEvents":["e3(L3)"],"observabilityLabel":"","relevanceLabel":""},{"name":"t2b","source":"21","target":"20","inEvent":"","outEvents":["e3(L3)"],"observabilityLabel":"","relevanceLabel":""}]}

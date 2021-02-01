@@ -193,7 +193,6 @@ public class FATest {
     public void itShouldConvertFAtoJson() throws IOException {
         FA<FAState, Transition> fa = FAofPage9();
         FileUtils fileUtils = new FileUtils("test");
-
         // save
         fileUtils.storeFA(fa);
         // load

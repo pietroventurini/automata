@@ -87,7 +87,7 @@ public final class AcceptedLanguages {
             return acceptedLang;
         }
 
-        for (T t : network.outEdges(n0)) {
+        for (T t : markedTransitions.keySet()) {
             acceptedLang.put(markedTransitions.get(t), t.getSymbol());
         }
         return acceptedLang;
@@ -141,7 +141,6 @@ public final class AcceptedLanguages {
             // beta_q.isAcceptance(false);
             fa.getNetwork().addEdge(beta_q, nq, (T) new Transition(EPS)); // add eps-transition
         }
-
         fa.setAcceptanceStates(new HashSet<S>(Arrays.asList(nq)));
         return nq;
     }
@@ -224,7 +223,7 @@ public final class AcceptedLanguages {
             Set<T> marked = transitions.stream()
                     .filter(t -> markedTransitions.containsKey(t) && markedTransitions.get(t) == s)
                     .collect(Collectors.toSet());
-            if (!marked.isEmpty())
+            if (marked.size() > 1)
                 return marked;
         }
         return Collections.<T>emptySet();

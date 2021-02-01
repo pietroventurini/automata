@@ -47,6 +47,14 @@ public class BFANetworkCreator {
                 createLink();
                 break;
             case 2:
+                if (links.isEmpty()) {
+                    Utility.showMessageln("You need to create a link before you can insert it!");
+                    break;
+                }
+                if (bfas.size() < 2) {
+                    Utility.showMessageln("You can't place any link in a network consisting of only one BFA!");
+                    break;
+                }
                 putLink();
                 break;
             case 3:

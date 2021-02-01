@@ -31,19 +31,9 @@ public class BFACreator {
     public static final ImmutableList<String> OPTIONS = ImmutableList.of(OPTION1, OPTION2, OPTION3, OPTION4, OPTION5,
             OPTION0);
 
-    public BFA createBFA() {
+    public BFA createBFA(String name) {
         states = new ArrayList<>();
         transitions = new ArrayList<>();
-        String name = "";
-
-        do {
-            Utility.showMessage("\nInsert the name of the bfa: ");
-            Scanner keyboard = new Scanner(System.in);
-            name = keyboard.nextLine();
-            if (name.equals(""))
-                Utility.showMessageln("Please write something! ");
-        } while (name.equals(""));
-
         bfaBuilder = new BFABuilder(name);
 
         while (!exit) {
@@ -67,9 +57,20 @@ public class BFACreator {
                 createTransition();
                 break;
             case 3:
+                if (states.isEmpty()) {
+                    Utility.showMessageln("You need to create at least one state before placing a transition!");
+                    break;
+                } else if (transitions.isEmpty()) {
+                    Utility.showMessageln("You need to create at least one transition!");
+                    break;
+                }
                 putTransition();
                 break;
             case 4:
+                if (states.isEmpty()) {
+                    Utility.showMessageln("You need to create at least one state before selecting an initial state!");
+                    break;
+                }
                 selectInitialState();
                 break;
             case 5:
@@ -99,7 +100,7 @@ public class BFACreator {
                 out = true;
             } else if (checkIfExistsStateWithSameName(name)) {
                 Utility.showMessageln("You have already created a state with this name! ");
-                out = true;
+                return;
             }
         } while (out);
         state = new FAState(name);
@@ -125,8 +126,8 @@ public class BFACreator {
                 out = true;
                 Utility.showMessageln("Please write something!");
             } else if (checkIfExistsTransitionWithSameName(name)) {
-                out = true;
                 Utility.showMessageln("You have already created a transition with this name!");
+                return;
             }
         } while (out);
 

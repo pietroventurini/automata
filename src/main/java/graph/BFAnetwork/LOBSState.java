@@ -53,4 +53,19 @@ public class LOBSState extends BSState {
     public int hashCode() {
         return Objects.hash(this.getBfas(), this.getLinks(), observationIndex);
     }
+
+    @Override
+    public String toString() {
+        StringBuilder sb = new StringBuilder();
+        sb.append("name: " + this.getName() + '\n' + "STATES" + '\n');
+        for (BFA bfa : this.getBfas().keySet()) {
+            sb.append("\tBFA: " + bfa.getName() + ", state: " + this.getBfas().get(bfa).getName() + '\n');
+        }
+        sb.append("LINKS" + '\n');
+        for (Link l : this.getLinks().keySet()) {
+            sb.append("\tLink: " + l.getName() + ", event: " + l.getEvent().orElse("ε") + '\n');
+        }
+        sb.append("\nObservation index: " + this.getObservationIndex() + "\n");
+        return sb.toString();
+    }
 }

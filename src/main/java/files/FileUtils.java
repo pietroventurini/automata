@@ -170,7 +170,7 @@ public class FileUtils {
      * Store the benchmark of the computation of the behavioral space relating to a
      * linear observation. Duration has to be in ns.
      */
-    public void storeBSOfLinObsBenchmark(long duration, List<String> linObs) {
+    public void storeBSOfLinObsBenchmark(long duration, ArrayList<String> linObs) {
         List<Benchmark> bms = loadBenchmarks();
         String desc = BS + OF_LINOBS + linObs.toString();
         Benchmark b = new Benchmark(LocalDateTime.now(), desc, duration);
@@ -182,7 +182,7 @@ public class FileUtils {
      * Store the benchmark of the computation of the diagnosis relating to a linear
      * observation. Duration has to be in ns.
      */
-    public void storeDiagnosisOfLinObsBenchmark(long duration, List<String> linObs, String diagnosis) {
+    public void storeDiagnosisOfLinObsBenchmark(long duration, ArrayList<String> linObs, String diagnosis) {
         List<Benchmark> bms = loadBenchmarks();
         String desc = DIAGNOSIS_CALC + OF_LINOBS + linObs.toString() + ".\n" + DIAGNOSIS + diagnosis;
         Benchmark b = new Benchmark(LocalDateTime.now(), desc, duration);
@@ -230,10 +230,11 @@ public class FileUtils {
      * Store the benchmark of the computation of the diagnosis relating to a linear
      * observation using the diagnostician. Duration has to be in ns.
      */
-    public void storeDiagnosisOfLinObsWithDiagnosticianBenchmark(long duration, List<String> linObs, String diagnosis) {
+    public void storeDiagnosisOfLinObsWithDiagnosticianBenchmark(long duration, ArrayList<String> linObs,
+            String diagnosis) {
         List<Benchmark> bms = loadBenchmarks();
-        String desc = DIAGNOSIS_CALC + OF_LINOBS + linObs.toString() + USING_DIAGNOSTICIAN + ".\n" +
-                DIAGNOSIS + diagnosis;
+        String desc = DIAGNOSIS_CALC + OF_LINOBS + linObs.toString() + USING_DIAGNOSTICIAN + ".\n" + DIAGNOSIS
+                + diagnosis;
         Benchmark b = new Benchmark(LocalDateTime.now(), desc, duration);
         bms.add(b);
         storeBenchmarks(bms);
@@ -299,11 +300,10 @@ public class FileUtils {
                 benchmarks = new ArrayList<Benchmark>(Arrays.asList(deserialized));
             }
         } catch (IOException e) {
-            e.printStackTrace();
+
         }
         return benchmarks;
     }
-
 
     /**
      * Save the {@code json} object into file "{directory}/{fileName}" Note:

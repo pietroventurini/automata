@@ -17,9 +17,8 @@ import static graph.fa.Constants.EPS;
 /**
  * This class implements the functionality described by algorithms
  * EspressioneRegolare (page 9) and EspressioniRegolari (page 17), allowing to
- * retrieve the language accepted by a FA.
- * FIXME: Rewrite and re-organize the code in a better way !!!
- * FIXME: use generics and not raw types.
+ * retrieve the language accepted by a FA. FIXME: Rewrite and re-organize the
+ * code in a better way !!! FIXME: use generics and not raw types.
  *
  * @author Pietro Venturini
  */
@@ -29,15 +28,15 @@ public final class AcceptedLanguage {
     }
 
     /**
-     * Reduce the FA {@code finiteAutomata} to an equivalent regular expression describing the language
-     * accepted from the FA by applying the algorithm RegularExpression(Nin)
-     * described at page 11 of the project description.
+     * Reduce the FA {@code finiteAutomata} to an equivalent regular expression
+     * describing the language accepted from the FA by applying the algorithm
+     * RegularExpression(Nin) described at page 11 of the project description.
      * 
      * @return the accepted language
      */
-    public static final <S extends State, T extends Transition> String reduceFAtoRegex(FA<S,T> finiteAutomata) {
+    public static final <S extends State, T extends Transition> String reduceFAtoRegex(FA<S, T> finiteAutomata) {
 
-        FA<S,T> fa = FA.copyOf(finiteAutomata);
+        FA<S, T> fa = FA.copyOf(finiteAutomata);
 
         // retrieve the surrogate initial state and the surrogate acceptance state
         S n0 = createSurrogateInitialState(fa);
@@ -63,7 +62,7 @@ public final class AcceptedLanguage {
      * 
      * @return the surrogate initial FA.State n0
      */
-    private static final <S extends State, T extends Transition> S createSurrogateInitialState(FA<S,T> fa) {
+    private static final <S extends State, T extends Transition> S createSurrogateInitialState(FA<S, T> fa) {
         // retrieve the initial state
         S n0 = fa.getInitialState();
         if (fa.getNetwork().inDegree(n0) > 0) {
@@ -82,7 +81,7 @@ public final class AcceptedLanguage {
      * 
      * @return the surrogate acceptance FA.State nq
      */
-    private static final <S extends State, T extends Transition> S createSurrogateAcceptanceState(FA<S,T> fa) {
+    private static final <S extends State, T extends Transition> S createSurrogateAcceptanceState(FA<S, T> fa) {
         Set<S> acceptanceStates = fa.getAcceptanceStates();
 
         S nq = (S) new StateBuilder("nq").build();
@@ -117,8 +116,8 @@ public final class AcceptedLanguage {
      * 
      * @return true if such state exists, false otherwise
      */
-    private static final <S extends State, T extends Transition> boolean thereIsASequenceOfTransitions(FA<S,T> fa) {
-        MutableNetwork<S,T> network = fa.getNetwork();
+    private static final <S extends State, T extends Transition> boolean thereIsASequenceOfTransitions(FA<S, T> fa) {
+        MutableNetwork<S, T> network = fa.getNetwork();
         return network.nodes().stream().anyMatch(n -> network.inDegree(n) == 1 && network.outDegree(n) == 1);
     }
 
@@ -128,14 +127,13 @@ public final class AcceptedLanguage {
      * the original sequence. Note: differently from the algorithm from page 11,
      * here we do not enclose the new equivalent transition between brackets
      */
-    private static final <S extends State, T extends Transition> void concatenateSequenceOfTransitions(FA<S,T> fa) {
+    private static final <S extends State, T extends Transition> void concatenateSequenceOfTransitions(FA<S, T> fa) {
 
-        MutableNetwork<S,T> network = fa.getNetwork();
+        MutableNetwork<S, T> network = fa.getNetwork();
 
         // retrieve, if it exists, a node with a single incident edge and a single
         // outgoing edge
-        S intermediate = network.nodes().stream()
-                .filter(n -> network.inDegree(n) == 1 && network.outDegree(n) == 1)
+        S intermediate = network.nodes().stream().filter(n -> network.inDegree(n) == 1 && network.outDegree(n) == 1)
                 .findAny().get();
         if (intermediate == null)
             throw new NoSuchElementException();
@@ -164,8 +162,8 @@ public final class AcceptedLanguage {
      * 
      * @return
      */
-    private static final <S extends State, T extends Transition> Set<T> getParallelTransitions(FA<S,T> fa) {
-        MutableNetwork<S,T> network = fa.getNetwork();
+    private static final <S extends State, T extends Transition> Set<T> getParallelTransitions(FA<S, T> fa) {
+        MutableNetwork<S, T> network = fa.getNetwork();
         Set<T> transitions;
         for (S n1 : network.nodes()) {
             for (S n2 : network.nodes()) {
@@ -183,7 +181,7 @@ public final class AcceptedLanguage {
      * 
      * @return true such states exist, false otherwise
      */
-    private static final <S extends State, T extends Transition> boolean thereAreParallelTransitions(FA<S,T> fa) {
+    private static final <S extends State, T extends Transition> boolean thereAreParallelTransitions(FA<S, T> fa) {
         return getParallelTransitions(fa).isEmpty() ? false : true;
     }
 
@@ -191,8 +189,8 @@ public final class AcceptedLanguage {
      * (row 19 of page 11) Reduce a set of parallel transitions to a single
      * transition which symbol is the alternation between each transition's symbol.
      */
-    private static final <S extends State, T extends Transition> void reduceSetOfParallelTransitions(FA<S,T> fa) {
-        MutableNetwork<S,T> network = fa.getNetwork();
+    private static final <S extends State, T extends Transition> void reduceSetOfParallelTransitions(FA<S, T> fa) {
+        MutableNetwork<S, T> network = fa.getNetwork();
 
         // retrieve a set of parallel transitions
         Set<T> transitions = getParallelTransitions(fa);
@@ -214,10 +212,11 @@ public final class AcceptedLanguage {
     /**
      * (row 20-32 of page 11)
      */
-    private static final <S extends State, T extends Transition> void reduceRemainingNodes(FA<S,T> fa) {
-        MutableNetwork<S,T> network = fa.getNetwork();
+    private static final <S extends State, T extends Transition> void reduceRemainingNodes(FA<S, T> fa) {
+        MutableNetwork<S, T> network = fa.getNetwork();
 
-        //S n = network.nodes().stream().filter(not((Predicate<FAState>) FAState::isInitial).and(not(FAState::isAcceptance))).findAny().get();
+        // S n = network.nodes().stream().filter(not((Predicate<FAState>)
+        // FAState::isInitial).and(not(FAState::isAcceptance))).findAny().get();
         S n = Sets.difference(fa.getStates(), Sets.union(fa.getAcceptanceStates(), Set.of(fa.getInitialState())))
                 .stream().findAny().get();
 
@@ -228,7 +227,8 @@ public final class AcceptedLanguage {
         for (T t1 : ingoingTransitions) {
             for (T t2 : outgoingTransitions) {
                 // if none between t1 and t2 is the self-loop transition
-                if (!t1.equals(selfLoopTransition.get()) && !t2.equals(selfLoopTransition.get())) {
+                if (selfLoopTransition.isEmpty()
+                        || (!t1.equals(selfLoopTransition.get()) && !t2.equals(selfLoopTransition.get()))) {
                     S n1 = network.incidentNodes(t1).nodeU();
                     S n2 = network.incidentNodes(t2).nodeV();
                     if (selfLoopTransition.isPresent()) {

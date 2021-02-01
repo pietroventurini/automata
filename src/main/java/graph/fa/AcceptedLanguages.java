@@ -87,7 +87,7 @@ public final class AcceptedLanguages {
             return acceptedLang;
         }
 
-        for (T t : markedTransitions.keySet()) {
+        for (T t : network.outEdges(n0)) {
             acceptedLang.put(markedTransitions.get(t), t.getSymbol());
         }
         return acceptedLang;

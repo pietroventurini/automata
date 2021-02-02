@@ -231,7 +231,7 @@ public final class BFANetworkSupervisor {
      * @throws InvalidAlgorithmParameterException
      */
     public static final FA<LOBSState, BSTransition> getBehavioralSpaceForLinearObservation(BFANetwork bfaNetwork,
-            ArrayList<String> linearObservation) throws InvalidAlgorithmParameterException {
+            List<String> linearObservation) throws InvalidAlgorithmParameterException {
         FABuilder<LOBSState, BSTransition> faBuilder = new FABuilder<>();
         // Construct the initial state of the behavioral space relative to
         // linearObservation

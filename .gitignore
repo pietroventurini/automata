@@ -162,5 +162,6 @@ gradle-app.setting
 # files folder content except for test sub-folder
 files/*
 !files/test/
+!files/esempio_benchmark/
 
 javadoc/

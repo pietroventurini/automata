@@ -1,0 +1,126 @@
+{
+  "bfas": [
+    {
+      "name": "c2",
+      "states": [
+        "20",
+        "21"
+      ],
+      "initialState": "20",
+      "transitions": [
+        {
+          "name": "t2a",
+          "source": "20",
+          "target": "21",
+          "outEvents": [
+            "e3(L2)",
+            "e1(L1)"
+          ],
+          "observabilityLabel": "o1",
+          "relevanceLabel": ""
+        },
+        {
+          "name": "t2b",
+          "source": "21",
+          "target": "20",
+          "outEvents": [
+            "e1(L1)"
+          ],
+          "observabilityLabel": "o2",
+          "relevanceLabel": ""
+        }
+      ]
+    },
+    {
+      "name": "c1",
+      "states": [
+        "10",
+        "11"
+      ],
+      "initialState": "10",
+      "transitions": [
+        {
+          "name": "t1a",
+          "source": "10",
+          "target": "11",
+          "inEvent": "e1(L1)",
+          "outEvents": [],
+          "observabilityLabel": "",
+          "relevanceLabel": ""
+        },
+        {
+          "name": "t1b",
+          "source": "11",
+          "target": "10",
+          "inEvent": "e2(L3)",
+          "outEvents": [],
+          "observabilityLabel": "",
+          "relevanceLabel": ""
+        },
+        {
+          "name": "t1c",
+          "source": "10",
+          "target": "11",
+          "outEvents": [],
+          "observabilityLabel": "",
+          "relevanceLabel": "f1"
+        }
+      ]
+    },
+    {
+      "name": "c3",
+      "states": [
+        "30",
+        "31"
+      ],
+      "initialState": "30",
+      "transitions": [
+        {
+          "name": "t3a",
+          "source": "30",
+          "target": "31",
+          "outEvents": [
+            "e2(L3)"
+          ],
+          "observabilityLabel": "",
+          "relevanceLabel": ""
+        },
+        {
+          "name": "t3b",
+          "source": "31",
+          "target": "30",
+          "inEvent": "e3(L2)",
+          "outEvents": [],
+          "observabilityLabel": "",
+          "relevanceLabel": ""
+        },
+        {
+          "name": "t3c",
+          "source": "31",
+          "target": "31",
+          "inEvent": "e3(L2)",
+          "outEvents": [],
+          "observabilityLabel": "",
+          "relevanceLabel": "f3"
+        }
+      ]
+    }
+  ],
+  "links": [
+    {
+      "name": "L1",
+      "source": "c2",
+      "target": "c1"
+    },
+    {
+      "name": "L2",
+      "source": "c2",
+      "target": "c3"
+    },
+    {
+      "name": "L3",
+      "source": "c3",
+      "target": "c1"
+    }
+  ]
+}

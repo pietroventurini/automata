@@ -1,0 +1,36 @@
+{
+  "name": "c1",
+  "states": [
+    "10",
+    "11"
+  ],
+  "initialState": "10",
+  "transitions": [
+    {
+      "name": "t1a",
+      "source": "10",
+      "target": "11",
+      "inEvent": "e1(L1)",
+      "outEvents": [],
+      "observabilityLabel": "",
+      "relevanceLabel": ""
+    },
+    {
+      "name": "t1b",
+      "source": "11",
+      "target": "10",
+      "inEvent": "e2(L3)",
+      "outEvents": [],
+      "observabilityLabel": "",
+      "relevanceLabel": ""
+    },
+    {
+      "name": "t1c",
+      "source": "10",
+      "target": "11",
+      "outEvents": [],
+      "observabilityLabel": "",
+      "relevanceLabel": "f1"
+    }
+  ]
+}

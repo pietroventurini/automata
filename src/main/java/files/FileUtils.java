@@ -2,6 +2,7 @@ package files;
 
 import com.google.common.io.Files;
 import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
 import graph.BFAnetwork.BFANetwork;
 import graph.bfa.BFA;
 import graph.fa.FA;
@@ -42,7 +43,7 @@ public class FileUtils {
     private static final String FILES_ROOT = "files/";
 
     private String path;
-    private Gson gson = new Gson();
+    private Gson gson = new GsonBuilder().setPrettyPrinting().create();
 
     /**
      * Instantiate a FileUtils and set the working directory as

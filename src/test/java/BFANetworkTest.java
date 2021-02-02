@@ -385,7 +385,7 @@ public class BFANetworkTest {
      */
     @Disabled
     @Test
-    public void itShouldConvertFAtoJson() throws IOException {
+    public void itShouldConvertBFANetworktoJson() throws IOException {
         FileUtils fileUtils = new FileUtils("test");
 
         // save

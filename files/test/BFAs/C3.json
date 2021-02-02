@@ -1,1 +1,38 @@
-{"name":"C3","states":["1"],"initialState":"1","transitions":[]}
+{
+  "name": "C3",
+  "states": [
+    "30",
+    "31"
+  ],
+  "initialState": "30",
+  "transitions": [
+    {
+      "name": "t3a",
+      "source": "30",
+      "target": "31",
+      "outEvents": [
+        "e2(L2)"
+      ],
+      "observabilityLabel": "",
+      "relevanceLabel": ""
+    },
+    {
+      "name": "t3b",
+      "source": "31",
+      "target": "30",
+      "inEvent": "e3(L3)",
+      "outEvents": [],
+      "observabilityLabel": "",
+      "relevanceLabel": ""
+    },
+    {
+      "name": "t3c",
+      "source": "31",
+      "target": "31",
+      "inEvent": "e3(L3)",
+      "outEvents": [],
+      "observabilityLabel": "",
+      "relevanceLabel": ""
+    }
+  ]
+}

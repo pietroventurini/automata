@@ -1,1 +1,121 @@
-[{"date":{"date":{"year":2021,"month":1,"day":31},"time":{"hour":16,"minute":7,"second":55,"nano":744001400}},"description":"Computation of the behavioral space ","duration":4849400},{"date":{"date":{"year":2021,"month":1,"day":31},"time":{"hour":16,"minute":8,"second":21,"nano":574761500}},"description":"Computation of the silent closure of state 21 31 e2(L2) eps","duration":2480427700},{"date":{"date":{"year":2021,"month":1,"day":31},"time":{"hour":16,"minute":8,"second":27,"nano":522594000}},"description":"Computation of the decorated space of closures","duration":10534800},{"date":{"date":{"year":2021,"month":1,"day":31},"time":{"hour":16,"minute":8,"second":31,"nano":673749600}},"description":"Computation of the diagnostician","duration":237000},{"date":{"date":{"year":2021,"month":1,"day":31},"time":{"hour":16,"minute":9,"second":0,"nano":138451100}},"description":"Computation of the diagnosis relating to the linear observation [o3, o2, o3, o2].\nThe diagnosis is (fr|(r|r)f)fr|(fr|(r|r)f)f|(fr|(r|r)f)frf|(fr|(r|r)f)","duration":130790100},{"date":{"date":{"year":2021,"month":1,"day":31},"time":{"hour":16,"minute":9,"second":24,"nano":452019400}},"description":"Computation of the diagnosis relating to the linear observation [o3, o2, o3, o2]using the diagnostician.\nThe diagnosis is ((rf|fr)|rf)(f|fr|frf|)","duration":1113000},{"date":{"date":{"year":2021,"month":1,"day":31},"time":{"hour":16,"minute":13,"second":23,"nano":519594300}},"description":"Computation of the behavioral space ","duration":5554000},{"date":{"date":{"year":2021,"month":1,"day":31},"time":{"hour":16,"minute":13,"second":26,"nano":519972400}},"description":"Computation of the silent closure of state 21 31 e2(L2) eps","duration":1766536700},{"date":{"date":{"year":2021,"month":1,"day":31},"time":{"hour":20,"minute":13,"second":56,"nano":796436900}},"description":"Computation of the behavioral space ","duration":4078700},{"date":{"date":{"year":2021,"month":1,"day":31},"time":{"hour":20,"minute":16,"second":57,"nano":930997500}},"description":"Computation of the behavioral space ","duration":4290600},{"date":{"date":{"year":2021,"month":1,"day":31},"time":{"hour":20,"minute":20,"second":4,"nano":800296300}},"description":"Computation of the behavioral space ","duration":52657200},{"date":{"date":{"year":2021,"month":1,"day":31},"time":{"hour":20,"minute":20,"second":44,"nano":993290600}},"description":"Computation of the behavioral space ","duration":54195100},{"date":{"date":{"year":2021,"month":1,"day":31},"time":{"hour":20,"minute":22,"second":8,"nano":772917100}},"description":"Computation of the behavioral space ","duration":50404500},{"date":{"date":{"year":2021,"month":1,"day":31},"time":{"hour":20,"minute":23,"second":0,"nano":24456300}},"description":"Computation of the behavioral space ","duration":45958300},{"date":{"date":{"year":2021,"month":2,"day":2},"time":{"hour":10,"minute":59,"second":33,"nano":745689200}},"description":"Computation of the behavioral space ","duration":4627700},{"date":{"date":{"year":2021,"month":2,"day":2},"time":{"hour":11,"minute":22,"second":36,"nano":373331900}},"description":"Computation of the silent closure of state 21 30 eps e3(L3)","duration":262582948800},{"date":{"date":{"year":2021,"month":2,"day":2},"time":{"hour":11,"minute":22,"second":51,"nano":724577400}},"description":"Computation of the silent closure of state 21 31 e2(L2) eps","duration":1379981000},{"date":{"date":{"year":2021,"month":2,"day":2},"time":{"hour":11,"minute":22,"second":58,"nano":895154300}},"description":"Computation of the silent closure of state 21 31 e2(L2) e3(L3)","duration":2715441000},{"date":{"date":{"year":2021,"month":2,"day":2},"time":{"hour":11,"minute":24,"second":4,"nano":706870000}},"description":"Computation of the silent closure of state 21 31 eps e3(L3)","duration":6783755900},{"date":{"date":{"year":2021,"month":2,"day":2},"time":{"hour":11,"minute":26,"second":54,"nano":764730400}},"description":"Computation of the decorated space of closures","duration":4805500},{"date":{"date":{"year":2021,"month":2,"day":2},"time":{"hour":11,"minute":53,"second":34,"nano":485816800}},"description":"Computation of the decorated space of closures","duration":6177100},{"date":{"date":{"year":2021,"month":2,"day":2},"time":{"hour":12,"minute":33,"second":33,"nano":965995000}},"description":"Computation of the diagnosis relating to the linear observation [o3, o2].\nThe diagnosis is |f|frf|fr","duration":85415500}]
+[
+  {
+    "date": {
+      "date": {
+        "year": 2021,
+        "month": 2,
+        "day": 2
+      },
+      "time": {
+        "hour": 17,
+        "minute": 38,
+        "second": 13,
+        "nano": 956720000
+      }
+    },
+    "description": "Computation of the behavioral space ",
+    "duration": 3832981
+  },
+  {
+    "date": {
+      "date": {
+        "year": 2021,
+        "month": 2,
+        "day": 2
+      },
+      "time": {
+        "hour": 17,
+        "minute": 38,
+        "second": 33,
+        "nano": 981749000
+      }
+    },
+    "description": "Computation of the behavioral space ",
+    "duration": 3697032
+  },
+  {
+    "date": {
+      "date": {
+        "year": 2021,
+        "month": 2,
+        "day": 2
+      },
+      "time": {
+        "hour": 17,
+        "minute": 38,
+        "second": 42,
+        "nano": 1255000
+      }
+    },
+    "description": "Computation of the silent closure of state 20 31 e2(L2) e3(L3)",
+    "duration": 3008133745
+  },
+  {
+    "date": {
+      "date": {
+        "year": 2021,
+        "month": 2,
+        "day": 2
+      },
+      "time": {
+        "hour": 17,
+        "minute": 38,
+        "second": 45,
+        "nano": 25875000
+      }
+    },
+    "description": "Computation of the decorated space of closures",
+    "duration": 12791477
+  },
+  {
+    "date": {
+      "date": {
+        "year": 2021,
+        "month": 2,
+        "day": 2
+      },
+      "time": {
+        "hour": 17,
+        "minute": 38,
+        "second": 47,
+        "nano": 17663000
+      }
+    },
+    "description": "Computation of the diagnostician",
+    "duration": 387240
+  },
+  {
+    "date": {
+      "date": {
+        "year": 2021,
+        "month": 2,
+        "day": 2
+      },
+      "time": {
+        "hour": 17,
+        "minute": 39,
+        "second": 2,
+        "nano": 87448000
+      }
+    },
+    "description": "Computation of the diagnosis relating to the linear observation [o3, o2, o3, o2].\nThe diagnosis is (fr|(r|r)f)fr|(fr|(r|r)f)f|(fr|(r|r)f)|(fr|(r|r)f)frf",
+    "duration": 31021450
+  },
+  {
+    "date": {
+      "date": {
+        "year": 2021,
+        "month": 2,
+        "day": 2
+      },
+      "time": {
+        "hour": 17,
+        "minute": 39,
+        "second": 4,
+        "nano": 68912000
+      }
+    },
+    "description": "Computation of the diagnosis relating to the linear observation [o3, o2, o3, o2] using the diagnostician.\nThe diagnosis is ((fr|rf)|rf)(fr|frf||f)",
+    "duration": 5322746
+  }
+]

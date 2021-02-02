@@ -5,8 +5,7 @@ import java.util.Set;
 
 /**
  * This interface represents an edge with events associated to it. Examples of
- * such edges are Behavioral Spaces' transitions. FIXME: should this be an
- * abstract class?
+ * such edges are Behavioral Spaces' transitions.
  *
  * @author Pietro Venturini
  */

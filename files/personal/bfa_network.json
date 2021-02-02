@@ -1,0 +1,115 @@
+{
+  "bfas": [
+    {
+      "name": "B1",
+      "states": [
+        "10",
+        "11"
+      ],
+      "initialState": "10",
+      "transitions": [
+        {
+          "name": "t1a",
+          "source": "10",
+          "target": "10",
+          "outEvents": [
+            "e1(L1)"
+          ],
+          "observabilityLabel": "z1",
+          "relevanceLabel": "h"
+        },
+        {
+          "name": "t1b",
+          "source": "10",
+          "target": "11",
+          "inEvent": "e1(L2)",
+          "outEvents": [],
+          "observabilityLabel": "z2",
+          "relevanceLabel": ""
+        },
+        {
+          "name": "t1c",
+          "source": "11",
+          "target": "10",
+          "outEvents": [],
+          "observabilityLabel": "z3",
+          "relevanceLabel": "h"
+        },
+        {
+          "name": "t1d",
+          "source": "11",
+          "target": "11",
+          "inEvent": "e2(L2)",
+          "outEvents": [
+            "e2(L1)"
+          ],
+          "observabilityLabel": "",
+          "relevanceLabel": "w"
+        }
+      ]
+    },
+    {
+      "name": "B2",
+      "states": [
+        "20",
+        "21",
+        "22"
+      ],
+      "initialState": "20",
+      "transitions": [
+        {
+          "name": "t2a",
+          "source": "20",
+          "target": "21",
+          "inEvent": "e1(L1)",
+          "outEvents": [],
+          "observabilityLabel": "z2",
+          "relevanceLabel": ""
+        },
+        {
+          "name": "t2b",
+          "source": "21",
+          "target": "21",
+          "inEvent": "e1(L1)",
+          "outEvents": [
+            "e1(L2)"
+          ],
+          "observabilityLabel": "",
+          "relevanceLabel": ""
+        },
+        {
+          "name": "t2c",
+          "source": "21",
+          "target": "22",
+          "outEvents": [
+            "e2(L2)"
+          ],
+          "observabilityLabel": "",
+          "relevanceLabel": ""
+        },
+        {
+          "name": "t2d",
+          "source": "22",
+          "target": "21",
+          "outEvents": [
+            "e1(L2)"
+          ],
+          "observabilityLabel": "",
+          "relevanceLabel": "w"
+        }
+      ]
+    }
+  ],
+  "links": [
+    {
+      "name": "L1",
+      "source": "B1",
+      "target": "B2"
+    },
+    {
+      "name": "L2",
+      "source": "B2",
+      "target": "B1"
+    }
+  ]
+}

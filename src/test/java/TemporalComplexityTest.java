@@ -10,6 +10,7 @@ import graph.BFAnetwork.LOBSState;
 import graph.fa.AcceptedLanguages;
 import graph.fa.FA;
 
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -22,6 +23,7 @@ import java.util.Map;
 
 import org.junit.jupiter.api.BeforeEach;
 
+@Disabled
 public class TemporalComplexityTest {
     private static final int ITERATIONS = 10000;
     private Map<BFANetwork, String> bfaNetworks;

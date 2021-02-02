@@ -419,8 +419,7 @@ public final class AcceptedLanguages {
      * Enclose a string within brackets, for example "abc" becomes "(abc)"
      * 
      * @param expression the string to enclose
-     * @return the string enclosed within brackets FIXME: move method to a utility
-     *         class
+     * @return the string enclosed within brackets
      */
     private static String betweenBrackets(String expression) {
         return "(" + expression + ")";

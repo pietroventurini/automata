@@ -36,7 +36,6 @@ public class Transition implements EdgeWithSymbol {
      * 
      * @param newSymbol the non-empty symbol that will become an alternative to the
      *                  existing one
-     * FIXME: move method to a utility class
      */
     public void addAlternativeSymbol(String newSymbol) {
         // reduce (a|"") to (a)

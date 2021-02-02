@@ -11,8 +11,6 @@ import static com.google.common.base.Preconditions.checkNotNull;
 /**
  * This class represents the common structure to all types of FAs. FAs, BFAs and Behavioral spaces
  * all have an initial state.
- * TODO: since we added setter methods, we lost guarantee of the fa's validity. We should check validation after
- *   a invoking any mutator method.
  * @param <S> The type of states
  * @param <T> The type of transitions
  */

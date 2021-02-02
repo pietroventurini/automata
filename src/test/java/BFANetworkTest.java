@@ -352,6 +352,7 @@ public class BFANetworkTest {
 
     }
 
+    @Disabled
     @Test
     public void itShouldComputeDiagnostician() {
         FA<FA<DBSState, BSTransition>, DSCTransition> space = BFANetworkSupervisor
@@ -364,6 +365,7 @@ public class BFANetworkTest {
         assertEquals("", d.getDiagnosisOf(x0));
     }
 
+    @Disabled
     @Test
     public void itShouldComputeLinearDiagnosis() {
         FA<FA<DBSState, BSTransition>, DSCTransition> space = BFANetworkSupervisor

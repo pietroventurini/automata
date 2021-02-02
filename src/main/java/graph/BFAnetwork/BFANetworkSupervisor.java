@@ -403,10 +403,6 @@ public final class BFANetworkSupervisor {
      *         the corresponding decorations
      */
     public static FA<DBSState, BSTransition> decoratedSilentClosure(FA<BSState, BSTransition> silentClosure) {
-        // FIXME: Se silentClosure ha un solo stato (es. chiusura x0 di pag. 67)
-        // AcceptedLanguages restituisce una
-        // mappa vuota {} invece che una mappa {(0 -> "")} dove con "" si intende
-        // epsilon.
         Map<BSState, String> acceptedLanguages = AcceptedLanguages.reduceFAtoMapOfRegex(silentClosure);
         MutableNetwork<BSState, BSTransition> network = silentClosure.getNetwork();
 

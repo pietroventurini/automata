@@ -160,8 +160,9 @@ gradle-app.setting
 **/build/
 
 # files folder content except for test sub-folder
-files/*
-!files/test/
-!files/esempio_benchmark/
+src/main/resources/files/*
+!src/main/resources/files/test/
+!src/main/resources/files/esempio_benchmark/
+!src/main/resources/files/personal/
 
 javadoc/

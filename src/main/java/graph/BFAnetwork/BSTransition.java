@@ -1,9 +1,11 @@
 package graph.BFAnetwork;
 
-import graph.bfa.BFA;
 import graph.edges.EdgeWithName;
 import graph.fa.Transition;
 
+/**
+ * A transition of a behavioral space.
+ */
 public class BSTransition extends Transition implements EdgeWithName {
 
     private String observabilityLabel;

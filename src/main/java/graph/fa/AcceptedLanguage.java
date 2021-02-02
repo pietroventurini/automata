@@ -17,8 +17,7 @@ import static graph.fa.Constants.EPS;
 /**
  * This class implements the functionality described by algorithms
  * EspressioneRegolare (page 9) and EspressioniRegolari (page 17), allowing to
- * retrieve the language accepted by a FA. FIXME: Rewrite and re-organize the
- * code in a better way !!! FIXME: use generics and not raw types.
+ * retrieve the language accepted by a FA.
  *
  * @author Pietro Venturini
  */
@@ -250,8 +249,7 @@ public final class AcceptedLanguage {
      * Enclose a string within brackets, for example "abc" becomes "(abc)"
      * 
      * @param expression the string to enclose
-     * @return the string enclosed within brackets FIXME: move method to a utility
-     *         class
+     * @return the string enclosed within brackets
      */
     private static String betweenBrackets(String expression) {
         return "(" + expression + ")";

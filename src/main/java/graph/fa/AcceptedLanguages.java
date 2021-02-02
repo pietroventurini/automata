@@ -45,10 +45,6 @@ public final class AcceptedLanguages {
      *                       languages
      * @return a Map associating to each acceptance state the corresponding accepted
      *         language
-     *
-     *         FIXME: Se markedTransitions fosse una mappa <Stato, Transizione>
-     *         invece che <Transizione, Stato>? In quel modo potremmo direttamente
-     *         restituire la mappa <stato --> markedTransition.getSymbol()>
      */
     public static final <S extends State, T extends Transition> Map<S, String> reduceFAtoMapOfRegex(
             FA<S, T> finiteAutomata) {
@@ -96,9 +92,7 @@ public final class AcceptedLanguages {
     private static final <S extends State, T extends Transition> boolean areThereMultipleTransitionsWithSamePedix(
             List<S> acceptedStates, Map<T, S> markedTransitions) {
         for (S s : acceptedStates) {
-            if (markedTransitions.keySet().stream().filter(t -> markedTransitions.get(t) == s).count() > 1) { // FIXME:
-                                                                                                              // '==' o
-                                                                                                              // 'equals'?
+            if (markedTransitions.keySet().stream().filter(t -> markedTransitions.get(t) == s).count() > 1) { // '==' o 'equals'?
                 return true;
             }
         }
@@ -176,8 +170,6 @@ public final class AcceptedLanguages {
                 n -> markedTransitions.containsKey(network.outEdges(n).stream().collect(MoreCollectors.onlyElement())))
                 .collect(Collectors.toSet());
 
-        // FIXME: non potremmo sostituire tutto quello che segue con "return
-        // markedSequences;" ??
         if (!markedSequences.isEmpty())
             return markedSequences;
 

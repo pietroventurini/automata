@@ -12,8 +12,6 @@ import java.util.Set;
  * state, and a finite set of transitions. We distinguish acceptance states from
  * those which aren't.
  *
- * TODO: since we added setter methods, we lost guarantee of the fa's validity. We should check validation after
- *  invoking any mutator method.
  * @author Pietro Venturini
  */
 public class FA<S extends State, T extends Transition> extends AbstractFA<S, T> {

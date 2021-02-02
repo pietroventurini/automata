@@ -1,5 +1,6 @@
 package graph.BFAnetwork;
 
+import graph.bfa.BFA;
 import graph.edges.EdgeWithName;
 import graph.fa.Transition;
 
@@ -40,15 +41,29 @@ public class BSTransition extends Transition implements EdgeWithName {
         return observabilityLabel;
     }
 
-    public void setObservabilityLabel(String observabilityLabel) {
-        this.observabilityLabel = observabilityLabel;
-    }
-
+    /**
+     * check that the transition has an observability label
+     */
     public boolean hasObservabilityLabel() {
         return observabilityLabel != null && !observabilityLabel.isEmpty();
     }
 
+    public void setObservabilityLabel(String observabilityLabel) {
+        this.observabilityLabel = observabilityLabel;
+    }
+
+    /**
+     * check that the transition has a relevance label
+     */
     public boolean hasRelevanceLabel() {
         return relevanceLabel != null && !relevanceLabel.isEmpty();
+    }
+
+
+    @Override
+    public String toString() {
+        return "name: " + name + '\n' +
+        "observability label: " + observabilityLabel + '\n' +
+        "relevance label: " + relevanceLabel;
     }
 }

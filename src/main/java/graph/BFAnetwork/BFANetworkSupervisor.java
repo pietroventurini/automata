@@ -496,8 +496,8 @@ public final class BFANetworkSupervisor {
                     if (t.hasObservabilityLabel()) {
                         BSState target = behavioralSpace.getNetwork().incidentNodes(t).target();
                         FA<DBSState, BSTransition> sc2 = decoratedSilentClosures.get(target);
-                        faBuilder.putTransition(sc1, sc2, new DSCTransition(t.getName(),
-                                source.getDecoration() + t.getRelevanceLabel(), t.getObservabilityLabel()));
+                        faBuilder.putTransition(sc1, sc2,
+                                new DSCTransition(t.getName(),source.getDecoration() + t.getRelevanceLabel(), t.getObservabilityLabel()));
                     }
                 }
             }
@@ -521,7 +521,6 @@ public final class BFANetworkSupervisor {
         for (FA<DBSState, BSTransition> silentClosure : decoratedSpaceOfClosures.getStates()) {
             // compute the diagnosis of the silent closure
             Map<DBSState, String> diagnosisOfS = diagnosis(silentClosure);
-            // FAState s = new FAState(silentClosure.getName());
             FAState s = new FAState(silentClosure.getName());
             if (diagnosisOfS.size() > 0) {
                 diagnosis.put(s, diagnosisOfS);

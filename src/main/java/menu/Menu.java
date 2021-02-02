@@ -55,9 +55,9 @@ public class Menu {
     }
 
     private void printHeader() {
-        Utility.showMessageln("\n+----------------------------------------+");
-        Utility.showMessageln("|         Welcome to our project         |");
-        Utility.showMessageln("+----------------------------------------+");
+        Utility.showMessageln("\n+-----------------------------------------+");
+        Utility.showMessageln("|         Welcome to your project         |");
+        Utility.showMessageln("+-----------------------------------------+");
     }
 
     private void performAction(int choice) {

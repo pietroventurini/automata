@@ -211,7 +211,6 @@ public class Supervisor {
                 out = true;
             } else if (checkIfExistsStateWithSameName(name)) {
                 Utility.showMessageln("There is already a state with this name! ");
-                out = true;
             } else {
                 state.setName(name);
                 Utility.showMessage("\nType 1 to continue or 0 to stop: ");
@@ -273,7 +272,6 @@ public class Supervisor {
                 out = true;
             } else if (checkIfExistsClosureWithSameName(name)) {
                 Utility.showMessageln("There is already a closure with this name! ");
-                out = true;
             } else {
                 closure.setName(name);
                 Utility.showMessage("\nType 1 to continue or 0 to stop: ");

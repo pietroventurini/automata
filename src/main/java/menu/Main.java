@@ -36,6 +36,10 @@ public class Main {
                 exit = true;
                 break;
             case 1:
+                if (FileUtils.getProjectsList().isEmpty()) {
+                    Utility.showMessage("There isn't any project available!");
+                    break;
+                }
                 openExistingProject();
                 break;
             case 2:

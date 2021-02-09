@@ -1,0 +1,750 @@
+[
+  {
+    "date": {
+      "date": {
+        "year": 2021,
+        "month": 1,
+        "day": 31
+      },
+      "time": {
+        "hour": 22,
+        "minute": 22,
+        "second": 1,
+        "nano": 173761800
+      }
+    },
+    "description": "Computation of the behavioral space ",
+    "duration": 5398800
+  },
+  {
+    "date": {
+      "date": {
+        "year": 2021,
+        "month": 1,
+        "day": 31
+      },
+      "time": {
+        "hour": 22,
+        "minute": 27,
+        "second": 45,
+        "nano": 154716900
+      }
+    },
+    "description": "Computation of the diagnosis relating to the linear observation [act, sby, nop].\nThe diagnosis is (f3(f2f3)*)",
+    "duration": 77229200
+  },
+  {
+    "date": {
+      "date": {
+        "year": 2021,
+        "month": 1,
+        "day": 31
+      },
+      "time": {
+        "hour": 22,
+        "minute": 36,
+        "second": 42,
+        "nano": 516673700
+      }
+    },
+    "description": "Computation of the silent closure of state 1 1 eps",
+    "duration": 127694391800
+  },
+  {
+    "date": {
+      "date": {
+        "year": 2021,
+        "month": 1,
+        "day": 31
+      },
+      "time": {
+        "hour": 22,
+        "minute": 39,
+        "second": 48,
+        "nano": 338872300
+      }
+    },
+    "description": "Computation of the behavioral space ",
+    "duration": 5854800
+  },
+  {
+    "date": {
+      "date": {
+        "year": 2021,
+        "month": 1,
+        "day": 31
+      },
+      "time": {
+        "hour": 22,
+        "minute": 40,
+        "second": 35,
+        "nano": 64837900
+      }
+    },
+    "description": "Computation of the behavioral space ",
+    "duration": 4356100
+  },
+  {
+    "date": {
+      "date": {
+        "year": 2021,
+        "month": 1,
+        "day": 31
+      },
+      "time": {
+        "hour": 22,
+        "minute": 44,
+        "second": 49,
+        "nano": 140420700
+      }
+    },
+    "description": "Computation of the behavioral space ",
+    "duration": 8446800
+  },
+  {
+    "date": {
+      "date": {
+        "year": 2021,
+        "month": 1,
+        "day": 31
+      },
+      "time": {
+        "hour": 22,
+        "minute": 45,
+        "second": 42,
+        "nano": 159778100
+      }
+    },
+    "description": "Computation of the silent closure of state 0 0 eps",
+    "duration": 5691005900
+  },
+  {
+    "date": {
+      "date": {
+        "year": 2021,
+        "month": 1,
+        "day": 31
+      },
+      "time": {
+        "hour": 22,
+        "minute": 47,
+        "second": 12,
+        "nano": 651749300
+      }
+    },
+    "description": "Computation of the silent closure of state 0 1 op(L)",
+    "duration": 18431634200
+  },
+  {
+    "date": {
+      "date": {
+        "year": 2021,
+        "month": 1,
+        "day": 31
+      },
+      "time": {
+        "hour": 23,
+        "minute": 0,
+        "second": 4,
+        "nano": 651484800
+      }
+    },
+    "description": "Computation of the silent closure of state 0 0 cl(L)",
+    "duration": 18668256000
+  },
+  {
+    "date": {
+      "date": {
+        "year": 2021,
+        "month": 1,
+        "day": 31
+      },
+      "time": {
+        "hour": 23,
+        "minute": 2,
+        "second": 19,
+        "nano": 249958600
+      }
+    },
+    "description": "Computation of the silent closure of state 1 1 op(L)",
+    "duration": 6694605300
+  },
+  {
+    "date": {
+      "date": {
+        "year": 2021,
+        "month": 1,
+        "day": 31
+      },
+      "time": {
+        "hour": 23,
+        "minute": 3,
+        "second": 5,
+        "nano": 780167800
+      }
+    },
+    "description": "Computation of the silent closure of state 1 1 eps",
+    "duration": 8613982200
+  },
+  {
+    "date": {
+      "date": {
+        "year": 2021,
+        "month": 1,
+        "day": 31
+      },
+      "time": {
+        "hour": 23,
+        "minute": 3,
+        "second": 15,
+        "nano": 282968500
+      }
+    },
+    "description": "Computation of the silent closure of state 1 0 eps",
+    "duration": 7710298700
+  },
+  {
+    "date": {
+      "date": {
+        "year": 2021,
+        "month": 1,
+        "day": 31
+      },
+      "time": {
+        "hour": 23,
+        "minute": 27,
+        "second": 57,
+        "nano": 724004400
+      }
+    },
+    "description": "Computation of the silent closure of state 0 1 op(L)",
+    "duration": 9709768500
+  },
+  {
+    "date": {
+      "date": {
+        "year": 2021,
+        "month": 2,
+        "day": 1
+      },
+      "time": {
+        "hour": 1,
+        "minute": 14,
+        "second": 54,
+        "nano": 742534800
+      }
+    },
+    "description": "Computation of the behavioral space ",
+    "duration": 4552601
+  },
+  {
+    "date": {
+      "date": {
+        "year": 2021,
+        "month": 2,
+        "day": 1
+      },
+      "time": {
+        "hour": 1,
+        "minute": 19,
+        "second": 41,
+        "nano": 434759200
+      }
+    },
+    "description": "Computation of the behavioral space ",
+    "duration": 7676800
+  },
+  {
+    "date": {
+      "date": {
+        "year": 2021,
+        "month": 2,
+        "day": 1
+      },
+      "time": {
+        "hour": 1,
+        "minute": 25,
+        "second": 38,
+        "nano": 69796200
+      }
+    },
+    "description": "Computation of the behavioral space ",
+    "duration": 7606000
+  },
+  {
+    "date": {
+      "date": {
+        "year": 2021,
+        "month": 2,
+        "day": 1
+      },
+      "time": {
+        "hour": 1,
+        "minute": 25,
+        "second": 57,
+        "nano": 401170300
+      }
+    },
+    "description": "Computation of the silent closure of state 0",
+    "duration": 17624787500
+  },
+  {
+    "date": {
+      "date": {
+        "year": 2021,
+        "month": 2,
+        "day": 1
+      },
+      "time": {
+        "hour": 1,
+        "minute": 26,
+        "second": 17,
+        "nano": 822925200
+      }
+    },
+    "description": "Computation of the silent closure of state 1",
+    "duration": 3121660699
+  },
+  {
+    "date": {
+      "date": {
+        "year": 2021,
+        "month": 2,
+        "day": 1
+      },
+      "time": {
+        "hour": 1,
+        "minute": 27,
+        "second": 3,
+        "nano": 100582400
+      }
+    },
+    "description": "Computation of the silent closure of state 2",
+    "duration": 4990216800
+  },
+  {
+    "date": {
+      "date": {
+        "year": 2021,
+        "month": 2,
+        "day": 1
+      },
+      "time": {
+        "hour": 1,
+        "minute": 27,
+        "second": 22,
+        "nano": 238167000
+      }
+    },
+    "description": "Computation of the silent closure of state 3",
+    "duration": 5122240000
+  },
+  {
+    "date": {
+      "date": {
+        "year": 2021,
+        "month": 2,
+        "day": 1
+      },
+      "time": {
+        "hour": 1,
+        "minute": 27,
+        "second": 44,
+        "nano": 269833100
+      }
+    },
+    "description": "Computation of the silent closure of state 4",
+    "duration": 3557110100
+  },
+  {
+    "date": {
+      "date": {
+        "year": 2021,
+        "month": 2,
+        "day": 1
+      },
+      "time": {
+        "hour": 1,
+        "minute": 28,
+        "second": 16,
+        "nano": 299218000
+      }
+    },
+    "description": "Computation of the silent closure of state 5",
+    "duration": 2935030400
+  },
+  {
+    "date": {
+      "date": {
+        "year": 2021,
+        "month": 2,
+        "day": 1
+      },
+      "time": {
+        "hour": 1,
+        "minute": 28,
+        "second": 47,
+        "nano": 794980700
+      }
+    },
+    "description": "Computation of the silent closure of state 6",
+    "duration": 8657491000
+  },
+  {
+    "date": {
+      "date": {
+        "year": 2021,
+        "month": 2,
+        "day": 1
+      },
+      "time": {
+        "hour": 1,
+        "minute": 28,
+        "second": 55,
+        "nano": 380871500
+      }
+    },
+    "description": "Computation of the silent closure of state 7",
+    "duration": 3012751100
+  },
+  {
+    "date": {
+      "date": {
+        "year": 2021,
+        "month": 2,
+        "day": 1
+      },
+      "time": {
+        "hour": 1,
+        "minute": 46,
+        "second": 44,
+        "nano": 342675800
+      }
+    },
+    "description": "Computation of the behavioral space ",
+    "duration": 6883600
+  },
+  {
+    "date": {
+      "date": {
+        "year": 2021,
+        "month": 2,
+        "day": 1
+      },
+      "time": {
+        "hour": 1,
+        "minute": 46,
+        "second": 48,
+        "nano": 251790100
+      }
+    },
+    "description": "Computation of the decorated space of closures",
+    "duration": 11282600
+  },
+  {
+    "date": {
+      "date": {
+        "year": 2021,
+        "month": 2,
+        "day": 1
+      },
+      "time": {
+        "hour": 2,
+        "minute": 5,
+        "second": 45,
+        "nano": 736791800
+      }
+    },
+    "description": "Computation of the decorated space of closures",
+    "duration": 7955900
+  },
+  {
+    "date": {
+      "date": {
+        "year": 2021,
+        "month": 2,
+        "day": 1
+      },
+      "time": {
+        "hour": 2,
+        "minute": 9,
+        "second": 52,
+        "nano": 881612900
+      }
+    },
+    "description": "Computation of the diagnostician",
+    "duration": 332100
+  },
+  {
+    "date": {
+      "date": {
+        "year": 2021,
+        "month": 2,
+        "day": 1
+      },
+      "time": {
+        "hour": 2,
+        "minute": 10,
+        "second": 24,
+        "nano": 969659700
+      }
+    },
+    "description": "Computation of the diagnosis relating to the linear observation [act, sby, nop].\nThe diagnosis is (f3(f2f3)*)",
+    "duration": 48316801
+  },
+  {
+    "date": {
+      "date": {
+        "year": 2021,
+        "month": 2,
+        "day": 1
+      },
+      "time": {
+        "hour": 2,
+        "minute": 10,
+        "second": 35,
+        "nano": 214572800
+      }
+    },
+    "description": "Computation of the diagnosis relating to the linear observation [act, sby, nop] using the diagnostician.\nThe diagnosis is (null((f3f2)*f3))(null)",
+    "duration": 955800
+  },
+  {
+    "date": {
+      "date": {
+        "year": 2021,
+        "month": 2,
+        "day": 1
+      },
+      "time": {
+        "hour": 2,
+        "minute": 51,
+        "second": 10,
+        "nano": 534716800
+      }
+    },
+    "description": "Computation of the decorated space of closures",
+    "duration": 14903500
+  },
+  {
+    "date": {
+      "date": {
+        "year": 2021,
+        "month": 2,
+        "day": 1
+      },
+      "time": {
+        "hour": 2,
+        "minute": 51,
+        "second": 12,
+        "nano": 908794900
+      }
+    },
+    "description": "Computation of the diagnostician",
+    "duration": 306200
+  },
+  {
+    "date": {
+      "date": {
+        "year": 2021,
+        "month": 2,
+        "day": 1
+      },
+      "time": {
+        "hour": 2,
+        "minute": 51,
+        "second": 33,
+        "nano": 676740900
+      }
+    },
+    "description": "Computation of the diagnosis relating to the linear observation [act, sby, nop].\nThe diagnosis is (f3(f2f3)*)",
+    "duration": 37401100
+  },
+  {
+    "date": {
+      "date": {
+        "year": 2021,
+        "month": 2,
+        "day": 1
+      },
+      "time": {
+        "hour": 2,
+        "minute": 51,
+        "second": 46,
+        "nano": 221500100
+      }
+    },
+    "description": "Computation of the diagnosis relating to the linear observation [act, sby, nop] using the diagnostician.\nThe diagnosis is (null((f3f2)*f3))(null)",
+    "duration": 1237800
+  },
+  {
+    "date": {
+      "date": {
+        "year": 2021,
+        "month": 2,
+        "day": 1
+      },
+      "time": {
+        "hour": 2,
+        "minute": 54,
+        "second": 36,
+        "nano": 823967700
+      }
+    },
+    "description": "Computation of the diagnosis relating to the linear observation [act, opn, sby, act, nop].\nThe diagnosis is (((f3f2)*)f4(f1f4)*)",
+    "duration": 49208400
+  },
+  {
+    "date": {
+      "date": {
+        "year": 2021,
+        "month": 2,
+        "day": 1
+      },
+      "time": {
+        "hour": 2,
+        "minute": 54,
+        "second": 42,
+        "nano": 765496600
+      }
+    },
+    "description": "Computation of the diagnosis relating to the linear observation [act, opn, sby, act, nop] using the diagnostician.\nThe diagnosis is (null((f3f2)*)null(f4(f1f4)*))(null)",
+    "duration": 988700
+  },
+  {
+    "date": {
+      "date": {
+        "year": 2021,
+        "month": 2,
+        "day": 1
+      },
+      "time": {
+        "hour": 2,
+        "minute": 58,
+        "second": 59,
+        "nano": 67486000
+      }
+    },
+    "description": "Computation of the diagnosis relating to the linear observation [act, sby, nop].\nThe diagnosis is (f3(f2f3)*)",
+    "duration": 149146600
+  },
+  {
+    "date": {
+      "date": {
+        "year": 2021,
+        "month": 2,
+        "day": 1
+      },
+      "time": {
+        "hour": 2,
+        "minute": 59,
+        "second": 3,
+        "nano": 676559200
+      }
+    },
+    "description": "Computation of the diagnosis relating to the linear observation [act, sby, nop] using the diagnostician.\nThe diagnosis is (((f3f2)*f3))()",
+    "duration": 15832400
+  },
+  {
+    "date": {
+      "date": {
+        "year": 2021,
+        "month": 2,
+        "day": 1
+      },
+      "time": {
+        "hour": 3,
+        "minute": 0,
+        "second": 44,
+        "nano": 845319100
+      }
+    },
+    "description": "Computation of the diagnosis relating to the linear observation [opn, act, cls, opn, nop, sby, cls, act].\nThe diagnosis is ((((f1f5(f1f4)*f6)f2(f3f2)*f2)(f4f1)*)f3(f2f3)*)",
+    "duration": 111926600
+  },
+  {
+    "date": {
+      "date": {
+        "year": 2021,
+        "month": 2,
+        "day": 1
+      },
+      "time": {
+        "hour": 3,
+        "minute": 1,
+        "second": 4,
+        "nano": 878894100
+      }
+    },
+    "description": "Computation of the diagnosis relating to the linear observation [opn, act, cls, opn, nop, sby, cls, act] using the diagnostician.\nThe diagnosis is (((((((f1f5((|(f1(f4f1)*f4))))f6)(f2(f3f2)*))f2))((|(f4(f1f4)*f1)))))(((f3f2)*f3))",
+    "duration": 187600
+  },
+  {
+    "date": {
+      "date": {
+        "year": 2021,
+        "month": 2,
+        "day": 2
+      },
+      "time": {
+        "hour": 10,
+        "minute": 55,
+        "second": 16,
+        "nano": 470940000
+      }
+    },
+    "description": "Computation of the behavioral space ",
+    "duration": 4650600
+  },
+  {
+    "date": {
+      "date": {
+        "year": 2021,
+        "month": 2,
+        "day": 2
+      },
+      "time": {
+        "hour": 18,
+        "minute": 19,
+        "second": 29,
+        "nano": 938376700
+      }
+    },
+    "description": "Computation of the behavioral space ",
+    "duration": 7980600
+  },
+  {
+    "date": {
+      "date": {
+        "year": 2021,
+        "month": 2,
+        "day": 2
+      },
+      "time": {
+        "hour": 18,
+        "minute": 19,
+        "second": 49,
+        "nano": 831375000
+      }
+    },
+    "description": "Computation of the decorated space of closures",
+    "duration": 13762900
+  },
+  {
+    "date": {
+      "date": {
+        "year": 2021,
+        "month": 2,
+        "day": 2
+      },
+      "time": {
+        "hour": 18,
+        "minute": 19,
+        "second": 55,
+        "nano": 81140200
+      }
+    },
+    "description": "Computation of the diagnostician",
+    "duration": 275200
+  }
+]

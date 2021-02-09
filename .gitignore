@@ -164,5 +164,6 @@ src/main/resources/files/*
 !src/main/resources/files/test/
 !src/main/resources/files/esempio_benchmark/
 !src/main/resources/files/personal/
+!src/main/resources/files/production/
 
 javadoc/

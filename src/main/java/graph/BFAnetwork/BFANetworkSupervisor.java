@@ -329,7 +329,6 @@ public final class BFANetworkSupervisor {
         Set<N> visited = new HashSet<>();
         visited.add(n);
         queue.add(n);
-
         while (!queue.isEmpty()) {
             N current = queue.remove();
             for (N neighbor : network.successors(current)) {
@@ -338,7 +337,6 @@ public final class BFANetworkSupervisor {
                 }
             }
         }
-
         return visited;
     }
 
@@ -386,9 +384,6 @@ public final class BFANetworkSupervisor {
                 .collect(Collectors.toSet());
 
         Set<S> acceptanceStates = Sets.union(finalStates, exitStates);
-
-        // mark acceptance states as such
-        // acceptanceStates.forEach(s -> s.isAcceptance(true));
 
         FA<S, BSTransition> silentClosure = new FA<>(state.getName(), inducedSubgraph, state, acceptanceStates,
                 finalStates);
@@ -612,7 +607,6 @@ public final class BFANetworkSupervisor {
                         // r2 = "(" + Xnew.get(x2) + ")|(" + r2 + ")";
                         Xnew.replace(x2, r2);
                     } else {
-
                         Xnew.put(x2, r2);
                     }
                 }

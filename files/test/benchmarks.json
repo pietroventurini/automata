@@ -117,5 +117,39 @@
     },
     "description": "Computation of the diagnosis relating to the linear observation [o3, o2, o3, o2] using the diagnostician.\nThe diagnosis is ((fr|rf)|rf)(fr|frf||f)",
     "duration": 5322746
+  },
+  {
+    "date": {
+      "date": {
+        "year": 2021,
+        "month": 2,
+        "day": 9
+      },
+      "time": {
+        "hour": 14,
+        "minute": 35,
+        "second": 39,
+        "nano": 570949000
+      }
+    },
+    "description": "Computation of the diagnosis relating to the linear observation [o3, o2] using the diagnostician.\nThe diagnosis is ()(frf||f|fr)",
+    "duration": 1708352
+  },
+  {
+    "date": {
+      "date": {
+        "year": 2021,
+        "month": 2,
+        "day": 9
+      },
+      "time": {
+        "hour": 14,
+        "minute": 35,
+        "second": 54,
+        "nano": 109656000
+      }
+    },
+    "description": "Computation of the diagnosis relating to the linear observation [o3, o2].\nThe diagnosis is |f|frf|fr",
+    "duration": 19445009
   }
 ]

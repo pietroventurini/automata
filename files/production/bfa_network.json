@@ -1,0 +1,127 @@
+{
+  "bfas": [
+    {
+      "name": "A",
+      "states": [
+        "AG",
+        "A0",
+        "AD"
+      ],
+      "initialState": "A0",
+      "transitions": [
+        {
+          "name": "produceA",
+          "source": "A0",
+          "target": "AG",
+          "outEvents": [
+            "A"
+          ],
+          "observabilityLabel": "A",
+          "relevanceLabel": ""
+        },
+        {
+          "name": "delayA",
+          "source": "A0",
+          "target": "AD",
+          "outEvents": [],
+          "observabilityLabel": "",
+          "relevanceLabel": "d"
+        },
+        {
+          "name": "delayCreateA",
+          "source": "AD",
+          "target": "AG",
+          "outEvents": [
+            "A"
+          ],
+          "observabilityLabel": "A",
+          "relevanceLabel": ""
+        },
+        {
+          "name": "failA",
+          "source": "A0",
+          "target": "A0",
+          "outEvents": [],
+          "observabilityLabel": "",
+          "relevanceLabel": "f"
+        },
+        {
+          "name": "failB",
+          "source": "AG",
+          "target": "A0",
+          "inEvent": "F",
+          "outEvents": [],
+          "observabilityLabel": "",
+          "relevanceLabel": ""
+        }
+      ]
+    },
+    {
+      "name": "B",
+      "states": [
+        "BD",
+        "B0",
+        "BG",
+        "B1"
+      ],
+      "initialState": "B0",
+      "transitions": [
+        {
+          "name": "getA",
+          "source": "B0",
+          "target": "B1",
+          "inEvent": "A",
+          "outEvents": [],
+          "observabilityLabel": "",
+          "relevanceLabel": ""
+        },
+        {
+          "name": "createB",
+          "source": "B1",
+          "target": "BG",
+          "outEvents": [],
+          "observabilityLabel": "B",
+          "relevanceLabel": ""
+        },
+        {
+          "name": "delayB",
+          "source": "B1",
+          "target": "BD",
+          "outEvents": [],
+          "observabilityLabel": "",
+          "relevanceLabel": "d"
+        },
+        {
+          "name": "delayCreateB",
+          "source": "BD",
+          "target": "BG",
+          "outEvents": [],
+          "observabilityLabel": "B",
+          "relevanceLabel": ""
+        },
+        {
+          "name": "failB",
+          "source": "B1",
+          "target": "B0",
+          "outEvents": [
+            "F"
+          ],
+          "observabilityLabel": "",
+          "relevanceLabel": "f"
+        }
+      ]
+    }
+  ],
+  "links": [
+    {
+      "name": "giveA",
+      "source": "A",
+      "target": "B"
+    },
+    {
+      "name": "failB",
+      "source": "B",
+      "target": "A"
+    }
+  ]
+}

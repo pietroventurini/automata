@@ -1,0 +1,55 @@
+{
+  "name": "B",
+  "states": [
+    "B0",
+    "B1",
+    "BG",
+    "BD"
+  ],
+  "initialState": "B0",
+  "transitions": [
+    {
+      "name": "getA",
+      "source": "B0",
+      "target": "B1",
+      "inEvent": "A",
+      "outEvents": [],
+      "observabilityLabel": "",
+      "relevanceLabel": ""
+    },
+    {
+      "name": "createB",
+      "source": "B1",
+      "target": "BG",
+      "outEvents": [],
+      "observabilityLabel": "B",
+      "relevanceLabel": ""
+    },
+    {
+      "name": "delayB",
+      "source": "B1",
+      "target": "BD",
+      "outEvents": [],
+      "observabilityLabel": "",
+      "relevanceLabel": "d"
+    },
+    {
+      "name": "delayCreateB",
+      "source": "BD",
+      "target": "BG",
+      "outEvents": [],
+      "observabilityLabel": "B",
+      "relevanceLabel": ""
+    },
+    {
+      "name": "failB",
+      "source": "B1",
+      "target": "B0",
+      "outEvents": [
+        "F"
+      ],
+      "observabilityLabel": "",
+      "relevanceLabel": "f"
+    }
+  ]
+}

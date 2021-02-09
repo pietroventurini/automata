@@ -1,0 +1,55 @@
+{
+  "name": "A",
+  "states": [
+    "A0",
+    "AD",
+    "AG"
+  ],
+  "initialState": "A0",
+  "transitions": [
+    {
+      "name": "produceA",
+      "source": "A0",
+      "target": "AG",
+      "outEvents": [
+        "A"
+      ],
+      "observabilityLabel": "A",
+      "relevanceLabel": ""
+    },
+    {
+      "name": "delayA",
+      "source": "A0",
+      "target": "AD",
+      "outEvents": [],
+      "observabilityLabel": "",
+      "relevanceLabel": "d"
+    },
+    {
+      "name": "delayCreateA",
+      "source": "AD",
+      "target": "AG",
+      "outEvents": [
+        "A"
+      ],
+      "observabilityLabel": "A",
+      "relevanceLabel": ""
+    },{
+      "name": "failA",
+      "source": "A0",
+      "target": "A0",
+      "outEvents": [],
+      "observabilityLabel": "",
+      "relevanceLabel": "f"
+    }
+    ,{
+      "name": "failB",
+      "source": "AG",
+      "target": "A0",
+      "inEvent": "F",
+      "outEvents": [],
+      "observabilityLabel": "",
+      "relevanceLabel": ""
+    }
+  ]
+}

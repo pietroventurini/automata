@@ -167,3 +167,4 @@ src/main/resources/files/*
 !src/main/resources/files/production/
 
 javadoc/
+!Automata.jar
